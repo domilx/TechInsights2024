@@ -41,7 +41,7 @@ function AppNavigator() {
           }}
         />
       </Tab.Navigator>
-      <FloatingButton />
+      <FloatingButton navigation={navigator} />
     </NavigationContainer>
   );
 }

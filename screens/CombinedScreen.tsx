@@ -12,7 +12,7 @@ export default function CombinedScreen() {
 
   return (
     <View style={styles.container}>
-    <SideBarScreen onTeamSelect={handleTeamSelect} />
+      <SideBarScreen onTeamSelect={handleTeamSelect} />
       <MainScreen team={selectedTeam} />
     </View>
   );
