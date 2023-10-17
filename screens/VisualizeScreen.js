@@ -1,19 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-export default function MainScreen({ team }) {
+export default function VisualizeScreen() {
   return (
     <View style={styles.container}>
-      <Text>{team}</Text>
+      <Text>Visualize Content Here</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 3,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
 });
