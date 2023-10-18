@@ -4,9 +4,9 @@ import { NavigationContainer } from "@react-navigation/native";
 import SimulateScreen from "./SimulateScreen";
 import LoginScreen from "./LoginScreen"; // Import your login
 import Icon from "react-native-vector-icons/Ionicons";
-import FloatingButton from "./FloatingButton";
+import FloatingButton from "./components/FloatingButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Teams from "./Teams";
+import Teams from "./Teams/Teams";
 import VisualizeScreen from "./VisualizeScreen";
 
 const Tab = createBottomTabNavigator();
@@ -49,7 +49,6 @@ function AppNavigator() {
         initialRouteName="Pits"
         screenOptions={{
           tabBarStyle: {
-            height: 90,
             paddingVertical: 10,
             backgroundColor: "#1E1E1E",
           },

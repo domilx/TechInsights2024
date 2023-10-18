@@ -6,14 +6,14 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import teams from "../jsons/teams.json";
+import teams from "../../jsons/teams.json";
 
 export default function SideBarScreen({ navigation }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
   const handlePress = (team) => {
     setSelectedTeam(team.teamName);
-    navigation.navigate("Main", { team }); // Pass the entire team object
+    navigation.navigate("Teams", { team }); // Pass the entire team object
     navigation.closeDrawer();
   };
 
@@ -23,7 +23,7 @@ export default function SideBarScreen({ navigation }) {
         styles.item,
         {
           backgroundColor:
-            selectedTeam === item.teamName ? "#B0B0B0" : "transparent",
+            selectedTeam === item.teamName ? "#636262" : "transparent",
         }, // Light grey for selected team
       ]}
       onPress={() => handlePress(item)}
@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderBottomWidth: 0.5,
     borderColor: "#ccc",
     paddingVertical: 15,
     paddingHorizontal: 10,
