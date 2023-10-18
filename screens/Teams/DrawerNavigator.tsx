@@ -4,7 +4,7 @@ import {
   DrawerNavigationProp,
   createDrawerNavigator,
 } from "@react-navigation/drawer";
-import MainScreen from "./MainScreen";
+import TeamScreen from "./TeamScreen";
 import DrawerScreen from "./DrawerScreen";
 import { RouteProp } from "@react-navigation/native";
 
@@ -25,7 +25,7 @@ export default function DrawerNavigator() {
       }}
       drawerContent={(props) => <DrawerScreen {...props} />}
     >
-      <Drawer.Screen name="Teams" component={MainScreen} />
+      <Drawer.Screen name="Teams" component={TeamScreen} />
     </Drawer.Navigator>
   );
 }
