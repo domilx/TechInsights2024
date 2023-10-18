@@ -1,10 +1,19 @@
 // Navigation.js
 import React from "react";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import {
+  DrawerNavigationProp,
+  createDrawerNavigator,
+} from "@react-navigation/drawer";
 import MainScreen from "./MainScreen";
 import SideBarScreen from "./SideBarScreen";
+import { RouteProp } from "@react-navigation/native";
 
 const Drawer = createDrawerNavigator();
+
+type SideBarScreenProps = {
+  navigation: DrawerNavigationProp<any, any>;
+  route?: RouteProp<any, any>;
+};
 
 export default function Teams() {
   return (

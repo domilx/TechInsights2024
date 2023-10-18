@@ -8,16 +8,16 @@ import {
 } from "react-native";
 import teams from "../../jsons/teams.json";
 
-export default function SideBarScreen({ navigation }) {
+export default function SideBarScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
-  const handlePress = (team) => {
+  const handlePress = (team : any) => {
     setSelectedTeam(team.teamName);
     navigation.navigate("Teams", { team }); // Pass the entire team object
     navigation.closeDrawer();
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item } : any) => (
     <TouchableOpacity
       style={[
         styles.item,
