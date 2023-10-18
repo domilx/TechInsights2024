@@ -3,10 +3,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import SimulateScreen from "./SimulateScreen";
 import LoginScreen from "./LoginScreen"; // Import your login
-import Icon from "react-native-vector-icons/Ionicons";
+import Icon from '@expo/vector-icons/Ionicons';
 import FloatingButton from "./components/FloatingButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Teams from "./Teams/Teams";
+import DrawerNavigator from "./Teams/DrawerNavigator";
 import VisualizeScreen from "./VisualizeScreen";
 
 const Tab = createBottomTabNavigator();
@@ -58,7 +58,7 @@ function AppNavigator() {
       >
         <Tab.Screen
           name="Teams"
-          component={Teams}
+          component={DrawerNavigator}
           options={({ route }) => ({
             headerShown: route.name !== "Teams",
             tabBarLabel: "Teams",

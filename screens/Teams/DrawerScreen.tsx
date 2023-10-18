@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import teams from "../../jsons/teams.json";
 
-export default function SideBarScreen({ navigation }: any) {
+export default function DrawerScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
   const handlePress = (team : any) => {

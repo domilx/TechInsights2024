@@ -5,17 +5,17 @@ import {
   createDrawerNavigator,
 } from "@react-navigation/drawer";
 import MainScreen from "./MainScreen";
-import SideBarScreen from "./SideBarScreen";
+import DrawerScreen from "./DrawerScreen";
 import { RouteProp } from "@react-navigation/native";
 
 const Drawer = createDrawerNavigator();
 
-type SideBarScreenProps = {
+type DrawerScreenProps = {
   navigation: DrawerNavigationProp<any, any>;
   route?: RouteProp<any, any>;
 };
 
-export default function Teams() {
+export default function DrawerNavigator() {
   return (
     <Drawer.Navigator
       screenOptions={{
@@ -23,7 +23,7 @@ export default function Teams() {
         headerTintColor: "#F6EB14",
         headerTitleStyle: { fontWeight: "bold" },
       }}
-      drawerContent={(props) => <SideBarScreen {...props} />}
+      drawerContent={(props) => <DrawerScreen {...props} />}
     >
       <Drawer.Screen name="Teams" component={MainScreen} />
     </Drawer.Navigator>

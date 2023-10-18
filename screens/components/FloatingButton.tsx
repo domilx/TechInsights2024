@@ -7,7 +7,11 @@ import {
   Animated,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import CameraScreen from "./CameraScreen";
+import CameraScreen from "../CameraScreen";
+import { Dimensions } from "react-native";
+
+const windowHeight = Dimensions.get("window").height;
+const windowWidth = Dimensions.get("window").width;
 
 export default function FloatingButton() {
   const [viewVisible, setViewVisible] = useState(false);
@@ -91,11 +95,11 @@ const styles = StyleSheet.create({
   expandingView: {
     position: "absolute",
     right: 20,
-    bottom: 170,
+    bottom: windowHeight * 0.15, // Adjust as needed
     backgroundColor: "#F8F8F8",
     borderRadius: 20,
-    width: 350,
-    height: 550,
+    width: windowWidth * 0.9,  // 90% of screen width
+    height: windowHeight * 0.7, // 70% of screen height
     zIndex: 999,
-  },
+},
 });
