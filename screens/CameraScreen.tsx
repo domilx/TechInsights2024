@@ -11,7 +11,11 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 
 const windowHeight = Dimensions.get("window").height;
 
-export default function App() {
+interface CameraScreenProps {
+  onDataScanned: (data: string) => void;
+}
+
+export default function CameraScreen({ onDataScanned }: CameraScreenProps) {
   const [hasPermission, setHasPermission] = useState<null | boolean>(null);
   const [scannedData, setScannedData] = useState(null);
   const [type, setType] = useState(BarCodeScanner.Constants.Type.back);
@@ -38,15 +42,15 @@ export default function App() {
     setWidth(bounds.size.width);
     setHeight(bounds.size.height);
     setIsQRVisible(true);
-  
+
     // Clear any existing timer
     if (qrTimeoutRef.current) clearTimeout(qrTimeoutRef.current);
-  
+
     // Start a new timer
     qrTimeoutRef.current = setTimeout(() => {
       setIsQRVisible(false);
     }, 1000); // Adjust this duration as needed. For example, 1000 ms = 1 second
-  };  
+  };
 
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -56,12 +60,12 @@ export default function App() {
   }
   function handleCapture(): void {
     if (scannedData) {
-      alert("Scanned Data: " + scannedData);
+      onDataScanned(scannedData);
       setIsQRVisible(false);
     } else {
       alert("No QR code detected.");
     }
-  } 
+  }
 
   return (
     <SafeAreaView style={styles.container}>
