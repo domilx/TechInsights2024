@@ -6,16 +6,14 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Dimensions,
+  Platform,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 const windowHeight = Dimensions.get("window").height;
+const windowWidth = Dimensions.get("window").width;
 
-interface CameraScreenProps {
-  onDataScanned: (data: string) => void;
-}
-
-export default function CameraScreen({ onDataScanned }: CameraScreenProps) {
+export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState<null | boolean>(null);
   const [scannedData, setScannedData] = useState(null);
   const [type, setType] = useState(BarCodeScanner.Constants.Type.back);
@@ -60,7 +58,6 @@ export default function CameraScreen({ onDataScanned }: CameraScreenProps) {
   }
   function handleCapture(): void {
     if (scannedData) {
-      onDataScanned(scannedData);
       setIsQRVisible(false);
     } else {
       alert("No QR code detected.");
@@ -68,7 +65,7 @@ export default function CameraScreen({ onDataScanned }: CameraScreenProps) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <BarCodeScanner
         style={styles.camera}
         type={type}
@@ -95,14 +92,15 @@ export default function CameraScreen({ onDataScanned }: CameraScreenProps) {
           ></TouchableOpacity>
         </View>
       </BarCodeScanner>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
+  container : {
+    flex: 1, // This will ensure the container fills the whole screen
+    justifyContent: "center", // Center children vertically
+    alignItems: "center", // Center children horizontally
   },
   buttonContainer: {
     position: "absolute",
@@ -122,7 +120,9 @@ const styles = StyleSheet.create({
     borderColor: "#D6E0D9",
   },
   camera: {
-    flex: 1,
+    height: windowHeight,
+    width: windowWidth,
+    justifyContent: "flex-start", // Align the scanner view to the top
   },
   overlay: {
     flex: 1,

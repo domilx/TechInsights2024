@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-function ScannedDataScreen(props: any) {
+export default function ConfirmDataScreen({ route }: any) {
+  // Get the scanned data passed through the navigation parameter
+  const { data } = route.params;
+
   return (
     <View style={styles.container}>
-      <Text>Scanned Data: {props.data}</Text>
+      <Text style={styles.text}>{data}</Text>
     </View>
   );
 }
@@ -15,6 +18,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  text: {
+    fontSize: 16,
+    padding: 20,
+  },
 });
-
-export default ScannedDataScreen;
