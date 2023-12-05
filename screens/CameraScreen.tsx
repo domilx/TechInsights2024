@@ -13,7 +13,7 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 
-export default function CameraScreen() {
+export default function CameraScreen({ closeModal, handleConfirmData }: any) {
   const [hasPermission, setHasPermission] = useState<null | boolean>(null);
   const [scannedData, setScannedData] = useState(null);
   const [type, setType] = useState(BarCodeScanner.Constants.Type.back);
@@ -57,8 +57,9 @@ export default function CameraScreen() {
     return <Text>No access to camera</Text>;
   }
   function handleCapture(): void {
-    if (scannedData) {
+    if (isQRVisible && scannedData) {
       setIsQRVisible(false);
+      handleConfirmData(scannedData); // Use the passed function
     } else {
       alert("No QR code detected.");
     }
@@ -84,25 +85,28 @@ export default function CameraScreen() {
             }}
           />
         )}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            activeOpacity={1}
-            style={styles.circleButton}
-            onPress={handleCapture}
-          ></TouchableOpacity>
-        </View>
       </BarCodeScanner>
+      <View style={styles.centerContainer}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.circleButton}
+          onPress={handleCapture}
+        />
+      </View>
+      <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
+        <Text style={styles.cancelButtonText}>Cancel</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container : {
+  container: {
     flex: 1, // This will ensure the container fills the whole screen
     justifyContent: "center", // Center children vertically
     alignItems: "center", // Center children horizontally
   },
-  buttonContainer: {
+  centerContainer: {
     position: "absolute",
     bottom: windowHeight * 0.05,
     alignSelf: "center",
@@ -113,11 +117,29 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     justifyContent: "center",
     alignItems: "center",
-    bottom: 40,
     backgroundColor: "rgba(21, 21, 23, 0.7)",
     elevation: 10,
     borderWidth: 4,
     borderColor: "#D6E0D9",
+  },
+  cancelButton: {
+    position: "absolute",
+    bottom: windowHeight * 0.05 + 15,
+    right: 80, // Adjust this value based on where you want the button
+    padding: 10,
+    backgroundColor: "#FF3B30",
+    borderRadius: 5,
+  },
+  cancelButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: windowHeight * 0.05,
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "center", // Center the buttons horizontally
   },
   camera: {
     height: windowHeight,

@@ -1,10 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function ConfirmDataScreen({ route }: any) {
-  // Get the scanned data passed through the navigation parameter
-  const { data } = route.params;
-
+export default function ConfirmDataScreen({ data }: any) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>{data}</Text>
