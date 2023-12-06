@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
+import { useNavigation } from "@react-navigation/native";
 
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
@@ -22,6 +23,8 @@ export default function CameraScreen({ closeModal, handleConfirmData }: any) {
   const [y, setY] = useState(0);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+
+  const navigation = useNavigation();
 
   const qrTimeoutRef = useRef<any>(null);
 
@@ -59,7 +62,7 @@ export default function CameraScreen({ closeModal, handleConfirmData }: any) {
   function handleCapture(): void {
     if (isQRVisible && scannedData) {
       setIsQRVisible(false);
-      handleConfirmData(scannedData); // Use the passed function
+      navigation.navigate('ConfirmDataScreen', { data: scannedData });
     } else {
       alert("No QR code detected.");
     }
@@ -93,9 +96,6 @@ export default function CameraScreen({ closeModal, handleConfirmData }: any) {
           onPress={handleCapture}
         />
       </View>
-      <TouchableOpacity style={styles.cancelButton} onPress={closeModal}>
-        <Text style={styles.cancelButtonText}>Cancel</Text>
-      </TouchableOpacity>
     </View>
   );
 }
