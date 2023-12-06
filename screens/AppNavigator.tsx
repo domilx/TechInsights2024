@@ -9,8 +9,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DrawerNavigator from "./Teams/DrawerNavigator";
 import VisualizeScreen from "./VisualizeScreen";
 import { createStackNavigator } from "@react-navigation/stack";
-import CameraScreen from "./CameraScreen";
 import ConfirmDataScreen from "./ConfirmDataScreen";
+import CameraScanScreen from "./CameraScanScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -131,8 +131,8 @@ function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen
-          name="CameraScreen"
-          component={CameraScreen}
+          name="CameraScanScreen"
+          component={CameraScanScreen}
           options={{
             headerStyle: {
               backgroundColor: "#1E1E1E",
