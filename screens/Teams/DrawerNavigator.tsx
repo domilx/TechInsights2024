@@ -10,11 +10,6 @@ import { RouteProp } from "@react-navigation/native";
 
 const Drawer = createDrawerNavigator();
 
-type DrawerScreenProps = {
-  navigation: DrawerNavigationProp<any, any>;
-  route?: RouteProp<any, any>;
-};
-
 export default function DrawerNavigator() {
   return (
     <Drawer.Navigator

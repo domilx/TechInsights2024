@@ -31,6 +31,7 @@ export interface MatchModel {
     TeleopStatus4: boolean; //Robot Tippy
     TeleopStatus5: Speed; //Robot Quickness
     TeleopStatus6: Aware; //Field Awareness
+    gotScanned: boolean;
   }
   
   export enum Position {
@@ -92,5 +93,6 @@ export interface MatchModel {
     TeleopStatus4: false,
     TeleopStatus5: Speed.Average,
     TeleopStatus6: Aware.Normal,
+    gotScanned: false,
   };
   

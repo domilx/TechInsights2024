@@ -1,28 +1,55 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { PitModel } from "../../models/PitModel";
+import displayPitData from "../../models/DisplayPitData";
 
 export default function TeamScreen({ route }: any) {
-  const team = route.params ? route.params.team : null;
+  const team: PitModel = route.params ? route.params.team : null;
 
-  if (!team)
+  if (!team) {
     return (
       <View style={styles.container}>
-        <Text>Please select a team to view it's stats</Text>
+        <Text>Please select a team to view its stats</Text>
       </View>
     );
+  }
+
+  const teamData = displayPitData(team);
 
   return (
-    <View style={styles.container}>
-      <Text>Team Number: {team.teamNumber}</Text>
-      <Text>Team Name: {team.teamName}</Text>
-    </View>
+    <ScrollView style={styles.scrollView}>
+      <View style={styles.container}>
+        {teamData.map((item, index) => (
+          <View key={index} style={styles.item}>
+            <Text style={styles.label}>{item.label}:</Text>
+            <Text style={styles.value}>{item.value}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 
+
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#fff', // change color as needed
+  },
   container: {
-    flex: 3,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 20,
+  },
+  item: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  label: {
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  value: {
+    flex: 1,
+    flexWrap: 'wrap',
   },
 });
