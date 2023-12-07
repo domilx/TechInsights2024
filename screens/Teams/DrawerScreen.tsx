@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import { Button } from "react-native";
@@ -18,6 +19,8 @@ export default function DrawerScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [lastSync, setLastSync] = useState("");
   const [teams, setTeams] = useState<PitModel[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const handlePress = (team: any) => {
     setSelectedTeam(team.teamName);
@@ -28,16 +31,23 @@ export default function DrawerScreen({ navigation }: any) {
   const getLastSyncDisplay = () => {
     if (!lastSync) return "Never synced";
     const date = new Date(lastSync);
-    return `Last synced: ${date.toLocaleDateString()} @ ${date.toLocaleTimeString()}`;
+    const daysSince = Math.floor(
+      (new Date().getTime() - date.getTime()) / (1000 * 3600 * 24)
+    );
+    if (daysSince === 0) return `Last synced Today @ ${date.toLocaleTimeString()}`;
+    else if (daysSince === 1) return `Last synced Yesterday @ ${date.toLocaleTimeString()}`;
+    return `Last synced: ${daysSince} days ago @ ${date.toLocaleTimeString()}`;
   };
 
   const handleSync = async () => {
     try {
+      setIsLoading(true);
       // Fetch locally stored data
       const localPitData = await AsyncStorage.getItem("pitData");
       const localMatchData = await AsyncStorage.getItem("matchData");
 
       if (localPitData) {
+        setLoadingMessage("Uploading local Pit data");
         const resultPit = await uploadPitData(
           JSON.parse(localPitData),
           alwaysConfirm
@@ -50,6 +60,7 @@ export default function DrawerScreen({ navigation }: any) {
       }
 
       if (localMatchData) {
+        setLoadingMessage("Uploading local Match data");
         const resultMatch = await uploadMatchData(
           JSON.parse(localMatchData),
           alwaysConfirm
@@ -61,6 +72,7 @@ export default function DrawerScreen({ navigation }: any) {
         await AsyncStorage.removeItem("matchData");
       }
 
+      setLoadingMessage("Fetching data");
       const fetchedData: PitModel[] =
         (await fetchDataFromFirebase()) as PitModel[];
       if (fetchedData) {
@@ -77,7 +89,9 @@ export default function DrawerScreen({ navigation }: any) {
       } else {
         throw new Error("Failed to fetch data from Firebase.");
       }
+      setIsLoading(false);
     } catch (error: any) {
+      setIsLoading(false);
       // If there's an error, alert the user and don't update the synced data
       Alert.alert("Sync Failed", error.message);
     }
@@ -134,24 +148,18 @@ export default function DrawerScreen({ navigation }: any) {
   
     loadLastSyncTime();
   }, []);
-  
-
-  const formatSyncTime = (isoString: any) => {
-    if (!isoString) return "Never synced";
-
-    const date = new Date(isoString);
-    const now = new Date();
-
-    // Here you can format the date as you like, e.g., '2 days ago'
-    // For simplicity, we'll just return the ISO string
-    return `Last synced: ${date.toLocaleString()}`;
-  };
 
   return (
     <View style={styles.container}>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#F6EB14" />
+          <Text style={styles.loadingText}>{loadingMessage}</Text>
+        </View>
+      )}
       <View style={styles.sync}>
         <Button title="Sync Data" onPress={handleSync} />
-        <Text>{getLastSyncDisplay()}</Text>
+        <Text style={styles.syncText}>{getLastSyncDisplay()}</Text>
       </View>
       <FlatList
         data={teams}
@@ -175,6 +183,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     color: "#F6EB14",
   },
+  syncText: {
+    color: "#5C5C5C",
+    fontSize: 14,
+  },
   item: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -197,5 +209,21 @@ const styles = StyleSheet.create({
   },
   listHeader: {
     height: 10, // Adjust this height as needed for your design
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    borderRadius: 10,
+  },
+  loadingText: {
+    marginTop: 20,
+    color: '#FFFFFF',
   },
 });
