@@ -106,7 +106,7 @@ export const uploadMatchData = async (
         return { worked: false, message: "Team creation canceled by user." };
 
       // Create an empty team document and upload the match data
-      await setDoc(teamRef, { /* empty team data or minimal structure */ });
+      await setDoc(teamRef, { TeamNb: matchData.TeamNumber });
     }
 
     // Proceed to upload the match data

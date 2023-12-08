@@ -39,6 +39,17 @@ export default function DrawerScreen({ navigation }: any) {
     return `Last synced: ${daysSince} days ago @ ${date.toLocaleTimeString()}`;
   };
 
+  const handleSyncButtonPress = () => {
+    Alert.alert(
+      "Confirmation",
+      "This action will upload the offline scanned data and download newer versions of data from the server. Are you sure?",
+      [
+        { text: "Cancel", onPress: () => {} },
+        { text: "OK", onPress: handleSync },
+      ]
+    );
+  }
+
   const handleSync = async () => {
     try {
       setIsLoading(true);
@@ -94,6 +105,30 @@ export default function DrawerScreen({ navigation }: any) {
       setIsLoading(false);
       // If there's an error, alert the user and don't update the synced data
       Alert.alert("Sync Failed", error.message);
+    }
+  };
+
+  const handleClearButton = () => {
+    Alert.alert(
+      "Confirmation",
+      "This action will clear all data stored locally awaitng upload. Are 100% you sure?",
+      [
+        { text: "Cancel", onPress: () => {} },
+        { text: "OK", onPress: handleClear },
+      ]
+    );
+  }
+
+  const handleClear = async () => {
+    try {
+      setIsLoading(true);
+      await AsyncStorage.removeItem("matchData");
+      await AsyncStorage.removeItem("pitData")
+      setIsLoading(false);
+      Alert.alert("Success", "All data cleared successfully");
+    } catch (error: any) {
+      setIsLoading(false);
+      Alert.alert("Error", error.message);
     }
   };
 
@@ -158,7 +193,11 @@ export default function DrawerScreen({ navigation }: any) {
         </View>
       )}
       <View style={styles.sync}>
-        <Button title="Sync Data" onPress={handleSync} />
+        <View style={{ flexDirection: "row" }}>
+          <Button title="Sync Data" onPress={handleSyncButtonPress} />
+          <Text> </Text>
+          <Button color={"red"} title="Clear Pending" onPress={handleClearButton} />
+        </View>
         <Text style={styles.syncText}>{getLastSyncDisplay()}</Text>
       </View>
       <FlatList

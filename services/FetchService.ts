@@ -1,5 +1,6 @@
 import { db } from "../firebase"; // Make sure to import your Firebase configuration
 import { collection, getDocs, getDoc, doc } from "firebase/firestore";
+import { MatchModel } from "../models/MatchModel";
 
 export const fetchDataFromFirebase = async () => {
   const teamsCol = collection(db, "teams");

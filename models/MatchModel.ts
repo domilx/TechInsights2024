@@ -4,19 +4,25 @@ export interface MatchModel {
     TeamNumber: number;
     MatchNumber: number;
     //Auto 
-    AutoGamePiece1: TBD; //to be determined
-    AutoGamePiece2: string; //to be determined
-    AutoGamePiece3: string; //to be determined
-    AutoGamePiece4: string; //to be determined
+    AutoGamePiece1: number;
+    AutoGamePiece2: number;
+    AutoGamePiece3: number;
+    AutoGamePiece4: number;
     AutoPosition: Position;
     AutoMobility: boolean;
-    AutoChargingStation: ChargingStation;
-    AutoObjective1: TBD; //to be determined
-    AutoObjective2: TBD; //to be determined
+    AutoObjective1: boolean;
+    AutoObjective2: boolean;
+    AutoObjective3: boolean;
+    AutoObjective4: boolean;
     AutoRobotFalls: boolean;
     //Teleop + Endgame
     CycleTime: number;
     EndGameObjective1: boolean;
+    EndGameObjective2: boolean;
+    EndGameObjective3: boolean;
+    EndGameObjective4: boolean;
+    EndGameObjective5: boolean;
+    EndGameObjective6: boolean;
     DroppedGamePiece: number;
     // Robot Performance + match results
     Comment: string;
@@ -31,6 +37,10 @@ export interface MatchModel {
     TeleopStatus4: boolean; //Robot Tippy
     TeleopStatus5: Speed; //Robot Quickness
     TeleopStatus6: Aware; //Field Awareness
+    TeleopGamePeice1: number; //Cubes
+    TeleopGamePeice2: number; //Cones
+    TeleopGamePeice3: number; //N/A
+    TeleopGamePeice4: number; //n/A
     gotScanned: boolean;
   }
   
@@ -38,18 +48,6 @@ export interface MatchModel {
     Left = "Left",
     Middle = "Middle",
     Right = "Right",
-  }
-  
-  export enum ChargingStation {
-    Failed = "Failed",
-    Docked = "Docked",
-    Engaged = "Engaged",
-  }
-  
-  export enum TBD {
-    Option1 = "Option 1",
-    Option2 = "Option 2",
-    Option3 = "Option 3",
   }
   
   export enum Speed {
@@ -68,18 +66,24 @@ export interface MatchModel {
     ScoutName: "",
     TeamNumber: 0,
     MatchNumber: 0,
-    AutoGamePiece1: TBD.Option1, 
-    AutoGamePiece2: TBD.Option1,
-    AutoGamePiece3: TBD.Option1,
-    AutoGamePiece4: TBD.Option1,
+    AutoGamePiece1: 0, 
+    AutoGamePiece2: 0,
+    AutoGamePiece3: 0,
+    AutoGamePiece4: 0,
     AutoPosition: Position.Middle,
     AutoMobility: false,
-    AutoChargingStation: ChargingStation.Failed,
-    AutoObjective1: TBD.Option1,
-    AutoObjective2: TBD.Option1,
+    AutoObjective1: false,
+    AutoObjective2: false,
+    AutoObjective3: false,
+    AutoObjective4: false,
     AutoRobotFalls: false,
     CycleTime: 0,
     EndGameObjective1: false,
+    EndGameObjective2: false,
+    EndGameObjective3: false,
+    EndGameObjective4: false,
+    EndGameObjective5: false,
+    EndGameObjective6: false,
     DroppedGamePiece: 0,
     Comment: "",
     TotalPointsAlliance: 0,
@@ -93,6 +97,10 @@ export interface MatchModel {
     TeleopStatus4: false,
     TeleopStatus5: Speed.Average,
     TeleopStatus6: Aware.Normal,
+    TeleopGamePeice1: 0,
+    TeleopGamePeice2: 0,
+    TeleopGamePeice3: 0,
+    TeleopGamePeice4: 0,
     gotScanned: false,
   };
   
