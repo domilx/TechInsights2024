@@ -47,7 +47,7 @@ const TeamScreen = ({ route }: any) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const matches = team?.matches || [];
 
-  if (!team) {
+  if (team == initialPitData) {
     return (
       <View style={styles.noTeamContainer}>
         <Text>Please select a team to view its stats</Text>

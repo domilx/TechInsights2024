@@ -28,8 +28,8 @@ export interface MatchModel {
     Comment: string;
     TotalPointsAlliance: number;
     RankingPointsAlliance: number;
-    AllianceObjective1: number;
-    AllianceObjective2: boolean;
+    AllianceObjective1: number; //Links
+    AllianceObjective2: boolean; //Coopertition
     WonMatch: boolean;
     TeleopStatus1: boolean; //Robot falls
     TeleopStatus2: boolean; //Incapacitated? --> if more than 8 seconds then considered YES

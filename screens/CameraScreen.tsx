@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
-export default function CameraScanScreen() {
+export default function CameraScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(CameraType.back);
   const [scannedData, setScannedData] = useState(null);

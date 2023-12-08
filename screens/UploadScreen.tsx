@@ -15,7 +15,7 @@ import { uploadPitData, uploadMatchData } from "../services/UploadService"; // I
 import Icon from "@expo/vector-icons/Ionicons";
 import Animated from "react-native-reanimated";
 
-export default function ConfirmDataScreen({ route, navigation }: any) {
+export default function UploadScreen({ route, navigation }: any) {
   const { data } = route.params;
   const [isLoading, setIsLoading] = useState(false);
 
