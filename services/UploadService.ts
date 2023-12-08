@@ -1,7 +1,7 @@
 import { TapGestureHandler } from "./../node_modules/react-native-gesture-handler/src/handlers/TapGestureHandler";
 import firebase from "firebase/app";
 import "firebase/firestore";
-import { PitModel } from "../models/PitModel";
+import { PitModel, initialPitData } from "../models/PitModel";
 import { MatchModel } from "../models/MatchModel";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -106,7 +106,7 @@ export const uploadMatchData = async (
         return { worked: false, message: "Team creation canceled by user." };
 
       // Create an empty team document and upload the match data
-      await setDoc(teamRef, { TeamNb: matchData.TeamNumber });
+      await setDoc(teamRef, initialPitData);
     }
 
     // Proceed to upload the match data

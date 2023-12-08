@@ -95,7 +95,6 @@ export default function DrawerScreen({ navigation }: any) {
         setLastSync(lastSyncTime); // Update the state to trigger re-render
         setTeams(fetchedData); // Update the local state to reflect the new teams data
 
-        console.log("Synced data: ", JSON.stringify(fetchedData, null, 2));
         Alert.alert("Sync Complete", "All data is synced!");
       } else {
         throw new Error("Failed to fetch data from Firebase.");

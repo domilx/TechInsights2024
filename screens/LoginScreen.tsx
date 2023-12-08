@@ -23,7 +23,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
       onLogin();
     } else {
       Alert.alert("Incorrect Password", "Please try again.", [
-        { text: "OK", onPress: () => console.log("OK Pressed") },
+        { text: "OK", onPress: () => {} },
       ]);
     }
   };

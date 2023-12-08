@@ -14,13 +14,38 @@ import { PitModel } from "../../models/PitModel";
 import { MatchModel } from "../../models/MatchModel";
 import displayMatchData from "../../models/DisplayMatchData";
 import Icon from "@expo/vector-icons/Ionicons";
+import {
+  getMatchesPlayed,
+  getMatchesWon,
+  getCurrentRankingPoints,
+  getAverageRankingPoints,
+  getAverageCycleTime,
+  getMostFrequentAutoPosition,
+  getAutoMobilityPercentage,
+  getAutoAverageScore,
+  getAverageAutoGamePieces,
+  getAverageAutoObjectivesAchieved,
+  getAverageTeleopGamePiecesScored,
+  getMaxGamePieces,
+  getMinGamePieces,
+  getStandardDeviationOfGamePieces,
+  getAverageDroppedGamePieces,
+  getTimesIncapacitated,
+  getTimesRobotFalls,
+  getAverageRobotTippyScore,
+  getAveragePlaysDefenseScore,
+  getAverageRobotFieldAwareness,
+  getAverageRobotQuickness
+} from '../../models/StatsCalculations';
+import { initialPitData } from "../../models/PitModel";
 
 const TeamScreen = ({ route }: any) => {
-  const team: PitModel = route.params?.team;
+  const team: PitModel = route.params?.team || initialPitData;
   const [selectedMatch, setSelectedMatch] = useState<MatchModel | undefined>(
     team?.matches?.[0]
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const matches = team?.matches || [];
 
   if (!team) {
     return (
@@ -97,7 +122,7 @@ const TeamScreen = ({ route }: any) => {
       </View>
 
       <View style={styles.robotDetails}>
-        <Text style={styles.detailItem}>Matches Played: </Text>
+        <Text style={styles.detailItem}>Matches Played: {getMatchesPlayed(matches)}</Text>
       </View>
 
       <TouchableOpacity
