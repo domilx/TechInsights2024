@@ -29,7 +29,7 @@ export default function CameraScreen() {
 
   function handleCapture() {
     if (scannedData) {
-      navigation.navigate('ConfirmDataScreen', { data: scannedData }); //Type error ignored
+      navigation.navigate('UploadScreen', { data: scannedData }); //Type error ignored
     } else {
       alert("No QR code detected.");
     }
