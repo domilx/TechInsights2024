@@ -7,30 +7,34 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  Button,
 } from "react-native";
 
-import { Button } from "react-native";
-import { uploadMatchData, uploadPitData } from "../../services/UploadService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchDataFromFirebase } from "../../services/FetchService";
-import { PitModel } from "../../models/PitModel";
+import { PitModel, initialPitData } from "../../models/PitModel";
+import { syncData } from "../../services/SyncService";
 
 export default function DrawerScreen({ navigation }: any) {
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [lastSync, setLastSync] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<string>("");
   const [teams, setTeams] = useState<PitModel[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
 
-  const handlePress = (team: any) => {
-    setSelectedTeam(team.teamName);
-    navigation.navigate("Teams", { team }); // Pass the entire team object
+  // Define a default team name (change this to your desired default team)
+  const defaultTeamName = "Default Team";
+
+  const handlePress = (team: PitModel) => {
+    setSelectedTeam(team.RobTeamNm);
+    navigation.navigate("Teams", { team });
     navigation.closeDrawer();
   };
 
   const getLastSyncDisplay = () => {
     if (!lastSync) return "Never synced";
     const date = new Date(lastSync);
+    console.log(date);
+    console.log(lastSync)
     const daysSince = Math.floor(
       (new Date().getTime() - date.getTime()) / (1000 * 3600 * 24)
     );
@@ -38,6 +42,7 @@ export default function DrawerScreen({ navigation }: any) {
     else if (daysSince === 1) return `Last synced Yesterday @ ${date.toLocaleTimeString()}`;
     return `Last synced: ${daysSince} days ago @ ${date.toLocaleTimeString()}`;
   };
+
 
   const handleSyncButtonPress = () => {
     Alert.alert(
@@ -48,81 +53,62 @@ export default function DrawerScreen({ navigation }: any) {
         { text: "OK", onPress: handleSync },
       ]
     );
-  }
+  };
 
   const handleSync = async () => {
-    try {
-      setIsLoading(true);
-      // Fetch locally stored data
-      const localPitData = await AsyncStorage.getItem("pitData");
-      const localMatchData = await AsyncStorage.getItem("matchData");
+    setIsLoading(true);
+    const response = await syncData();
+    setIsLoading(false);
 
-      if (localPitData) {
-        setLoadingMessage("Uploading local Pit data");
-        const resultPit = await uploadPitData(
-          JSON.parse(localPitData),
-          alwaysConfirm
+    if (response.success) {
+      if ("data" in response && Array.isArray(response.data)) {
+        const teamData = response.data as PitModel[];
+        setTeams(teamData);
+
+        // Check if the default team exists in the synced data
+        const defaultTeam = teamData.find(
+          (team) => team.RobTeamNm === defaultTeamName
         );
-        if (!resultPit.worked) {
-          Alert.alert("Error", resultPit.message);
-          return;
+
+        if (defaultTeam) {
+          setSelectedTeam(defaultTeamName); // Set the default team as selected
+          setIsTeamSelected(true); // Indicate that a team is selected
+        } else {
+          setSelectedTeam(null); // Reset selected team if default team is not found
+          setIsTeamSelected(false);
         }
-        await AsyncStorage.removeItem("pitData");
-      }
 
-      if (localMatchData) {
-        setLoadingMessage("Uploading local Match data");
-        const resultMatch = await uploadMatchData(
-          JSON.parse(localMatchData),
-          alwaysConfirm
-        );
-        if (!resultMatch.worked) {
-          Alert.alert("Error", resultMatch.message);
-          return;
-        }
-        await AsyncStorage.removeItem("matchData");
-      }
-
-      setLoadingMessage("Fetching data");
-      const fetchedData: PitModel[] =
-        (await fetchDataFromFirebase()) as PitModel[];
-      if (fetchedData) {
-        await saveDataLocally("fetchedData", fetchedData);
-
-        // Record the current time as the last sync time
         const lastSyncTime = new Date().toISOString();
-        await AsyncStorage.setItem("lastSyncTime", lastSyncTime);
-        setLastSync(lastSyncTime); // Update the state to trigger re-render
-        setTeams(fetchedData); // Update the local state to reflect the new teams data
 
-        Alert.alert("Sync Complete", "All data is synced!");
+        // Save the updated teams data locally
+        saveDataLocally("fetchedData", teamData);
+        saveDataLocally("lastSyncTime", lastSyncTime);
+
+        Alert.alert("Sync Complete", response.message);
       } else {
-        throw new Error("Failed to fetch data from Firebase.");
+        Alert.alert("Error", "Sync completed but no data returned.");
       }
-      setIsLoading(false);
-    } catch (error: any) {
-      setIsLoading(false);
-      // If there's an error, alert the user and don't update the synced data
-      Alert.alert("Sync Failed", error.message);
+    } else {
+      Alert.alert("Sync Failed", response.message);
     }
   };
 
   const handleClearButton = () => {
     Alert.alert(
       "Confirmation",
-      "This action will clear all data stored locally awaitng upload. Are 100% you sure?",
+      "This action will clear all data stored locally awaiting upload. Are you 100% sure?",
       [
         { text: "Cancel", onPress: () => {} },
         { text: "OK", onPress: handleClear },
       ]
     );
-  }
+  };
 
   const handleClear = async () => {
     try {
       setIsLoading(true);
       await AsyncStorage.removeItem("matchData");
-      await AsyncStorage.removeItem("pitData")
+      await AsyncStorage.removeItem("pitData");
       setIsLoading(false);
       Alert.alert("Success", "All data cleared successfully");
     } catch (error: any) {
@@ -131,10 +117,7 @@ export default function DrawerScreen({ navigation }: any) {
     }
   };
 
-  // Define alwaysConfirm here or import it from where it is defined
-  const alwaysConfirm = () => Promise.resolve(true);
-
-  const saveDataLocally = async (key: any, data: any) => {
+  const saveDataLocally = async (key: string, data: any) => {
     try {
       const jsonValue = JSON.stringify(data);
       await AsyncStorage.setItem(key, jsonValue);
@@ -149,13 +132,15 @@ export default function DrawerScreen({ navigation }: any) {
         styles.item,
         {
           backgroundColor:
-            selectedTeam === item.TeamNb ? "#636262" : "transparent",
+            selectedTeam === item.RobTeamNm ? "#636262" : "transparent",
         },
       ]}
       onPress={() => handlePress(item)}
     >
       <Text
-        style={selectedTeam === item.TeamNb ? styles.selectedText : styles.text}
+        style={
+          selectedTeam === item.RobTeamNm ? styles.selectedText : styles.text
+        }
       >
         {item.RobTeamNm}
       </Text>
@@ -165,14 +150,14 @@ export default function DrawerScreen({ navigation }: any) {
 
   useEffect(() => {
     const loadTeamsData = async () => {
-      const teamsData = await AsyncStorage.getItem("fetchedData"); // Make sure this key matches the one used in handleSync
+      const teamsData = await AsyncStorage.getItem("fetchedData");
       if (teamsData) {
         setTeams(JSON.parse(teamsData));
       }
     };
-  
+
     loadTeamsData();
-  
+
     const loadLastSyncTime = async () => {
       const lastSyncTime = await AsyncStorage.getItem("lastSyncTime");
       if (lastSyncTime) {
@@ -188,14 +173,18 @@ export default function DrawerScreen({ navigation }: any) {
       {isLoading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#F6EB14" />
-          <Text style={styles.loadingText}>{loadingMessage}</Text>
+          <Text style={styles.loadingText}>Syncing...</Text>
         </View>
       )}
       <View style={styles.sync}>
         <View style={{ flexDirection: "row" }}>
           <Button title="Sync Data" onPress={handleSyncButtonPress} />
           <Text> </Text>
-          <Button color={"red"} title="Clear Pending" onPress={handleClearButton} />
+          <Button
+            color={"red"}
+            title="Clear Pending"
+            onPress={handleClearButton}
+          />
         </View>
         <Text style={styles.syncText}>{getLastSyncDisplay()}</Text>
       </View>
@@ -246,13 +235,13 @@ const styles = StyleSheet.create({
     color: "#F6EB14",
   },
   listHeader: {
-    height: 10, // Adjust this height as needed for your design
+    height: 10,
   },
   loadingOverlay: {
-    position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     top: 0,
     bottom: 0,
     left: 0,
@@ -262,6 +251,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 20,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
 });

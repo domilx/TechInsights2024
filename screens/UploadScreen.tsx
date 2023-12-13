@@ -11,95 +11,84 @@ import {
 } from "react-native";
 import { MatchModel } from "../models/MatchModel";
 import { PitModel } from "../models/PitModel";
-import { uploadPitData, uploadMatchData } from "../services/UploadService"; // Import the upload functions
 import Icon from "@expo/vector-icons/Ionicons";
 import Animated from "react-native-reanimated";
+import { syncData } from "../services/SyncService";
+import {
+  uploadMatchDataToFirebase,
+  uploadPitDataToFirebase,
+} from "../services/FirebaseService";
+import { doc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function UploadScreen({ route, navigation }: any) {
   const { data } = route.params;
   const [isLoading, setIsLoading] = useState(false);
+  let parsedData: MatchModel | PitModel;
 
-  // Parse the JSON data
-  const parsedData = JSON.parse(data);
-
-  // Function to render MatchModel data
-  const renderMatchModel = (matchData: MatchModel) => {
-    return Object.entries(matchData).map(([key, value], index) => (
-      <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>
-    ));
-  };
-
-  // Function to render PitModel data
-  const renderPitModel = (pitData: PitModel) => {
-    return Object.entries(pitData).map(([key, value], index) => (
-      <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>
-    ));
-  };
+  try {
+    parsedData = JSON.parse(data);
+    // Perform additional validation if necessary
+  } catch (e) {
+    Alert.alert("Error", "The scanned data is not valid JSON.");
+    navigation.goBack();
+    return null;
+  }
 
   // Function to handle upload
   const handleUpload = async () => {
-    let result: { worked: boolean; message: string };
+    setIsLoading(true);
+    let result;
 
-    const confirmOverride = () => {
-      return new Promise<boolean>((resolve) => {
-        Alert.alert(
-          "Confirmation",
-          "This action will override existing data. Are you sure?",
-          [
-            { text: "Cancel", onPress: () => resolve(false) },
-            { text: "OK", onPress: () => resolve(true) },
-          ]
-        );
-      });
-    };
-
-    if (isMatchModel) {
-      setIsLoading(true);
-      result = await uploadMatchData(parsedData, confirmOverride);
-      if (result.worked) {
-        setIsLoading(false);
-        Alert.alert(
-          "Success",
-          "Data uploaded successfully, You will only see the changes once you SYNC the data",
-          [
-            {
-              text: "OK",
-              onPress: () => result.worked && navigation.navigate("MainTabs"),
-            },
-          ]
-        );
-      } else {
-        setIsLoading(false);
-        Alert.alert("Error", result.message);
-      }
+    // Assuming "MatchNumber" is unique to MatchModel, which differentiates it from PitModel
+    if ("MatchNumber" in parsedData) {
+      // Now TypeScript knows parsedData must be MatchModel
+      const matchData = parsedData as MatchModel;
+      const teamRef = doc(db, "teams", `${matchData.TeamNumber}`);
+      const matchRef = doc(
+        db,
+        `teams/${matchData.TeamNumber}/matches`,
+        `${matchData.MatchNumber}`
+      );
+      result = await uploadMatchDataToFirebase(matchData, teamRef, matchRef);
     } else {
-      result = await uploadPitData(parsedData, confirmOverride);
-      if (result.worked) {
-        setIsLoading(false);
-        Alert.alert(
-          "Success",
-          "Data uploaded successfully, You will only see the changes once you SYNC the data",
-          [
-            {
-              text: "OK",
-              onPress: () => result.worked && navigation.navigate("MainTabs"),
-            },
-          ]
-        );
-      } else {
-        setIsLoading(false);
-        Alert.alert("Error", result.message);
+      // TypeScript now infers parsedData is PitModel
+      const pitData = parsedData as PitModel;
+      const teamRef = doc(db, "teams", `${pitData.TeamNb}`);
+      result = await uploadPitDataToFirebase(pitData, teamRef);
+    }
+
+    setIsLoading(false);
+
+    if (result && result.success) {
+      Alert.alert("Success", result.message);
+      // Call syncData to update the server and reset the selected team
+      const syncResult = await syncData();
+      if (!syncResult.success) {
+        Alert.alert("Sync Error", syncResult.message);
       }
+      navigation.goBack();
+    } else {
+      Alert.alert(
+        "Error",
+        result ? result.message : "An unknown error occurred"
+      );
     }
   };
 
-  // Check the type of model and render accordingly
-  const isMatchModel =
-    parsedData.hasOwnProperty("ScoutName") ||
-    parsedData.hasOwnProperty("TeamNumber");
-  const content = isMatchModel
-    ? renderMatchModel(parsedData)
-    : renderPitModel(parsedData);
+  const renderModel = () => {
+    if (parsedData.hasOwnProperty("MatchNumber")) {
+      // Render MatchModel data
+      return Object.entries(parsedData).map(([key, value], index) => (
+        <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>
+      ));
+    } else {
+      // Render PitModel data
+      return Object.entries(parsedData).map(([key, value], index) => (
+        <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>
+      ));
+    }
+  };
 
   return (
     <>
@@ -110,7 +99,7 @@ export default function UploadScreen({ route, navigation }: any) {
         </Animated.View>
       )}
       <ScrollView style={styles.container}>
-        {content}
+        {renderModel()}
         <View style={styles.uploadButtonContainer}>
           <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
             <Icon name="cloud-upload" size={20} color="#FFF" />
@@ -121,7 +110,6 @@ export default function UploadScreen({ route, navigation }: any) {
     </>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

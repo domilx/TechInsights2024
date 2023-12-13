@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -35,8 +35,8 @@ import {
   getAverageRobotTippyScore,
   getAveragePlaysDefenseScore,
   getAverageRobotFieldAwareness,
-  getAverageRobotQuickness
-} from '../../models/StatsCalculations';
+  getAverageRobotQuickness,
+} from "../../models/StatsCalculations";
 import { initialPitData } from "../../models/PitModel";
 
 const TeamScreen = ({ route }: any) => {
@@ -46,14 +46,18 @@ const TeamScreen = ({ route }: any) => {
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const matches = team?.matches || [];
+  const [isSynced, setIsSynced] = useState(false);
 
-  if (team == initialPitData) {
-    return (
-      <View style={styles.noTeamContainer}>
-        <Text>Please select a team to view its stats</Text>
-      </View>
-    );
-  }
+  useEffect(() => {
+    // Your existing code for loading data
+
+    // Check if data is loaded (you can modify this condition based on your data loading logic)
+    if (team !== initialPitData && matches.length > 0) {
+      setIsSynced(true); // Set isSynced to true when data is loaded
+    } else {
+      setIsSynced(false); // Set isSynced to false when data is not loaded
+    }
+  }, [team, matches]);
 
   const ModalHeader = () => {
     return (
@@ -96,65 +100,78 @@ const TeamScreen = ({ route }: any) => {
     );
   };
 
-  
-
   const handleMatchSelect = (match: MatchModel) => {
     setSelectedMatch(match);
     renderMatchDetails(match);
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.teamHeader}>
-        <Text style={styles.teamTitle}>{team.RobTeamNm} Summary Screen</Text>
-      </View>
-
-      {renderRobotDetails(0, 2)}
-      {renderRobotDetails(3, 5)}
-      {renderRobotDetails(5, 6)}
-      {renderRobotDetails(6, 10)}
-      {renderRobotDetails(10, 26)}
-
-      {/* Robot Statistics */}
-
-      <View style={styles.teamHeader}>
-        <Text style={styles.teamTitle}>{team.RobTeamNm} Robot Statistics</Text>
-      </View>
-
-      <View style={styles.robotDetails}>
-        <Text style={styles.detailItem}>Matches Played: {getMatchesPlayed(matches)}</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.selectTeam}
-        onPress={() => setIsModalVisible(true)}
-      >
-        <Text style={{ color: "#F6EB14", fontWeight: "bold" }}>
-          View Individual Matches
-        </Text>
-      </TouchableOpacity>
-      <Modal visible={isModalVisible}>
-        <ModalHeader />
-        <ScrollView>
-          <View style={styles.modal}>
-            {team.matches?.map((match: any, index: any) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => handleMatchSelect(match)}
-                style={styles.teamButton}
-              >
-                <Text style={styles.matchButton}>
-                  Match {match.MatchNumber}
-                </Text>
-              </TouchableOpacity>
-            ))}
+    <>
+      {isSynced ? ( // Render team details if isSynced is true
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.teamHeader}>
+            <Text style={styles.teamTitle}>
+              {team.RobTeamNm} Summary Screen
+            </Text>
           </View>
-          {selectedMatch && renderMatchDetails(selectedMatch)}
+
+          {renderRobotDetails(0, 2)}
+          {renderRobotDetails(3, 5)}
+          {renderRobotDetails(5, 6)}
+          {renderRobotDetails(6, 10)}
+          {renderRobotDetails(10, 26)}
+
+          {/* Robot Statistics */}
+          <View style={styles.teamHeader}>
+            <Text style={styles.teamTitle}>
+              {team.RobTeamNm} Robot Statistics
+            </Text>
+          </View>
+
+          <View style={styles.robotDetails}>
+            <Text style={styles.detailItem}>
+              Matches Played: {getMatchesPlayed(matches)}
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.selectTeam}
+            onPress={() => setIsModalVisible(true)}
+          >
+            <Text style={{ color: "#F6EB14", fontWeight: "bold" }}>
+              View Individual Matches
+            </Text>
+          </TouchableOpacity>
+          <Modal visible={isModalVisible}>
+            <ModalHeader />
+            <ScrollView>
+              <View style={styles.modal}>
+                {team.matches?.map((match: any, index: any) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => handleMatchSelect(match)}
+                    style={styles.teamButton}
+                  >
+                    <Text style={styles.matchButton}>
+                      Match {match.MatchNumber}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {selectedMatch && renderMatchDetails(selectedMatch)}
+            </ScrollView>
+          </Modal>
         </ScrollView>
-      </Modal>
-    </ScrollView>
+      ) : (
+        // Render "Please select a team" message if isSynced is false
+        <View style={styles.noTeamContainer}>
+          <Text>Please select a team to view its stats</Text>
+        </View>
+      )}
+    </>
   );
 };
+
 const styles = StyleSheet.create({
   noTeamContainer: {
     flex: 1,
@@ -207,8 +224,8 @@ const styles = StyleSheet.create({
   modalHeader: {
     paddingTop: 50,
     flexDirection: "row",
-    alignItems: "center", // Centers items horizontally in the container
-    justifyContent: "center", // Centers items vertically in the container    alignItems: "center",
+    alignItems: "center",
+    justifyContent: "center",
     padding: 15,
     backgroundColor: "#1E1E1E",
   },
@@ -259,8 +276,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   backButtonWrapper: {
-    flexDirection: "row", // Aligns items in a row
-    alignItems: "center", // Centers items vertically in the container
+    flexDirection: "row",
+    alignItems: "center",
     position: "absolute",
     left: 10,
     top: 45,
