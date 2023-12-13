@@ -4,6 +4,7 @@ import { checkInternetConnection } from './NetworkService';
 import { doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { PitModel } from '../models/PitModel';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const syncData = async (): Promise<{ success: boolean; data?: PitModel[]; message: string }> => {
   try {
@@ -25,12 +26,25 @@ export const syncData = async (): Promise<{ success: boolean; data?: PitModel[];
 
     // Fetching fresh data from Firebase
     const fetchedData = await fetchDataFromFirebase();
+
+    // Update the last sync time
+    await updateLastSyncTime();
+
     return { success: true, data: fetchedData, message: "Data synced successfully." };
   } catch (error) {
     console.error("Error during sync: ", error);
     return { success: false, message: "Failed to sync data." };
   }
 };
+
+async function updateLastSyncTime() {
+  const lastSyncTime = new Date().toISOString();
+  try {
+    await AsyncStorage.setItem('lastSyncTime', lastSyncTime);
+  } catch (e) {
+    console.error("Error saving last sync time: ", e);
+  }
+}
 
 async function syncLocalPitData(): Promise<{ success: boolean; message: string }> {
   const localPitData = await getDataLocally("pitData");

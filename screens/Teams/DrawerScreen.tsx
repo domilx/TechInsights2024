@@ -20,8 +20,6 @@ export default function DrawerScreen({ navigation }: any) {
   const [teams, setTeams] = useState<PitModel[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
-
-  // Define a default team name (change this to your desired default team)
   const defaultTeamName = "Default Team";
 
   const handlePress = (team: PitModel) => {
@@ -32,17 +30,23 @@ export default function DrawerScreen({ navigation }: any) {
 
   const getLastSyncDisplay = () => {
     if (!lastSync) return "Never synced";
+
     const date = new Date(lastSync);
-    console.log(date);
-    console.log(lastSync)
+    if (isNaN(date.getTime())) {
+      console.error("Invalid date format:", lastSync);
+      return "Invalid date";
+    }
+
     const daysSince = Math.floor(
       (new Date().getTime() - date.getTime()) / (1000 * 3600 * 24)
     );
-    if (daysSince === 0) return `Last synced Today @ ${date.toLocaleTimeString()}`;
-    else if (daysSince === 1) return `Last synced Yesterday @ ${date.toLocaleTimeString()}`;
+
+    if (daysSince === 0)
+      return `Last synced Today @ ${date.toLocaleTimeString()}`;
+    else if (daysSince === 1)
+      return `Last synced Yesterday @ ${date.toLocaleTimeString()}`;
     return `Last synced: ${daysSince} days ago @ ${date.toLocaleTimeString()}`;
   };
-
 
   const handleSyncButtonPress = () => {
     Alert.alert(
@@ -78,11 +82,11 @@ export default function DrawerScreen({ navigation }: any) {
           setIsTeamSelected(false);
         }
 
-        const lastSyncTime = new Date().toISOString();
-
         // Save the updated teams data locally
         saveDataLocally("fetchedData", teamData);
-        saveDataLocally("lastSyncTime", lastSyncTime);
+
+        // Load the latest sync time after syncing
+        loadLastSyncTime();
 
         Alert.alert("Sync Complete", response.message);
       } else {
@@ -90,6 +94,20 @@ export default function DrawerScreen({ navigation }: any) {
       }
     } else {
       Alert.alert("Sync Failed", response.message);
+    }
+  };
+
+  // This function remains unchanged
+  const loadLastSyncTime = async () => {
+    try {
+      const lastSyncTime = await AsyncStorage.getItem("lastSyncTime");
+      if (lastSyncTime) {
+        // Remove any quotes that might be around the date string
+        const formattedLastSyncTime = lastSyncTime.replace(/['"]+/g, "");
+        setLastSync(formattedLastSyncTime);
+      }
+    } catch (e) {
+      console.error("Error loading last sync time: ", e);
     }
   };
 
@@ -158,13 +176,6 @@ export default function DrawerScreen({ navigation }: any) {
 
     loadTeamsData();
 
-    const loadLastSyncTime = async () => {
-      const lastSyncTime = await AsyncStorage.getItem("lastSyncTime");
-      if (lastSyncTime) {
-        setLastSync(lastSyncTime);
-      }
-    };
-  
     loadLastSyncTime();
   }, []);
 
