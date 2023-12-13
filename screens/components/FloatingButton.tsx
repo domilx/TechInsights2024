@@ -5,7 +5,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 export default function FloatingButton({ navigation }: any) {
   const handleAddButtonClick = () => {
     // Example of navigating to the CameraScreen
-    navigation.navigate('CameraScanScreen');
+    navigation.navigate('CameraScreen');
   };
 
   return (

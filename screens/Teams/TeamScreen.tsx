@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -14,136 +14,97 @@ import { PitModel } from "../../models/PitModel";
 import { MatchModel } from "../../models/MatchModel";
 import displayMatchData from "../../models/DisplayMatchData";
 import Icon from "@expo/vector-icons/Ionicons";
-import {
-  getMatchesPlayed,
-  getMatchesWon,
-  getCurrentRankingPoints,
-  getAverageRankingPoints,
-  getAverageCycleTime,
-  getMostFrequentAutoPosition,
-  getAutoMobilityPercentage,
-  getAutoAverageScore,
-  getAverageAutoGamePieces,
-  getAverageAutoObjectivesAchieved,
-  getAverageTeleopGamePiecesScored,
-  getMaxGamePieces,
-  getMinGamePieces,
-  getStandardDeviationOfGamePieces,
-  getAverageDroppedGamePieces,
-  getTimesIncapacitated,
-  getTimesRobotFalls,
-  getAverageRobotTippyScore,
-  getAveragePlaysDefenseScore,
-  getAverageRobotFieldAwareness,
-  getAverageRobotQuickness,
-} from "../../models/StatsCalculations";
 import { initialPitData } from "../../models/PitModel";
+import DisplayStatsData from "../../models/DisplayStatsData";
+import GamePieceGrid from "../components/GamePeiceGrid";
 
-const TeamScreen = ({ route }: any) => {
+interface TeamScreenProps {
+  route: {
+    params: {
+      team: PitModel;
+    };
+  };
+}
+
+interface MatchListProps {
+  matches: MatchModel[];
+  selectedMatch: MatchModel | undefined;
+  onMatchSelect: (match: MatchModel) => void;
+}
+
+const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   const team: PitModel = route.params?.team || initialPitData;
   const [selectedMatch, setSelectedMatch] = useState<MatchModel | undefined>(
     team?.matches?.[0]
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const teamData = displayPitData(team);
   const matches = team?.matches || [];
   const [isSynced, setIsSynced] = useState(false);
 
   useEffect(() => {
-    // Your existing code for loading data
-
-    // Check if data is loaded (you can modify this condition based on your data loading logic)
-    if (team !== initialPitData && matches.length > 0) {
-      setIsSynced(true); // Set isSynced to true when data is loaded
-    } else {
-      setIsSynced(false); // Set isSynced to false when data is not loaded
-    }
+    setIsSynced(team !== initialPitData && matches.length > 0);
   }, [team, matches]);
-
-  const ModalHeader = () => {
-    return (
-      <View style={styles.modalHeader}>
-        <TouchableOpacity
-          style={styles.backButtonWrapper}
-          onPress={() => setIsModalVisible(false)}
-        >
-          <Icon name="chevron-back" size={30} color="#F6EB14" />
-          <Text style={{ color: "#F6EB14", marginLeft: 5 }}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.modalHeaderText}>Match Details</Text>
-      </View>
-    );
-  };
-
-  const teamData = displayPitData(team);
 
   const renderRobotDetails = (startIndex: number, endIndex: number) => (
     <View style={styles.robotDetails}>
       {teamData.slice(startIndex, endIndex).map((item, index) => (
-        <View key={index} style={{ flexDirection: "row", paddingVertical: 2 }}>
-          <Text style={styles.detailItem}>{item.label}: </Text>
-          <Text style={styles.detailItem}>{item.value}</Text>
+        <View key={index} style={styles.detailRow}>
+          <Text style={styles.detailLabel}>{item.label}: </Text>
+          <Text style={styles.detailValue}>{item.value}</Text>
         </View>
       ))}
     </View>
   );
 
-  const renderMatchDetails = (match: MatchModel) => {
-    return (
-      <View style={styles.matchDetails}>
-        {displayMatchData(match).map((item, idx) => (
-          <View key={idx} style={{ flexDirection: "row", paddingVertical: 2 }}>
-            <Text style={styles.detailItem}>{item.label}:</Text>
-            <Text style={styles.detailItem}>{item.value}</Text>
-          </View>
-        ))}
-      </View>
-    );
+  const renderStats = () => {
+    return DisplayStatsData.map((stat, index) => {
+      const value = stat.func(matches);
+      return (
+        <View key={index} style={styles.statRow}>
+          <Text style={styles.statLabel}>{stat.label}:</Text>
+          <Text style={styles.statValue}>{value}</Text>
+        </View>
+      );
+    });
   };
 
   const handleMatchSelect = (match: MatchModel) => {
     setSelectedMatch(match);
     renderMatchDetails(match);
   };
-
+  
+  const renderMatchDetails = (match: MatchModel) => (
+    <View style={styles.matchDetails}>
+      {displayMatchData(match).map((item, idx) => (
+        <View key={idx} style={styles.detailRow}>
+          <Text>{item.label}:</Text>
+          <Text>{item.value}</Text>
+        </View>
+      ))}
+      <GamePieceGrid gridData={match.GamePiecesGrid} />
+    </View>
+  );
+  
   return (
     <>
-      {isSynced ? ( // Render team details if isSynced is true
+      <ModalOpener onPress={() => setIsModalVisible(true)} />
+      {true ? (
         <ScrollView style={styles.scrollView}>
-          <View style={styles.teamHeader}>
-            <Text style={styles.teamTitle}>
-              {team.RobTeamNm} Summary Screen
-            </Text>
-          </View>
-
+          <TeamHeader title={`${team.RobTeamNm} Summary `} />
           {renderRobotDetails(0, 2)}
           {renderRobotDetails(3, 5)}
-          {renderRobotDetails(5, 6)}
           {renderRobotDetails(6, 10)}
-          {renderRobotDetails(10, 26)}
+          {renderRobotDetails(11, 26)}
 
-          {/* Robot Statistics */}
-          <View style={styles.teamHeader}>
-            <Text style={styles.teamTitle}>
-              {team.RobTeamNm} Robot Statistics
-            </Text>
-          </View>
-
-          <View style={styles.robotDetails}>
-            <Text style={styles.detailItem}>
-              Matches Played: {getMatchesPlayed(matches)}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.selectTeam}
-            onPress={() => setIsModalVisible(true)}
+          <View style={styles.statsContainer}>
+          {renderStats()}
+        </View>
+          <Modal
+            visible={isModalVisible}
+            onRequestClose={() => setIsModalVisible(false)}
           >
-            <Text style={{ color: "#F6EB14", fontWeight: "bold" }}>
-              View Individual Matches
-            </Text>
-          </TouchableOpacity>
-          <Modal visible={isModalVisible}>
-            <ModalHeader />
+            <ModalHeader onClose={() => setIsModalVisible(false)} />
             <ScrollView>
               <View style={styles.modal}>
                 {team.matches?.map((match: any, index: any) => (
@@ -163,91 +124,142 @@ const TeamScreen = ({ route }: any) => {
           </Modal>
         </ScrollView>
       ) : (
-        // Render "Please select a team" message if isSynced is false
-        <View style={styles.noTeamContainer}>
-          <Text>Please select a team to view its stats</Text>
-        </View>
+        <NoTeamView />
       )}
     </>
   );
 };
 
+const ModalOpener: FC<{ onPress: () => void }> = ({ onPress }) => (
+  <TouchableOpacity style={styles.modalOpener} onPress={onPress}>
+    <Icon name="list" size={30} color="#F6EB14" />
+    <Text style={styles.modalOpenerText}>Matches</Text>
+  </TouchableOpacity>
+);
+
+const TeamHeader: FC<{ title: string }> = ({ title }) => (
+  <View style={styles.teamHeader}>
+    <Text style={styles.teamTitle}>{title}</Text>
+  </View>
+);
+
+const ModalHeader: FC<{ onClose: () => void }> = ({ onClose }) => (
+  <View style={styles.modalHeader}>
+    <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
+      <Icon name="chevron-back" size={30} color="#F6EB14" />
+      <Text style={styles.backButtonText}>Back</Text>
+    </TouchableOpacity>
+    <Text style={styles.modalHeaderText}>Match Details</Text>
+  </View>
+);
+
+const MatchList: FC<MatchListProps> = ({
+  matches,
+  selectedMatch,
+  onMatchSelect,
+}) => (
+  <View style={styles.matchList}>
+    <Picker
+      selectedValue={selectedMatch?.MatchNumber}
+      onValueChange={(itemValue, itemIndex) =>
+        onMatchSelect(matches[itemIndex])
+      }
+    >
+      {matches.map((match, index) => (
+        <Picker.Item
+          key={index}
+          label={`Match ${match.MatchNumber}`}
+          value={match.MatchNumber}
+        />
+      ))}
+    </Picker>
+  </View>
+);
+
+const NoTeamView: FC = () => (
+  <View style={styles.noTeamContainer}>
+    <Text>Please select a team to view its stats</Text>
+  </View>
+);
+
 const styles = StyleSheet.create({
-  noTeamContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   scrollView: {
     backgroundColor: "#FFF",
+    paddingHorizontal: 10,
   },
-  teamHeader: {
-    alignItems: "flex-start",
-    padding: 10,
-  },
-  teamButton: {
-    color: "#F6EB14",
-    backgroundColor: "#1E1E1E",
-    padding: 15,
-    borderRadius: 8,
+  statRow: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
-    margin: 5,
+    paddingVertical: 3,
   },
-  teamTitle: {
-    fontSize: 25,
+  statLabel: {
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#333",
+    marginRight: 10, // Adds some space between the label and the value
   },
-  matchButton: {
-    fontSize: 18,
+  statValue: {
+    fontSize: 16,
+    color: "#666",
+    // Flex grow/shrink can be adjusted if needed to fit the layout
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  modalOpener: {
+    position: "absolute",
+    top: 20,
+    right: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    zIndex: 10,
+    backgroundColor: "#1E1E1E",
+    padding: 10,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalOpenerText: {
     color: "#F6EB14",
-  },
-  robotImage: {
-    width: 200,
-    height: 200,
-    resizeMode: "contain",
+    marginLeft: 5,
   },
   modal: {
     paddingVertical: 20,
     justifyContent: "center",
     color: "#F6EB14",
   },
-  matchDropdown: {
-    margin: 10,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "#ccc",
-    padding: 5,
-    backgroundColor: "#f9f9f9",
+  teamHeader: {
+    alignItems: "flex-start",
+    marginBottom: 10,
   },
-  modalHeader: {
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    backgroundColor: "#1E1E1E",
-  },
-  modalHeaderText: {
-    fontSize: 16,
-    color: "#F6EB14",
+  teamTitle: {
+    fontSize: 25,
     fontWeight: "bold",
   },
-  backButton: {
-    position: "absolute",
-    left: 10,
-    top: 30,
+  robotDetails: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+    marginVertical: 7,
   },
-  teambutton: {
-    color: "#F6EB14",
-    backgroundColor: "#1E1E1E",
-    padding: 15,
-    borderRadius: 8,
+  detailRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 5,
+    paddingVertical: 2,
+    flexWrap: "wrap",
+  },
+  detailLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginRight: 5,
+  },
+  detailValue: {
+    fontSize: 16,
+    color: "#555",
   },
   matchDetails: {
     margin: 10,
@@ -257,23 +269,43 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     backgroundColor: "#fff",
   },
-  robotDetails: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+  statsContainer: {
+    padding: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 5,
+    marginVertical: 10,
   },
-  detailItem: {
+  noTeamContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF",
+  },
+  matchList: {
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    backgroundColor: "#FFF",
+  },
+  teamButton: {
+    backgroundColor: "#1E1E1E",
+    padding: 15,
+    borderRadius: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  matchButton: {
     fontSize: 18,
+    color: "#F6EB14",
   },
-  robotCapabilities: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  matchPerformance: {
-    padding: 20,
+  modalHeader: {
+    paddingTop: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    backgroundColor: "#1E1E1E",
   },
   backButtonWrapper: {
     flexDirection: "row",
@@ -282,15 +314,14 @@ const styles = StyleSheet.create({
     left: 10,
     top: 45,
   },
-  selectTeam: {
+  backButtonText: {
     color: "#F6EB14",
-    backgroundColor: "#1E1E1E",
-    padding: 15,
-    borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 5,
+    marginLeft: 5,
+  },
+  modalHeaderText: {
+    fontSize: 16,
+    color: "#F6EB14",
+    fontWeight: "bold",
   },
 });
 

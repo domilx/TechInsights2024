@@ -20,6 +20,7 @@ import {
 } from "../services/FirebaseService";
 import { doc } from "firebase/firestore";
 import { db } from "../firebase";
+import GamePieceGrid from "./components/GamePeiceGrid";
 
 export default function UploadScreen({ route, navigation }: any) {
   const { data } = route.params;
@@ -76,12 +77,26 @@ export default function UploadScreen({ route, navigation }: any) {
     }
   };
 
+  const renderGamePiecesGrid = (gridData: any) => {
+    if (Array.isArray(gridData) && gridData[0] && gridData[0].hasOwnProperty('rowIndex')) {
+      return <GamePieceGrid gridData={gridData} />;
+    }
+    return null;
+  };
+
   const renderModel = () => {
     if (parsedData.hasOwnProperty("MatchNumber")) {
       // Render MatchModel data
-      return Object.entries(parsedData).map(([key, value], index) => (
-        <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>
-      ));
+      return (
+        <>
+          {Object.entries(parsedData).map(([key, value], index) => {
+            if (key === 'GamePiecesGrid') {
+              return <View key={index}>{renderGamePiecesGrid(value)}</View>;
+            }
+            return <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>;
+          })}
+        </>
+      );
     } else {
       // Render PitModel data
       return Object.entries(parsedData).map(([key, value], index) => (
@@ -89,6 +104,7 @@ export default function UploadScreen({ route, navigation }: any) {
       ));
     }
   };
+
 
   return (
     <>
