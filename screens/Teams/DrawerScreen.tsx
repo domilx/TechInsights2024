@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -13,11 +13,11 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PitModel, initialPitData } from "../../models/PitModel";
 import { syncData } from "../../services/SyncService";
+import { DataContext } from "../../contexts/DataContext";
 
 export default function DrawerScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
-  const [lastSync, setLastSync] = useState<string>("");
-  const [teams, setTeams] = useState<PitModel[]>([]);
+  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
   const defaultTeamName = "Default Team";
@@ -51,7 +51,7 @@ export default function DrawerScreen({ navigation }: any) {
   const handleSyncButtonPress = () => {
     Alert.alert(
       "Confirmation",
-      "This action will upload the offline scanned data and download newer versions of data from the server. Are you sure?",
+      "This action will sync all data from the server manually. Are you sure?",
       [
         { text: "Cancel", onPress: () => {} },
         { text: "OK", onPress: handleSync },
@@ -65,33 +65,13 @@ export default function DrawerScreen({ navigation }: any) {
     setIsLoading(false);
 
     if (response.success) {
-      if ("data" in response && Array.isArray(response.data)) {
-        const teamData = response.data as PitModel[];
-        setTeams(teamData);
-
-        // Check if the default team exists in the synced data
-        const defaultTeam = teamData.find(
-          (team) => team.RobTeamNm === defaultTeamName
-        );
-
-        if (defaultTeam) {
-          setSelectedTeam(defaultTeamName); // Set the default team as selected
-          setIsTeamSelected(true); // Indicate that a team is selected
-        } else {
-          setSelectedTeam(null); // Reset selected team if default team is not found
-          setIsTeamSelected(false);
-        }
-
+      if (response.data) {
+        setTeams(response.data);
+        setLastSync(new Date().toISOString());
         // Save the updated teams data locally
-        saveDataLocally("fetchedData", teamData);
-
-        // Load the latest sync time after syncing
-        loadLastSyncTime();
-
-        Alert.alert("Sync Complete", response.message);
-      } else {
-        Alert.alert("Error", "Sync completed but no data returned.");
+        saveDataLocally("fetchedData", response.data);
       }
+      Alert.alert("Sync Complete", response.message);
     } else {
       Alert.alert("Sync Failed", response.message);
     }
@@ -114,7 +94,7 @@ export default function DrawerScreen({ navigation }: any) {
   const handleClearButton = () => {
     Alert.alert(
       "Confirmation",
-      "This action will clear all data stored locally awaiting upload. Are you 100% sure?",
+      "This action will clear all data stored locally. Are you sure?",
       [
         { text: "Cancel", onPress: () => {} },
         { text: "OK", onPress: handleClear },
@@ -125,8 +105,9 @@ export default function DrawerScreen({ navigation }: any) {
   const handleClear = async () => {
     try {
       setIsLoading(true);
-      await AsyncStorage.removeItem("matchData");
-      await AsyncStorage.removeItem("pitData");
+      await AsyncStorage.clear();
+      await AsyncStorage.setItem("isLoggedIn", "true");
+      setTeams([]);
       setIsLoading(false);
       Alert.alert("Success", "All data cleared successfully");
     } catch (error: any) {
@@ -193,7 +174,7 @@ export default function DrawerScreen({ navigation }: any) {
           <Text> </Text>
           <Button
             color={"red"}
-            title="Clear Pending"
+            title="Clear Data"
             onPress={handleClearButton}
           />
         </View>

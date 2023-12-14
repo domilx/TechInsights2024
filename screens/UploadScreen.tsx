@@ -21,8 +21,12 @@ import {
 import { doc } from "firebase/firestore";
 import { db } from "../firebase";
 import GamePieceGrid from "./components/GamePeiceGrid";
+import { DataContext } from "../contexts/DataContext";
+import { useContext } from "react";
+import { saveDataLocally } from "../services/LocalStorageService";
 
 export default function UploadScreen({ route, navigation }: any) {
+  const { setTeams, setLastSync } = useContext(DataContext);
   const { data } = route.params;
   const [isLoading, setIsLoading] = useState(false);
   let parsedData: MatchModel | PitModel;
@@ -62,18 +66,18 @@ export default function UploadScreen({ route, navigation }: any) {
     setIsLoading(false);
 
     if (result && result.success) {
-      Alert.alert("Success", result.message);
       // Call syncData to update the server and reset the selected team
       const syncResult = await syncData();
-      if (!syncResult.success) {
-        Alert.alert("Sync Error", syncResult.message);
+      if (syncResult.success && syncResult.data) {
+        setTeams(syncResult.data);
+        setLastSync(new Date().toISOString());
+        // Save the updated teams data locally
+        saveDataLocally("fetchedData", syncResult.data);
       }
+      Alert.alert("Success", result.message);
       navigation.goBack();
     } else {
-      Alert.alert(
-        "Error",
-        result ? result.message : "An unknown error occurred"
-      );
+      Alert.alert("Error", result.message);
     }
   };
 

@@ -1,6 +1,13 @@
 import React from 'react';
 import AppNavigator from './screens/AppNavigator';
+import { DataProvider } from './contexts/DataContext';
 
 export default function App() {
-  return <AppNavigator/>;
+  return (
+    <>
+      <DataProvider>
+        <AppNavigator/>
+      </DataProvider>
+    </>
+  );
 }

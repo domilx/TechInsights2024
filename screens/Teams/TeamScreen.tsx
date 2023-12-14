@@ -17,14 +17,18 @@ import Icon from "@expo/vector-icons/Ionicons";
 import { initialPitData } from "../../models/PitModel";
 import DisplayStatsData from "../../models/DisplayStatsData";
 import GamePieceGrid from "../components/GamePeiceGrid";
+import { DataContext } from "../../contexts/DataContext";
+import { useContext } from "react";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
+import { RouteProp } from "@react-navigation/native";
 
-interface TeamScreenProps {
-  route: {
-    params: {
-      team: PitModel;
-    };
-  };
-}
+export type RootDrawerParamList = {
+  Teams: { team: PitModel };
+  // ... other screens as needed
+};
+
+type TeamScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Teams'>;
+type TeamScreenRouteProp = RouteProp<RootDrawerParamList, 'Teams'>;
 
 interface MatchListProps {
   matches: MatchModel[];
@@ -32,30 +36,57 @@ interface MatchListProps {
   onMatchSelect: (match: MatchModel) => void;
 }
 
-const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
-  const team: PitModel = route.params?.team || initialPitData;
-  const [selectedMatch, setSelectedMatch] = useState<MatchModel | undefined>(
-    team?.matches?.[0]
-  );
+interface TeamScreenProps {
+  route: TeamScreenRouteProp;
+}
+
+const TeamScreen: FC<TeamScreenProps> = ({ route }) => {  
+  const { teams } = useContext(DataContext);
+  const [selectedTeam, setSelectedTeam] = useState<PitModel | undefined>();  const [selectedMatch, setSelectedMatch] = useState<MatchModel | undefined>();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const teamData = displayPitData(team);
-  const matches = team?.matches || [];
-  const [isSynced, setIsSynced] = useState(false);
 
   useEffect(() => {
-    setIsSynced(team !== initialPitData && matches.length > 0);
-  }, [team, matches]);
+    // Check if a team is passed through navigation, otherwise use context
+    const teamFromRoute = route.params?.team;
+    if (teamFromRoute) {
+      setSelectedTeam(teamFromRoute);
+    } else {
+      // If no team is passed, you might want to handle this case differently
+      setSelectedTeam(teams.length > 0 ? teams[0] : undefined);
+    }
+  }, [route.params?.team, teams]);
 
-  const renderRobotDetails = (startIndex: number, endIndex: number) => (
-    <View style={styles.robotDetails}>
-      {teamData.slice(startIndex, endIndex).map((item, index) => (
-        <View key={index} style={styles.detailRow}>
-          <Text style={styles.detailLabel}>{item.label}: </Text>
-          <Text style={styles.detailValue}>{item.value}</Text>
-        </View>
-      ))}
-    </View>
-  );
+  const teamData = selectedTeam ? displayPitData(selectedTeam) : null;
+  const matches = selectedTeam?.matches || [];
+  
+  const isSynced = selectedTeam !== initialPitData && matches.length > 0;
+
+  if (!selectedTeam) {
+    return (
+      <View style={styles.noTeamContainer}>
+        <Text>Please select a team to view its stats</Text>
+      </View>
+    );
+  }
+
+  const renderRobotDetails = (startIndex: number, endIndex: number) => {
+    if (!teamData) {
+      return <Text>No team data available</Text>;
+    }
+  
+    // Render a slice of teamData details based on startIndex and endIndex
+    return (
+      <View style={styles.robotDetails}>
+        {teamData.slice(startIndex, endIndex).map((item, index) => (
+          <View key={index} style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{item.label}: </Text>
+            <Text style={styles.detailValue}>{item.value}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+  
 
   const renderStats = () => {
     return DisplayStatsData.map((stat, index) => {
@@ -89,9 +120,9 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   return (
     <>
       <ModalOpener onPress={() => setIsModalVisible(true)} />
-      {true ? (
+      {selectedTeam  ? (
         <ScrollView style={styles.scrollView}>
-          <TeamHeader title={`${team.RobTeamNm} Summary `} />
+          <TeamHeader title={`${selectedTeam.RobTeamNm} Summary `} />
           {renderRobotDetails(0, 2)}
           {renderRobotDetails(3, 5)}
           {renderRobotDetails(6, 10)}
@@ -107,7 +138,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
             <ModalHeader onClose={() => setIsModalVisible(false)} />
             <ScrollView>
               <View style={styles.modal}>
-                {team.matches?.map((match: any, index: any) => (
+                {selectedTeam.matches?.map((match: any, index: any) => (
                   <TouchableOpacity
                     key={index}
                     onPress={() => handleMatchSelect(match)}
@@ -170,7 +201,7 @@ const MatchList: FC<MatchListProps> = ({
           key={index}
           label={`Match ${match.MatchNumber}`}
           value={match.MatchNumber}
-        />
+        /> 
       ))}
     </Picker>
   </View>
