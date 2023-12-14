@@ -116,6 +116,15 @@ export default function DrawerScreen({ navigation }: any) {
     }
   };
 
+  const handleBackgroundSync = async () => {
+    const response = await syncData();
+    if (response.success && response.data) {
+      setTeams(response.data);
+      setLastSync(new Date().toISOString());
+      saveDataLocally("fetchedData", response.data);
+    }
+  };
+
   const saveDataLocally = async (key: string, data: any) => {
     try {
       const jsonValue = JSON.stringify(data);
@@ -154,6 +163,13 @@ export default function DrawerScreen({ navigation }: any) {
         setTeams(JSON.parse(teamsData));
       }
     };
+
+    const syncInterval = setInterval(() => {
+      handleBackgroundSync();
+    }, 1000 * 60 * 15); // Adjust the interval as needed, e.g., 15 minutes
+
+    // Clean up the interval on unmount
+    return () => clearInterval(syncInterval);
 
     loadTeamsData();
 

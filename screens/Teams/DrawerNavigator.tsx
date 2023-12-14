@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  DrawerNavigationProp,
-  createDrawerNavigator,
-} from "@react-navigation/drawer";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import TeamScreen from "./TeamScreen";
 import DrawerScreen from "./DrawerScreen";
-import { RouteProp } from "@react-navigation/native";
 
 const Drawer = createDrawerNavigator();
 
