@@ -24,11 +24,7 @@ import { RouteProp } from "@react-navigation/native";
 
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
-  // ... other screens as needed
 };
-
-type TeamScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Teams'>;
-type TeamScreenRouteProp = RouteProp<RootDrawerParamList, 'Teams'>;
 
 interface MatchListProps {
   matches: MatchModel[];
@@ -37,7 +33,7 @@ interface MatchListProps {
 }
 
 interface TeamScreenProps {
-  route: TeamScreenRouteProp;
+  route: any;
 }
 
 const TeamScreen: FC<TeamScreenProps> = ({ route }) => {  
