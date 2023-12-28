@@ -114,42 +114,54 @@ export default function UploadScreen({ route, navigation }: any) {
     <>
       {isLoading && (
         <Animated.View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#F6EB14" />
+          <ActivityIndicator size='large' color='#F6EB14' />
           <Text style={styles.loadingText}>Uploading Data</Text>
         </Animated.View>
       )}
       <ScrollView style={styles.container}>
-        {renderModel()}
-        <View style={styles.uploadButtonContainer}>
-          <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
-            <Icon name="cloud-upload" size={20} color="#FFF" />
-            <Text style={styles.uploadButtonText}>Upload Data</Text>
-          </TouchableOpacity>
+        <View style={styles.dataCard}>
+          {renderModel()}
         </View>
+        <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+          <Icon name='cloud-upload' size={20} color='#FFF' />
+          <Text style={styles.uploadButtonText}>Upload Data</Text>
+        </TouchableOpacity>
       </ScrollView>
     </>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#FFF",
+    backgroundColor: '#f2f2f2',
   },
   text: {
     fontSize: 16,
     marginBottom: 10,
+    color: '#333',
+  },
+  dataCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   uploadButtonContainer: {
     marginTop: 20,
     marginBottom: 70,
-    backgroundColor: "#1E1E1E",
   },
   loadingOverlay: {
-    position: "absolute",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     top: 0,
     bottom: 0,
     left: 0,
@@ -159,19 +171,21 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 20,
-    color: "#FFFFFF",
+    color: '#FFFFFF',
   },
   uploadButton: {
-    backgroundColor: "green",
+    backgroundColor: '#1E1E1E',
     padding: 15,
     borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 70,
   },
   uploadButtonText: {
-    color: "#FFF",
+    color: '#FFF',
     marginLeft: 10,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });

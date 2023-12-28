@@ -11,11 +11,9 @@ const GamePieceGrid: React.FC<GamePieceGridProps> = ({ gridData }) => {
     <View style={styles.gridContainer}>
       {gridData.map((cell, index) => (
         <View key={index} style={styles.cell}>
-          <Text>Row: {cell.rowIndex}</Text>
-          <Text>Column: {cell.columnIndex}</Text>
-          <Text>Auto: {cell.autoScored}</Text>
-          <Text>Type: {cell.GamePieceType}</Text>
-          <Text>Count: {cell.count}</Text>
+          <Text style={styles.cellText}>Auto: {cell.autoScored}</Text>
+          <Text style={styles.cellText}>Type: {cell.GamePieceType.toString()}</Text>
+          <Text style={styles.cellText}>TeleOp: {cell.count}</Text>
         </View>
       ))}
     </View>
@@ -28,14 +26,27 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-around',
     padding: 10,
+    backgroundColor: '#f2f2f2',
   },
   cell: {
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: '#ccc',
     padding: 10,
     margin: 5,
     width: '30%', // Adjust as needed
     alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cellText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 4,
   },
 });
 

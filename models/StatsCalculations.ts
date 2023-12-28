@@ -1,4 +1,4 @@
-import { Aware, MatchModel, Position, Speed } from "./MatchModel";
+import { AutoMobilityPoints, AutoObjectivePoints, Aware, GamePieceType, MatchModel, Position, Speed, TeleopGamePiecePoints } from "./MatchModel";
 
 /**
  * Calculates the total number of matches played.
@@ -44,7 +44,7 @@ function getAverageRankingPoints(matches: MatchModel[]): number {
 function getAverageCycleTime(matches: MatchModel[]): number {
   const recentMatches = matches.slice(-5);
   const totalCycleTime = recentMatches.reduce(
-    (sum, match) => sum + match.CycleTime,
+    (sum, match) => sum + (match.CycleTime.reduce((a, b) => a + b, 0) / match.CycleTime.length),
     0
   );
   return recentMatches.length ? totalCycleTime / recentMatches.length : 0;
@@ -152,27 +152,22 @@ function getAverageAutoGamePieces(matches: MatchModel[]): number {
 }
 
 /**
- * Calculates the average number of auto objectives achieved in the last 5 matches.
- * Each auto objective is treated as a boolean value, and the average is calculated based on these values.
+ * Calculates the average points for auto objectives achieved in the last 5 matches.
  * @param matches Array of MatchModel objects.
- * @returns The average number of objectives achieved.
+ * @returns The average points for objectives achieved.
  */
 function getAverageAutoObjectivesAchieved(matches: MatchModel[]): number {
   const recentMatches = matches.slice(-5);
-  let totalObjectivesAchieved = 0;
+  let totalObjectivesPoints = 0;
 
   recentMatches.forEach((match) => {
-    totalObjectivesAchieved += match.AutoObjective1 ? 1 : 0;
-    totalObjectivesAchieved += match.AutoObjective2 ? 1 : 0;
-    totalObjectivesAchieved += match.AutoObjective3 ? 1 : 0;
-    totalObjectivesAchieved += match.AutoObjective4 ? 1 : 0;
-    // Add more objectives here if necessary
+    totalObjectivesPoints += AutoObjectivePoints[match.AutoObjective1];
+    totalObjectivesPoints += AutoObjectivePoints[match.AutoObjective2];
   });
 
-  return recentMatches.length
-    ? totalObjectivesAchieved / recentMatches.length
-    : 0;
+  return recentMatches.length ? totalObjectivesPoints / (recentMatches.length * 2) : 0;
 }
+
 
 /**
  * Calculates the average total number of game pieces scored during the teleop phase over the last five matches.
@@ -185,14 +180,15 @@ function getAverageTeleopGamePiecesScored(matches: MatchModel[]): number {
 
   recentMatches.forEach((match) => {
     totalGamePieces +=
-      match.TeleopGamePeice1 +
-      match.TeleopGamePeice2 +
-      match.TeleopGamePeice3 +
-      match.TeleopGamePeice4;
+      match.TeleopGamePiece1 +
+      match.TeleopGamePiece2 +
+      match.TeleopGamePiece3 +
+      match.TeleopGamePiece4;
   });
 
   return recentMatches.length ? totalGamePieces / recentMatches.length : 0;
 }
+
 
 /**
  * Finds the maximum number of game pieces scored in any single match.
@@ -200,20 +196,14 @@ function getAverageTeleopGamePiecesScored(matches: MatchModel[]): number {
  * @returns Maximum number of game pieces scored.
  */
 function getMaxGamePieces(matches: MatchModel[]): number {
-  let maxGamePieces = 0;
-
-  matches.forEach((match) => {
+  return matches.reduce((max, match) => {
     const totalGamePieces =
-      match.TeleopGamePeice1 +
-      match.TeleopGamePeice2 +
-      match.TeleopGamePeice3 +
-      match.TeleopGamePeice4;
-    if (totalGamePieces > maxGamePieces) {
-      maxGamePieces = totalGamePieces;
-    }
-  });
-
-  return maxGamePieces;
+      match.TeleopGamePiece1 +
+      match.TeleopGamePiece2 +
+      match.TeleopGamePiece3 +
+      match.TeleopGamePiece4;
+    return Math.max(max, totalGamePieces);
+  }, 0);
 }
 
 /**
@@ -222,59 +212,45 @@ function getMaxGamePieces(matches: MatchModel[]): number {
  * @returns Minimum number of game pieces scored.
  */
 function getMinGamePieces(matches: MatchModel[]): number {
-  let minGamePieces = Number.MAX_SAFE_INTEGER;
-
-  matches.forEach((match) => {
+  let minGamePieces = matches.reduce((min, match) => {
     const totalGamePieces =
-      match.TeleopGamePeice1 +
-      match.TeleopGamePeice2 +
-      match.TeleopGamePeice3 +
-      match.TeleopGamePeice4;
-    if (totalGamePieces < minGamePieces) {
-      minGamePieces = totalGamePieces;
-    }
-  });
+      match.TeleopGamePiece1 +
+      match.TeleopGamePiece2 +
+      match.TeleopGamePiece3 +
+      match.TeleopGamePiece4;
+    return Math.min(min, totalGamePieces);
+  }, Number.MAX_SAFE_INTEGER);
 
-  // If no matches, return 0
   return minGamePieces === Number.MAX_SAFE_INTEGER ? 0 : minGamePieces;
 }
 
+
 /**
- * Calculates the standard deviation (1 σ) for the number of game pieces.
+ * Calculates the standard deviation (1 σ) for the number of game pieces in the teleop phase.
  * @param matches Array of MatchModel objects.
  * @returns The standard deviation for the number of game pieces.
  */
 function getStandardDeviationOfGamePieces(matches: MatchModel[]): number {
   const recentMatches = matches.slice(-5);
-  let mean = 0;
-  let sum = 0;
+  let mean = recentMatches.reduce((sum, match) => sum + (
+      match.TeleopGamePiece1 +
+      match.TeleopGamePiece2 +
+      match.TeleopGamePiece3 +
+      match.TeleopGamePiece4
+    ), 0) / recentMatches.length;
 
-  // Calculate mean
-  recentMatches.forEach((match) => {
+  const variance = recentMatches.reduce((sum, match) => {
     const totalGamePieces =
-      match.TeleopGamePeice1 +
-      match.TeleopGamePeice2 +
-      match.TeleopGamePeice3 +
-      match.TeleopGamePeice4;
-    mean += totalGamePieces;
-  });
-  mean /= recentMatches.length;
+      match.TeleopGamePiece1 +
+      match.TeleopGamePiece2 +
+      match.TeleopGamePiece3 +
+      match.TeleopGamePiece4;
+    return sum + (totalGamePieces - mean) ** 2;
+  }, 0) / recentMatches.length;
 
-  // Calculate variance
-  recentMatches.forEach((match) => {
-    const totalGamePieces =
-      match.TeleopGamePeice1 +
-      match.TeleopGamePeice2 +
-      match.TeleopGamePeice3 +
-      match.TeleopGamePeice4;
-    sum += (totalGamePieces - mean) ** 2;
-  });
-
-  const variance = sum / recentMatches.length;
-
-  // Return standard deviation
   return Math.sqrt(variance);
 }
+
 
 /**
  * Calculates the average number of dropped game pieces in the last 5 matches.
@@ -368,6 +344,86 @@ function getAverageRobotFieldAwareness(matches: MatchModel[]): number {
 }
 
 /**
+ * Calculates the total points scored during the Autonomous phase of matches.
+ * Includes points from objectives and additional points for high auto mobility.
+ * @param matches Array of MatchModel objects.
+ * @returns Total Auto points.
+ */
+function getTotalAutoPoints(matches: MatchModel[]): number {
+  return matches.reduce((sum, match) => {
+    return sum + AutoObjectivePoints[match.AutoObjective1] + AutoObjectivePoints[match.AutoObjective2] + 
+      (match.AutoMobility ? AutoMobilityPoints : 0);
+  }, 0);
+}
+
+/**
+ * Calculates the total points scored during the Teleoperated phase of matches.
+ * @param matches Array of MatchModel objects.
+ * @returns Total Teleop points.
+ */
+function getTotalTeleopPoints(matches: MatchModel[]): number {
+  return matches.reduce((sum, match) => {
+    return sum + 
+      match.TeleopGamePiece1 * TeleopGamePiecePoints[GamePieceType.GamePiece1] +
+      match.TeleopGamePiece2 * TeleopGamePiecePoints[GamePieceType.GamePiece2];
+  }, 0);
+}
+
+/**
+ * Calculates the average points scored per match.
+ * @param matches Array of MatchModel objects.
+ * @returns Average points per match.
+ */
+function getAveragePointsPerMatch(matches: MatchModel[]): number {
+  const totalPoints = matches.reduce((sum, match) => sum + match.TotalPointsAlliance, 0);
+  return matches.length ? totalPoints / matches.length : 0;
+}
+
+/**
+ * Calculates an efficiency score based on points scored versus number of game pieces used.
+ * @param matches Array of MatchModel objects.
+ * @returns Efficiency score.
+ */
+function getEfficiencyScore(matches: MatchModel[]): number {
+  return matches.reduce((sum, match) => {
+    const totalGamePiecesUsed = match.TeleopGamePiece1 + match.TeleopGamePiece2 + match.TeleopGamePiece3 + match.TeleopGamePiece4;
+    return sum + (totalGamePiecesUsed ? match.TotalPointsAlliance / totalGamePiecesUsed : 0);
+  }, 0) / matches.length;
+}
+
+/**
+ * Calculates the win rate for matches where the robot had high auto mobility.
+ * @param matches Array of MatchModel objects.
+ * @returns Win rate with high mobility.
+ */
+function getWinRateWithHighMobility(matches: MatchModel[]): number {
+  const highMobilityWins = matches.filter(match => match.AutoMobility && match.WonMatch).length;
+  const highMobilityMatches = matches.filter(match => match.AutoMobility).length;
+  return highMobilityMatches ? highMobilityWins / highMobilityMatches : 0;
+}
+
+/**
+ * Calculates the average score for alliance objectives across matches.
+ * @param matches Array of MatchModel objects.
+ * @returns Average alliance objective score.
+ */
+function getAverageAllianceObjectiveScore(matches: MatchModel[]): number {
+  return matches.reduce((sum, match) => sum + match.AllianceObjective1, 0) / matches.length;
+}
+
+/**
+ * Calculates the ratio of the team's points to the total alliance points.
+ * @param matches Array of MatchModel objects.
+ * @returns Points contribution ratio.
+ */
+function getPointsContributionRatio(matches: MatchModel[]): number {
+  return matches.reduce((sum, match) => {
+    return sum + (match.TotalPointsAlliance ? match.RankingPointsAlliance / match.TotalPointsAlliance : 0);
+  }, 0) / matches.length;
+}
+
+
+/**
  * Calculates the average "Robot Quickness" score from the last 5 matches.
  * It uses the 'TeleopStatus5' property to determine the quickness level.
  * @param matches Array of MatchModel objects.
@@ -416,4 +472,11 @@ export {
   getAveragePlaysDefenseScore,
   getAverageRobotFieldAwareness,
   getAverageRobotQuickness,
+  getTotalAutoPoints,
+  getTotalTeleopPoints,
+  getAveragePointsPerMatch,
+  getEfficiencyScore,
+  getWinRateWithHighMobility,
+  getAverageAllianceObjectiveScore,
+  getPointsContributionRatio,
 };

@@ -70,12 +70,15 @@ export default function DrawerScreen({ navigation }: any) {
         setLastSync(new Date().toISOString());
         // Save the updated teams data locally
         saveDataLocally("fetchedData", response.data);
+        // Reset the selected team to null after sync
+        setSelectedTeam(null);
       }
       Alert.alert("Sync Complete", response.message);
     } else {
       Alert.alert("Sync Failed", response.message);
     }
-  };
+};
+
 
   // This function remains unchanged
   const loadLastSyncTime = async () => {
@@ -162,18 +165,19 @@ export default function DrawerScreen({ navigation }: any) {
       if (teamsData) {
         setTeams(JSON.parse(teamsData));
       }
+      selectedTeam === null && setSelectedTeam(defaultTeamName);
     };
 
     const syncInterval = setInterval(() => {
       handleBackgroundSync();
     }, 1000 * 60 * 15); // Adjust the interval as needed, e.g., 15 minutes
 
-    // Clean up the interval on unmount
-    return () => clearInterval(syncInterval);
-
     loadTeamsData();
 
     loadLastSyncTime();
+
+    // Clean up the interval on unmount
+    return () => clearInterval(syncInterval);
   }, []);
 
   return (
@@ -182,6 +186,12 @@ export default function DrawerScreen({ navigation }: any) {
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#F6EB14" />
           <Text style={styles.loadingText}>Syncing...</Text>
+          <Button
+            title="Cancel"
+            onPress={() => {
+              setIsLoading(false);
+            }}
+          />
         </View>
       )}
       <View style={styles.sync}>

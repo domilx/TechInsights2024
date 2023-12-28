@@ -48,10 +48,10 @@ export type GamePieceCell = {
 };
 
 export enum GamePieceType {
-  GamePiece1 = "GamePiece1",
-  GamePiece2 = "GamePiece2",
-  GamePiece3 = "GamePiece3",
-  GamePiece4 = "GamePiece4",
+  GamePiece1 = "Cone",
+  GamePiece2 = "Cube",
+  GamePiece3 = "3",
+  GamePiece4 = "4",
 }
 
 export enum AutoObjective {
@@ -67,6 +67,43 @@ export enum EndGameObjective {
   Stage3 = "Stage 3", // 6pts
   Stage4 = "Stage 4", // 8pts
 }
+
+export const AutoObjectivePoints = {
+  [AutoObjective.Stage1]: 2,
+  [AutoObjective.Stage2]: 4,
+  [AutoObjective.Stage3]: 6,
+  [AutoObjective.Stage4]: 8, 
+};
+
+export const EndGameObjectivePoints = {
+  [EndGameObjective.Stage1]: 2,
+  [EndGameObjective.Stage2]: 4,
+  [EndGameObjective.Stage3]: 6,
+  [EndGameObjective.Stage4]: 8,
+};
+
+export const AutoGamePeicePoints = {
+  [GamePieceType.GamePiece1]: 1,
+  [GamePieceType.GamePiece2]: 2,
+  [GamePieceType.GamePiece3]: 0,
+  [GamePieceType.GamePiece4]: 0,
+};
+
+export const TeleopGamePiecePoints = {
+  [GamePieceType.GamePiece1]: 1,
+  [GamePieceType.GamePiece2]: 2,
+  [GamePieceType.GamePiece3]: 0,
+  [GamePieceType.GamePiece4]: 0,
+};
+
+export const EndGamePiecePoints = {
+  [GamePieceType.GamePiece1]: 1,
+  [GamePieceType.GamePiece2]: 2,
+  [GamePieceType.GamePiece3]: 0,
+  [GamePieceType.GamePiece4]: 0,
+};
+
+export const AutoMobilityPoints = 6;
 
 export enum Position {
   Left = "Left",
