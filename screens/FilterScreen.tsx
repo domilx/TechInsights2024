@@ -96,15 +96,22 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     });
     setDisplayedPitData(filteredData);
   };
+  
 
   const applyFilterGroup = (groupName: any) => {
     const groupFilters = filterGroups[groupName];
     if (groupFilters) {
       setFilters(groupFilters);
-      applyFilters();
-      setSelectedGroup(groupName);
+  
+      // Update availableFilters to include keys from the applied group
+      const filterKeys = Object.keys(groupFilters) as Array<keyof FilterConfig>;
+      setAvailableFilters(filterKeys);
+  
+      applyFilters(); // Apply the filters
+      setSelectedGroup(groupName); // Set the selected group
     }
   };
+  
 
   const deleteFilterGroup = async (groupName: any) => {
     const updatedGroups = { ...filterGroups };
@@ -187,29 +194,36 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     field: keyof FilterConfig,
     value: string | number | boolean | undefined
   ) => {
-    // Check if the value is boolean before setting the filter
     const isBoolean = typeof value === "boolean";
     setFilters((prevFilters) => ({
       ...prevFilters,
       [field]: isBoolean ? value : String(value),
     }));
-  };
-
-  const addFilter = (filterField: keyof FilterConfig) => {
-    if (!availableFilters.includes(filterField)) {
-      setAvailableFilters((prevFilters) => [...prevFilters, filterField]);
+  
+    // Ensure the filter field is in availableFilters
+    if (!availableFilters.includes(field)) {
+      setAvailableFilters((prevFilters) => [...prevFilters, field]);
     }
   };
-
+  
   const removeFilter = (filterField: keyof FilterConfig) => {
-    setAvailableFilters((prevFilters) =>
-      prevFilters.filter((f) => f !== filterField)
-    );
     setFilters((prevFilters) => {
       const newFilters = { ...prevFilters };
       delete newFilters[filterField];
       return newFilters;
     });
+  
+    // Remove the filter field from availableFilters
+    setAvailableFilters((prevFilters) =>
+      prevFilters.filter((f) => f !== filterField)
+    );
+  };
+  
+
+  const addFilter = (filterField: keyof FilterConfig) => {
+    if (!availableFilters.includes(filterField)) {
+      setAvailableFilters((prevFilters) => [...prevFilters, filterField]);
+    }
   };
 
   const renderFilterPicker = () => (
@@ -459,18 +473,6 @@ const styles = StyleSheet.create({
   teamText: {
     fontWeight: "bold",
     color: "#333",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 8,
-    margin: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   modalButton: {
     backgroundColor: "#1E1E1E",
