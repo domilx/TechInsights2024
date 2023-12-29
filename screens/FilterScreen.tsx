@@ -242,20 +242,25 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     }
   };
 
+  const ModalHeader: FC<{ onClose: () => void }> = ({ onClose }) => (
+    <View style={styles.modalHeader}>
+      <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
+        <Icon name="chevron-back" size={30} color="#F6EB14" />
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
+      <Text style={styles.modalHeaderText}>Pick a Filter</Text>
+    </View>
+  );
+
   const renderFilterPicker = () => (
     <Modal
       animationType="slide"
-      transparent={true}
+      transparent={false}
       visible={isModalVisible}
       onRequestClose={() => setIsModalVisible(false)}
     >
-      <View style={styles.modalContent}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => setIsModalVisible(false)}
-        >
-          <Icon name="chevron-back" size={30} color="#F6EB14" />
-        </TouchableOpacity>
+      <ModalHeader onClose={() => setIsModalVisible(false)} />
+      <ScrollView style={styles.filterModal}>
         {Object.keys(filterConfig).map((key) => (
           <TouchableOpacity
             key={key}
@@ -268,7 +273,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
             <Text style={styles.modalButtonText}>{key}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </Modal>
   );
 
@@ -348,10 +353,10 @@ const FilterScreen: FC<FilterScreenProps> = () => {
         </View>
       ))}
       <TouchableOpacity
-        style={styles.button}
+        style={styles.applyButton}
         onPress={() => setGroupManagementModalVisible(true)}
       >
-        <Text style={styles.buttonText}>Manage Filter Groups</Text>
+        <Text style={styles.applyButtonText}>Manage Filter Groups</Text>
       </TouchableOpacity>
       <GroupManagementModal
         isVisible={groupManagementModalVisible}
@@ -384,6 +389,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  headerTitle: {
+    fontSize: 22, // Increased font size
+    color: '#333',
+    fontWeight: 'bold',
+    textAlign: 'center', // Center the text within the view
+  },
+  backButtonWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    position: "absolute",
+    left: 10,
+    top: 45,
+  },
+  modalHeader: {
+    paddingTop: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 15,
+    backgroundColor: "#1E1E1E",
   },
   modalTitle: {
     fontSize: 20,
@@ -429,6 +455,26 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
+    color: "#F6EB14",
+    fontWeight: "bold",
+  },
+  filterModal: {
+    backgroundColor: '#fff',
+    margin: 10,
+    padding: 15,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  backButtonText: {
+    color: "#F6EB14",
+    marginLeft: 5,
+  },
+  modalHeaderText: {
+    fontSize: 16,
     color: "#F6EB14",
     fontWeight: "bold",
   },
