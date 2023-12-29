@@ -1,8 +1,21 @@
 import React, { useState, useEffect, FC } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DriveBaseMotor, DriveBaseType, DriverExperience, PitModel, Stability } from "../models/PitModel";
-import Icon from '@expo/vector-icons/Ionicons';
+import {
+  DriveBaseMotor,
+  DriveBaseType,
+  DriverExperience,
+  PitModel,
+  Stability,
+} from "../models/PitModel";
+import Icon from "@expo/vector-icons/Ionicons";
 
 interface FilterScreenProps {}
 
@@ -16,29 +29,21 @@ const filterConfig: FilterConfig = {
   RobDriveExp: Object.values(DriverExperience),
   RobStble: Object.values(Stability),
   RobQuest1: [true, false],
-  RobQuest2: [true, false],
-  RobQuest3: [true, false],
-  RobQuest4: [true, false],
-  RobQuest5: [true, false],
-  RobQuest6: [true, false],
-  RobQuest7: [true, false],
-  RobQuest8: [true, false],
-  RobQuest9: [true, false],
-  RobQuest10: [true, false],
-  RobQuest11: [true, false],
-  RobQuest12: [true, false],
-  RobQuest13: [true, false],
-  RobQuest14: [true, false],
-  RobQuest15: [true, false],
 };
 
 const FilterScreen: FC<FilterScreenProps> = () => {
   const [originalPitData, setOriginalPitData] = useState<PitModel[]>([]);
   const [displayedPitData, setDisplayedPitData] = useState<PitModel[]>([]);
-  const [availableFilters, setAvailableFilters] = useState<Array<keyof FilterConfig>>([]);
-  const [filters, setFilters] = useState<{ [key in keyof FilterConfig]?: string | number | boolean }>({});
+  const [availableFilters, setAvailableFilters] = useState<
+    Array<keyof FilterConfig>
+  >([]);
+  const [filters, setFilters] = useState<{
+    [key in keyof FilterConfig]?: string | number | boolean;
+  }>({});
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedFilterField, setSelectedFilterField] = useState<keyof FilterConfig | null>(null);
+  const [selectedFilterField, setSelectedFilterField] = useState<
+    keyof FilterConfig | null
+  >(null);
   const [isValueModalVisible, setIsValueModalVisible] = useState(false);
 
   useEffect(() => {
@@ -65,22 +70,29 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     setDisplayedPitData(filteredData);
   };
 
-  const setFilter = (field: keyof FilterConfig, value: string | number | boolean | undefined) => {
-    setFilters(prevFilters => ({ ...prevFilters, [field]: value }));
-    if (value === undefined) {
-      removeFilter(field);
-    }
+  const setFilter = (
+    field: keyof FilterConfig,
+    value: string | number | boolean | undefined
+  ) => {
+    // Check if the value is boolean before setting the filter
+    const isBoolean = typeof value === "boolean";
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: isBoolean ? value : String(value),
+    }));
   };
 
   const addFilter = (filterField: keyof FilterConfig) => {
     if (!availableFilters.includes(filterField)) {
-      setAvailableFilters(prevFilters => [...prevFilters, filterField]);
+      setAvailableFilters((prevFilters) => [...prevFilters, filterField]);
     }
   };
 
   const removeFilter = (filterField: keyof FilterConfig) => {
-    setAvailableFilters(prevFilters => prevFilters.filter(f => f !== filterField));
-    setFilters(prevFilters => {
+    setAvailableFilters((prevFilters) =>
+      prevFilters.filter((f) => f !== filterField)
+    );
+    setFilters((prevFilters) => {
       const newFilters = { ...prevFilters };
       delete newFilters[filterField];
       return newFilters;
@@ -95,7 +107,10 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       onRequestClose={() => setIsModalVisible(false)}
     >
       <View style={styles.modalContent}>
-        <TouchableOpacity style={styles.backButton} onPress={() => setIsModalVisible(false)}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => setIsModalVisible(false)}
+        >
           <Icon name="chevron-back" size={30} color="#F6EB14" />
         </TouchableOpacity>
         {Object.keys(filterConfig).map((key) => (
@@ -122,21 +137,25 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       onRequestClose={() => setIsValueModalVisible(false)}
     >
       <View style={styles.modalContent}>
-        <TouchableOpacity style={styles.backButton} onPress={() => setIsValueModalVisible(false)}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => setIsValueModalVisible(false)}
+        >
           <Icon name="chevron-back" size={30} color="#F6EB14" />
         </TouchableOpacity>
-        {selectedFilterField && filterConfig[selectedFilterField]?.map((option) => (
-          <TouchableOpacity
-            key={String(option)}
-            style={styles.modalButton}
-            onPress={() => {
-              setFilter(selectedFilterField, option);
-              setIsValueModalVisible(false);
-            }}
-          >
-            <Text style={styles.modalButtonText}>{String(option)}</Text>
-          </TouchableOpacity>
-        ))}
+        {selectedFilterField &&
+          filterConfig[selectedFilterField]?.map((option) => (
+            <TouchableOpacity
+              key={String(option)}
+              style={styles.modalButton}
+              onPress={() => {
+                setFilter(selectedFilterField, option);
+                setIsValueModalVisible(false);
+              }}
+            >
+              <Text style={styles.modalButtonText}>{String(option)}</Text>
+            </TouchableOpacity>
+          ))}
       </View>
     </Modal>
   );
@@ -161,7 +180,11 @@ const FilterScreen: FC<FilterScreenProps> = () => {
             }}
           >
             <Text style={styles.valueButtonText}>
-              {filters[filterField] ? String(filters[filterField]) : 'Select Value'}
+              {typeof filters[filterField] === "boolean"
+                ? filters[filterField]
+                  ? "True"
+                  : "False"
+                : filters[filterField] || "Select Value"}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -173,10 +196,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
         </View>
       ))}
 
-      <TouchableOpacity
-        style={styles.applyButton}
-        onPress={applyFilters}
-      >
+      <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
         <Text style={styles.applyButtonText}>Apply Filters</Text>
       </TouchableOpacity>
 
@@ -194,29 +214,29 @@ const FilterScreen: FC<FilterScreenProps> = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: "#f2f2f2",
   },
   buttonContainer: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     padding: 15,
     borderRadius: 8,
     margin: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
     fontSize: 18,
-    color: '#F6EB14',
-    fontWeight: 'bold',
+    color: "#F6EB14",
+    fontWeight: "bold",
   },
   filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFF',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#FFF",
     padding: 10,
     margin: 10,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -224,57 +244,57 @@ const styles = StyleSheet.create({
   },
   filterLabel: {
     fontSize: 16,
-    color: '#333',
-    fontWeight: 'bold',
+    color: "#333",
+    fontWeight: "bold",
   },
   valueButton: {
-    backgroundColor: '#D6E0D9',
+    backgroundColor: "#D6E0D9",
     padding: 10,
     borderRadius: 8,
   },
   valueButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   removeButton: {
-    backgroundColor: 'red',
+    backgroundColor: "red",
     padding: 5,
     borderRadius: 8,
   },
   applyButton: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     padding: 15,
     borderRadius: 8,
     margin: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   applyButtonText: {
     fontSize: 18,
-    color: '#F6EB14',
-    fontWeight: 'bold',
+    color: "#F6EB14",
+    fontWeight: "bold",
   },
   teamContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     margin: 10,
     padding: 15,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
   teamText: {
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   modalContent: {
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 8,
     margin: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -285,7 +305,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalButtonText: {
     fontSize: 16,
@@ -293,7 +313,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     left: 10,
   },
