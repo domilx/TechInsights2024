@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Modal,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -29,6 +30,20 @@ const filterConfig: FilterConfig = {
   RobDriveExp: Object.values(DriverExperience),
   RobStble: Object.values(Stability),
   RobQuest1: [true, false],
+  RobQuest2: [true, false],
+  RobQuest3: [true, false],
+  RobQuest4: [true, false],
+  RobQuest5: [true, false],
+  RobQuest6: [true, false],
+  RobQuest7: [true, false],
+  RobQuest8: [true, false],
+  RobQuest9: [true, false],
+  RobQuest10: [true, false],
+  RobQuest11: [true, false],
+  RobQuest12: [true, false],
+  RobQuest13: [true, false],
+  RobQuest14: [true, false],
+  RobQuest15: [true, false],
 };
 
 const FilterScreen: FC<FilterScreenProps> = () => {
@@ -45,6 +60,10 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     keyof FilterConfig | null
   >(null);
   const [isValueModalVisible, setIsValueModalVisible] = useState(false);
+  const [filterGroups, setFilterGroups] = useState({});
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [groupManagementModalVisible, setGroupManagementModalVisible] =
+    useState(false);
 
   useEffect(() => {
     const getPitData = async () => {
@@ -55,6 +74,14 @@ const FilterScreen: FC<FilterScreenProps> = () => {
         setDisplayedPitData(data);
       }
     };
+    const loadFilterGroups = async () => {
+      const savedGroups = await AsyncStorage.getItem("filterGroups");
+      if (savedGroups) {
+        setFilterGroups(JSON.parse(savedGroups));
+      }
+    };
+
+    loadFilterGroups();
     getPitData();
   }, []);
 
@@ -68,6 +95,92 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       });
     });
     setDisplayedPitData(filteredData);
+  };
+
+  const applyFilterGroup = (groupName: any) => {
+    const groupFilters = filterGroups[groupName];
+    if (groupFilters) {
+      setFilters(groupFilters);
+      applyFilters();
+      setSelectedGroup(groupName);
+    }
+  };
+
+  const deleteFilterGroup = async (groupName: any) => {
+    const updatedGroups = { ...filterGroups };
+    delete updatedGroups[groupName];
+    await AsyncStorage.setItem("filterGroups", JSON.stringify(updatedGroups));
+    setFilterGroups(updatedGroups);
+  };
+
+  const renameFilterGroup = async (oldName: any, newName: any) => {
+    const updatedGroups = { ...filterGroups, [newName]: filterGroups[oldName] };
+    delete updatedGroups[oldName];
+    await AsyncStorage.setItem("filterGroups", JSON.stringify(updatedGroups));
+    setFilterGroups(updatedGroups);
+  };
+
+  const saveFilterGroup = async (groupName: any) => {
+    try {
+      const newGroups = { ...filterGroups, [groupName]: filters };
+      await AsyncStorage.setItem("filterGroups", JSON.stringify(newGroups));
+      setFilterGroups(newGroups);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const GroupManagementModal = ({ isVisible, onClose }) => {
+    const [newGroupName, setNewGroupName] = useState("");
+
+    const handleSaveGroup = () => {
+      saveFilterGroup(newGroupName);
+      setNewGroupName("");
+      onClose();
+    };
+
+    return (
+      <Modal visible={isVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Manage Filter Groups</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="New Group Name"
+            value={newGroupName}
+            onChangeText={setNewGroupName}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleSaveGroup}>
+            <Text style={styles.buttonText}>Save New Group</Text>
+          </TouchableOpacity>
+          {Object.keys(filterGroups).map((groupName) => (
+            <View key={groupName} style={styles.groupItem}>
+              <Text style={styles.groupNameText}>{groupName}</Text>
+              <TouchableOpacity
+                style={styles.groupButton}
+                onPress={() => applyFilterGroup(groupName)}
+              >
+                <Text>Apply</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.groupButton}
+                onPress={() => renameFilterGroup(groupName, newGroupName)}
+              >
+                <Text>Rename</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.groupButton}
+                onPress={() => deleteFilterGroup(groupName)}
+              >
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.buttonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
   };
 
   const setFilter = (
@@ -208,6 +321,16 @@ const FilterScreen: FC<FilterScreenProps> = () => {
           <Text style={styles.teamText}>{team.RobTeamNm}</Text>
         </View>
       ))}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => setGroupManagementModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>Manage Filter Groups</Text>
+      </TouchableOpacity>
+      <GroupManagementModal
+        isVisible={groupManagementModalVisible}
+        onClose={() => setGroupManagementModalVisible(false)}
+      />
     </ScrollView>
   );
 };
@@ -222,6 +345,55 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 10,
     alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    margin: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 10,
+    width: '100%',
+    marginBottom: 10,
+  },
+  groupItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  groupNameText: {
+    flex: 1,
+  },
+  groupButton: {
+    backgroundColor: '#E8E8E8',
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+  },
+  button: {
+    backgroundColor: '#1E1E1E',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
   },
   buttonText: {
     fontSize: 18,
