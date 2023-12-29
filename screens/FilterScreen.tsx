@@ -17,6 +17,10 @@ import {
   Stability,
 } from "../models/PitModel";
 import Icon from "@expo/vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
+
+
 
 interface FilterScreenProps {}
 
@@ -71,25 +75,27 @@ const FilterScreen: FC<FilterScreenProps> = () => {
   const [groupManagementModalVisible, setGroupManagementModalVisible] =
     useState(false);
 
-  useEffect(() => {
-    const getPitData = async () => {
-      const storedPitData = await AsyncStorage.getItem("fetchedData");
-      if (storedPitData) {
-        const data = JSON.parse(storedPitData);
-        setOriginalPitData(data);
-        setDisplayedPitData(data);
-      }
-    };
-    const loadFilterGroups = async () => {
-      const savedGroups = await AsyncStorage.getItem("filterGroups");
-      if (savedGroups) {
-        setFilterGroups(JSON.parse(savedGroups));
-      }
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const getPitData = async () => {
+        const storedPitData = await AsyncStorage.getItem("fetchedData");
+        if (storedPitData) {
+          const data = JSON.parse(storedPitData);
+          setOriginalPitData(data);
+          setDisplayedPitData(data);
+        }
+      };
+      const loadFilterGroups = async () => {
+        const savedGroups = await AsyncStorage.getItem("filterGroups");
+        if (savedGroups) {
+          setFilterGroups(JSON.parse(savedGroups));
+        }
+      };
 
-    loadFilterGroups();
-    getPitData();
-  }, []);
+      loadFilterGroups();
+      getPitData();
+    }, [])
+  );
 
   const applyFilters = () => {
     const filteredData = originalPitData.filter((team) => {
@@ -102,22 +108,20 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     });
     setDisplayedPitData(filteredData);
   };
-  
 
   const applyFilterGroup = (groupName: any) => {
     const groupFilters = filterGroups[groupName];
     if (groupFilters) {
       setFilters(groupFilters);
-  
+
       // Update availableFilters to include keys from the applied group
       const filterKeys = Object.keys(groupFilters) as Array<keyof FilterConfig>;
       setAvailableFilters(filterKeys);
-  
+
       applyFilters(); // Apply the filters
       setSelectedGroup(groupName); // Set the selected group
     }
   };
-  
 
   const deleteFilterGroup = async (groupName: any) => {
     const updatedGroups = { ...filterGroups };
@@ -153,44 +157,51 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     };
 
     return (
-      <Modal visible={isVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Manage Filter Groups</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="New Group Name"
-            value={newGroupName}
-            onChangeText={setNewGroupName}
-          />
-          <TouchableOpacity style={styles.button} onPress={handleSaveGroup}>
-            <Text style={styles.buttonText}>Save New Group</Text>
-          </TouchableOpacity>
-          {Object.keys(filterGroups).map((groupName) => (
-            <View key={groupName} style={styles.groupItem}>
-              <Text style={styles.groupNameText}>{groupName}</Text>
-              <TouchableOpacity
-                style={styles.groupButton}
-                onPress={() => applyFilterGroup(groupName)}
-              >
-                <Text>Apply</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.groupButton}
-                onPress={() => renameFilterGroup(groupName, newGroupName)}
-              >
-                <Text>Rename</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.groupButton}
-                onPress={() => deleteFilterGroup(groupName)}
-              >
-                <Text>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
+      <Modal
+        visible={isVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Manage Filter Groups</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="New Group Name"
+              value={newGroupName}
+              onChangeText={setNewGroupName}
+            />
+            <TouchableOpacity style={styles.button} onPress={handleSaveGroup}>
+              <Text style={styles.buttonText}>Save New Group</Text>
+            </TouchableOpacity>
+            {Object.keys(filterGroups).map((groupName) => (
+              <View key={groupName} style={styles.groupItem}>
+                <Text style={styles.groupNameText}>{groupName}</Text>
+                <TouchableOpacity
+                  style={styles.groupButton}
+                  onPress={() => applyFilterGroup(groupName)}
+                >
+                  <Text>Apply</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.groupButton}
+                  onPress={() => renameFilterGroup(groupName, newGroupName)}
+                >
+                  <Text>Rename</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.groupButton}
+                  onPress={() => deleteFilterGroup(groupName)}
+                >
+                  <Text>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     );
@@ -205,26 +216,25 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       ...prevFilters,
       [field]: isBoolean ? value : String(value),
     }));
-  
+
     // Ensure the filter field is in availableFilters
     if (!availableFilters.includes(field)) {
       setAvailableFilters((prevFilters) => [...prevFilters, field]);
     }
   };
-  
+
   const removeFilter = (filterField: keyof FilterConfig) => {
     setFilters((prevFilters) => {
       const newFilters = { ...prevFilters };
       delete newFilters[filterField];
       return newFilters;
     });
-  
+
     // Remove the filter field from availableFilters
     setAvailableFilters((prevFilters) =>
       prevFilters.filter((f) => f !== filterField)
     );
   };
-  
 
   const addFilter = (filterField: keyof FilterConfig) => {
     if (!availableFilters.includes(filterField)) {
@@ -301,7 +311,6 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       >
         <Text style={styles.buttonText}>+ Add Filter</Text>
       </TouchableOpacity>
-
       {availableFilters.map((filterField) => (
         <View key={filterField} style={styles.filterContainer}>
           <Text style={styles.filterLabel}>{filterField}</Text>
@@ -328,14 +337,11 @@ const FilterScreen: FC<FilterScreenProps> = () => {
           </TouchableOpacity>
         </View>
       ))}
-
       <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
         <Text style={styles.applyButtonText}>Apply Filters</Text>
       </TouchableOpacity>
-
       {renderFilterPicker()}
       {renderFilterValuePicker()}
-
       {displayedPitData.map((team, index) => (
         <View key={index} style={styles.teamContainer}>
           <Text style={styles.teamText}>{team.RobTeamNm}</Text>
@@ -367,11 +373,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
-    margin: 20,
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    width: "80%",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   modalTitle: {
     fontSize: 20,
@@ -379,40 +391,40 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderRadius: 5,
     padding: 10,
-    width: '100%',
+    width: "100%",
     marginBottom: 10,
   },
   groupItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
   },
   groupNameText: {
     flex: 1,
   },
   groupButton: {
-    backgroundColor: '#E8E8E8',
+    backgroundColor: "#E8E8E8",
     padding: 5,
     borderRadius: 5,
     marginLeft: 5,
   },
   closeButton: {
     marginTop: 10,
-    backgroundColor: 'red',
+    backgroundColor: "red",
     padding: 10,
     borderRadius: 5,
   },
   button: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
@@ -459,6 +471,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     margin: 10,
     alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
   },
   applyButtonText: {
     fontSize: 18,
