@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
-import SimulateScreen from "./SimulateScreen";
 import LoginScreen from "./LoginScreen"; // Import your login
 import Icon from "@expo/vector-icons/Ionicons";
 import FloatingButton from "./components/FloatingButton";
@@ -11,6 +10,7 @@ import VisualizeScreen from "./VisualizeScreen";
 import { createStackNavigator } from "@react-navigation/stack";
 import CameraScreen from "./CameraScreen";
 import UploadScreen from "./UploadScreen";
+import FilterScreen from "./FilterScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -84,10 +84,10 @@ function AppNavigator() {
                   })}
                 />
                 <Tab.Screen
-                  name="Simulate"
-                  component={SimulateScreen}
+                  name="Filter Teams"
+                  component={FilterScreen}
                   options={{
-                    tabBarLabel: "Simulate",
+                    tabBarLabel: "Filter Teams",
                     headerStyle: {
                       backgroundColor: "#1E1E1E", // Set your desired background color here
                     },
@@ -97,7 +97,7 @@ function AppNavigator() {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                       <Icon
-                        name={focused ? "cube" : "cube-outline"}
+                        name={focused ? "filter" : "filter-outline"}
                         color={focused ? "#F6EB14" : color}
                         size={size}
                       />
