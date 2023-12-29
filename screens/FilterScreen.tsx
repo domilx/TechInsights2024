@@ -24,6 +24,12 @@ type FilterConfig = {
   [key in keyof PitModel]?: Array<string | number | boolean>;
 };
 
+type FilterGroup = {
+  [key: string]: {
+    [key in keyof FilterConfig]?: string | number | boolean;
+  };
+};
+
 const filterConfig: FilterConfig = {
   RobDrive: Object.values(DriveBaseType),
   RobMotor: Object.values(DriveBaseMotor),
@@ -60,7 +66,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     keyof FilterConfig | null
   >(null);
   const [isValueModalVisible, setIsValueModalVisible] = useState(false);
-  const [filterGroups, setFilterGroups] = useState({});
+  const [filterGroups, setFilterGroups] = useState<FilterGroup>({});
   const [selectedGroup, setSelectedGroup] = useState("");
   const [groupManagementModalVisible, setGroupManagementModalVisible] =
     useState(false);
@@ -122,7 +128,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
 
   const renameFilterGroup = async (oldName: any, newName: any) => {
     const updatedGroups = { ...filterGroups, [newName]: filterGroups[oldName] };
-    delete updatedGroups[oldName];
+    delete updatedGroups[oldName as keyof typeof updatedGroups];
     await AsyncStorage.setItem("filterGroups", JSON.stringify(updatedGroups));
     setFilterGroups(updatedGroups);
   };
@@ -137,7 +143,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     }
   };
 
-  const GroupManagementModal = ({ isVisible, onClose }) => {
+  const GroupManagementModal = ({ isVisible, onClose }: any) => {
     const [newGroupName, setNewGroupName] = useState("");
 
     const handleSaveGroup = () => {
