@@ -7,6 +7,7 @@ import {
   ScrollView,
   Modal,
   TextInput,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -18,9 +19,6 @@ import {
 } from "../models/PitModel";
 import Icon from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation } from '@react-navigation/native';
-
-
 
 interface FilterScreenProps {}
 
@@ -149,63 +147,84 @@ const FilterScreen: FC<FilterScreenProps> = () => {
 
   const GroupManagementModal = ({ isVisible, onClose }: any) => {
     const [newGroupName, setNewGroupName] = useState("");
-
+    const [isRenaming, setIsRenaming] = useState(false);
+    const [groupNameToRename, setGroupNameToRename] = useState<string | null>(null);
+      
     const handleSaveGroup = () => {
-      saveFilterGroup(newGroupName);
+      if (!newGroupName.trim()) {
+        Alert.alert("Error", "Group name cannot be empty!");
+        return;
+      }
+      if (newGroupName.length > 20) {
+        Alert.alert("Error", "Group name too long (max 20 characters)!");
+        return;
+      }
+  
+      if (isRenaming && groupNameToRename) {
+        renameFilterGroup(groupNameToRename, newGroupName);
+        setGroupNameToRename(null);
+      } else {
+        saveFilterGroup(newGroupName);
+      }
       setNewGroupName("");
+      setIsRenaming(false);
       onClose();
     };
-
+  
+    const handleDeleteClick = (groupName: any) => {
+      Alert.alert(
+        "Confirm Delete",
+        `Are you sure you want to delete '${groupName}'?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "OK",
+            onPress: () => {
+              deleteFilterGroup(groupName);
+            },
+          },
+        ]
+      );
+    };
+  
     return (
-      <Modal
-        visible={isVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={onClose}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Manage Filter Groups</Text>
+      <Modal visible={isVisible} animationType="slide" transparent={false}>
+        <View style={styles.fullScreenModal}>
+          <ModalHeader onClose={onClose} title={isRenaming ? 'Rename Filter Group' : 'Manage Filter Groups'} />
+          <ScrollView contentContainerStyle={styles.modalContent}>
             <TextInput
               style={styles.input}
-              placeholder="New Group Name"
+              placeholder={isRenaming ? 'Enter New Name' : 'New Group Name'}
               value={newGroupName}
               onChangeText={setNewGroupName}
             />
             <TouchableOpacity style={styles.button} onPress={handleSaveGroup}>
-              <Text style={styles.buttonText}>Save New Group</Text>
+              <Text style={styles.buttonText}>{isRenaming ? 'Rename' : 'Save New Group'}</Text>
             </TouchableOpacity>
-            {Object.keys(filterGroups).map((groupName) => (
-              <View key={groupName} style={styles.groupItem}>
+            {Object.keys(filterGroups).map((groupName, index) => (
+              <View key={index} style={styles.groupItem}>
                 <Text style={styles.groupNameText}>{groupName}</Text>
-                <TouchableOpacity
-                  style={styles.groupButton}
-                  onPress={() => applyFilterGroup(groupName)}
-                >
-                  <Text>Apply</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.groupButton}
-                  onPress={() => renameFilterGroup(groupName, newGroupName)}
-                >
-                  <Text>Rename</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.groupButton}
-                  onPress={() => deleteFilterGroup(groupName)}
-                >
-                  <Text>Delete</Text>
-                </TouchableOpacity>
+                <Text style={styles.authorText}>Author: {groupName} Author</Text>
+                <View style={styles.groupActions}>
+                  <TouchableOpacity style={styles.groupButton} onPress={() => {
+                      setIsRenaming(true);
+                      setGroupNameToRename(groupName);
+                      setNewGroupName(groupName);
+                    }}>
+                    <Text>Rename</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.groupButton} onPress={() => handleDeleteClick(groupName)}>
+                    <Text>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          </ScrollView>
         </View>
       </Modal>
     );
   };
+  
 
   const setFilter = (
     field: keyof FilterConfig,
@@ -242,15 +261,15 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     }
   };
 
-  const ModalHeader: FC<{ onClose: () => void }> = ({ onClose }) => (
+  const ModalHeader: FC<{ onClose: () => void, title: string }> = ({ onClose, title }) => (
     <View style={styles.modalHeader}>
       <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
         <Icon name="chevron-back" size={30} color="#F6EB14" />
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
-      <Text style={styles.modalHeaderText}>Pick a Filter</Text>
+      <Text style={styles.modalHeaderText}>{title}</Text>
     </View>
-  );
+  );  
 
   const renderFilterPicker = () => (
     <Modal
@@ -259,7 +278,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       visible={isModalVisible}
       onRequestClose={() => setIsModalVisible(false)}
     >
-      <ModalHeader onClose={() => setIsModalVisible(false)} />
+      <ModalHeader title="Pick a Filter" onClose={() => setIsModalVisible(false)} />
       <ScrollView style={styles.filterModal}>
         {Object.keys(filterConfig).map((key) => (
           <TouchableOpacity
@@ -280,31 +299,26 @@ const FilterScreen: FC<FilterScreenProps> = () => {
   const renderFilterValuePicker = () => (
     <Modal
       animationType="slide"
-      transparent={true}
+      transparent={false}
       visible={isValueModalVisible}
       onRequestClose={() => setIsValueModalVisible(false)}
     >
-      <View style={styles.modalContent}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => setIsValueModalVisible(false)}
-        >
-          <Icon name="chevron-back" size={30} color="#F6EB14" />
-        </TouchableOpacity>
+      <ModalHeader onClose={() => setIsValueModalVisible(false)} title="Select Filter Value" />
+      <ScrollView style={styles.modalContent}>
         {selectedFilterField &&
-          filterConfig[selectedFilterField]?.map((option) => (
+          filterConfig[selectedFilterField]?.map((option, index) => (
             <TouchableOpacity
-              key={String(option)}
-              style={styles.modalButton}
+              key={index}
+              style={styles.applyButton}
               onPress={() => {
                 setFilter(selectedFilterField, option);
                 setIsValueModalVisible(false);
               }}
             >
-              <Text style={styles.modalButtonText}>{String(option)}</Text>
+              <Text style={styles.applyButtonText}>{String(option)}</Text>
             </TouchableOpacity>
           ))}
-      </View>
+      </ScrollView>
     </Modal>
   );
 
@@ -370,25 +384,88 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f2f2f2",
   },
+  fullScreenModal: {
+    flex: 1,
+    backgroundColor: '#f2f2f2',
+  },
+  modalContent: {
+    flexGrow: 1,
+    padding: 20,
+  },
+  authorText: {
+    fontSize: 14,
+    color: "#666",
+    marginVertical: 4,
+  },
+  groupActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  modalInnerContent: {
+    flex: 1,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authorName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+    padding: 10,
+    width: "100%",
+    marginBottom: 10,
+  },
+  button: {
+    backgroundColor: "#1E1E1E",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#F6EB14",
+    fontWeight: "bold",
+  },
+  groupItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "gray",
+  },
+  groupItemContent: {
+    flex: 1,
+  },
+  groupNameText: {
+    fontWeight: "bold",
+  },
+  groupButton: {
+    backgroundColor: "#E8E8E8",
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 5,
+  },
   buttonContainer: {
     backgroundColor: "#1E1E1E",
     padding: 15,
     borderRadius: 8,
     margin: 10,
     alignItems: "center",
-  },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "80%",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   headerTitle: {
     fontSize: 22, // Increased font size
@@ -414,49 +491,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     marginBottom: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    padding: 10,
-    width: "100%",
-    marginBottom: 10,
-  },
-  groupItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
-  },
-  groupNameText: {
-    flex: 1,
-  },
-  groupButton: {
-    backgroundColor: "#E8E8E8",
-    padding: 5,
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  closeButton: {
-    marginTop: 10,
-    backgroundColor: "red",
-    padding: 10,
-    borderRadius: 5,
-  },
-  button: {
-    backgroundColor: "#1E1E1E",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonText: {
-    fontSize: 18,
-    color: "#F6EB14",
-    fontWeight: "bold",
   },
   filterModal: {
     backgroundColor: '#fff',
