@@ -23,33 +23,16 @@ const RegistrationScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handleRegisterPress = async () => {
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return;
-    }
-
-    try {
-      const { success, message } = await AuthService.register(
-        email,
-        password,
-        name
-      );
-      if (success) {
-        Alert.alert(
-          "Registration Successful",
-          "Please wait for an admin to approve your account"
-        );
-        // No navigation code here, so the user will stay on this screen
-      } else {
-        Alert.alert("Registration Failed", message);
-      }
-    } catch (error) {
-      Alert.alert(
-        "Registration Failed",
-        error instanceof Error ? error.message : "An error occurred"
-      );
+    const response = await AuthService.register(email, password, name);
+    if (response.success) {
+      Alert.alert("Registration Successful", "Please log in with your new account.");
+      // Navigate back to the Login screen if necessary
+      // navigation.navigate('Login');
+    } else {
+      Alert.alert("Registration Failed", response.message);
     }
   };
+  
 
   const handleBackPress = () => {
     navigation.goBack();

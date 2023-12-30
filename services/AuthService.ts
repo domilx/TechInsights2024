@@ -106,22 +106,28 @@ class AuthService {
   }
 
   // New method to register with email, password, and name
-  async register(email: string, password: string, name: string): Promise<{ success: boolean; message?: string }> {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-      this.user = userCredential.user;
-      await setDoc(doc(db, 'users', this.user.uid), {
-        email,
-        name,
-        role: 'DEFAULT', // Set the role to DEFAULT upon registration
-        hasAccess: false, // Set hasAccess to false upon registration
-      });
+async register(email: string, password: string, name: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+    this.user = userCredential.user;
 
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
-    }
+    await setDoc(doc(db, 'users', this.user.uid), {
+      email,
+      name,
+      role: 'DEFAULT', // Set the role to DEFAULT upon registration
+      hasAccess: false, // Set hasAccess to false upon registration
+    });
+
+    // Sign out the user right after registration
+    await signOut(this.auth);
+    this.user = null;
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
   }
+}
+
 
   // New method to logout
   async logout(): Promise<void> {
