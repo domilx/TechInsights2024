@@ -3,8 +3,10 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signOut,
+  updateProfile,
   User,
+  signOut,
+  updatePassword,
 } from 'firebase/auth';
 import { db } from '../firebase'; // Adjust this import as per your Firebase configuration
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -35,6 +37,40 @@ class AuthService {
     return AuthService.instance;
   }
 
+  public getUser(): User | null {
+    return this.user;
+  }
+
+  public async getUserName(): Promise<string | null> {
+    //get the name from the user document
+    try {
+      if (this.user) {
+        const userDoc = await getDoc(doc(db, 'users', this.user.uid));
+        if (userDoc.exists()) {
+          return userDoc.data().name;
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  public async getUserRole(): Promise<string | null> {
+    //get the role from the user document
+    try {
+      if (this.user) {
+        const userDoc = await getDoc(doc(db, 'users', this.user.uid));
+        if (userDoc.exists()) {
+          return userDoc.data().role;
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   // Define the method to subscribe to auth state changes
   public listenToAuthStateChanges(callback: AuthStateChangedCallback): () => void {
     this.authStateChangedListener = callback;
@@ -42,6 +78,7 @@ class AuthService {
       this.authStateChangedListener = null;
     };
   }
+  
 
   // Check if a user is logged in
   public isLoggedIn(): boolean {
@@ -93,6 +130,39 @@ class AuthService {
       this.user = null;
     } catch (error) {
       // Handle logout error if needed
+    }
+  }
+
+  // New method to change user profile
+  async changeName(name: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      if (this.user) {
+        await updateProfile(this.user, { displayName: name });
+        // Notify the listener if it's active
+        if (this.authStateChangedListener) {
+          this.authStateChangedListener(this.user);
+        }
+
+        return { success: true };
+      } else {
+        return { success: false, message: 'User not authenticated.' };
+      }
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
+    }
+  }
+
+  async changePassword(newPassword: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      if (this.user) {
+        await updatePassword(this.user, newPassword);
+
+        return { success: true };
+      } else {
+        return { success: false, message: 'User not authenticated.' };
+      }
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
     }
   }
 }

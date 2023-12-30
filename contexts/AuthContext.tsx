@@ -16,7 +16,7 @@ export const AuthProvider: React.FC = ({ children }: any) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = AuthService.onAuthStateChanged((user) => {
+    const unsubscribe = AuthService.listenToAuthStateChanges((user) => {
       setCurrentUser(user);
       setIsLoading(false);
     });
