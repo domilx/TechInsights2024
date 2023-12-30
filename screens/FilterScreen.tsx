@@ -19,6 +19,7 @@ import {
 } from "../models/PitModel";
 import Icon from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
+import ModalHeader from "./components/ModalHeader";
 
 interface FilterScreenProps {}
 
@@ -259,17 +260,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     if (!availableFilters.includes(filterField)) {
       setAvailableFilters((prevFilters) => [...prevFilters, filterField]);
     }
-  };
-
-  const ModalHeader: FC<{ onClose: () => void, title: string }> = ({ onClose, title }) => (
-    <View style={styles.modalHeader}>
-      <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
-        <Icon name="chevron-back" size={30} color="#F6EB14" />
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.modalHeaderText}>{title}</Text>
-    </View>
-  );  
+  }; 
 
   const renderFilterPicker = () => (
     <Modal
@@ -473,21 +464,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  backButtonWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "absolute",
-    left: 10,
-    top: 45,
-  },
-  modalHeader: {
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    backgroundColor: "#1E1E1E",
-  },
   modalTitle: {
     fontSize: 20,
     marginBottom: 10,
@@ -502,15 +478,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
-  },
-  backButtonText: {
-    color: "#F6EB14",
-    marginLeft: 5,
-  },
-  modalHeaderText: {
-    fontSize: 16,
-    color: "#F6EB14",
-    fontWeight: "bold",
   },
   filterContainer: {
     flexDirection: "row",

@@ -1,82 +1,48 @@
-import React, { useState, FC } from "react";
+import React, { useState, useEffect, FC } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
+  FlatList,
   Alert,
   Modal,
   ScrollView,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  DriveBaseMotor,
-  DriveBaseType,
-  DriverExperience,
-  PitModel,
-  Stability,
-} from "../models/PitModel";
 import Icon from "@expo/vector-icons/Ionicons";
-import { useFocusEffect } from "@react-navigation/native";
 import AuthService from "../services/AuthService";
 
-interface SettingsScreenProps {}
+interface IUser {
+  id: string;
+  name: string;
+  isDev: boolean;
+  hasAccess: boolean;
+}
 
-const SettingsScreen: FC<SettingsScreenProps> = () => {
-  const [name, setName] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [user, setUser] = useState("");
+const SettingsScreen: FC = () => {
+  const [users, setUsers] = useState<IUser[]>([]);
   const [isDev, setIsDev] = useState(false);
+  const [user, setUser] = useState("");
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const getUser = async () => {
-        const user = await AuthService.getUserName();
-        setUser(user || "");
-      };
-      console.log(user);
-      const getDev = async () => {
-        const dev = await AuthService.getUserRole();
-        setIsDev(dev === "DEV");
+  useEffect(() => {
+    const init = async () => {
+      const dev = await AuthService.getUserRole();
+      setIsDev(dev === "DEV");
+      if (dev === "DEV") {
+        await fetchUsers();
       }
-      getDev();
-      getUser();
-    }
-    , [])
-  );
+    };
+    init();
 
-  const handleChangeProfile = async () => {
-    try {
-      // Your code to change the profile
-      Alert.alert(
-        "Profile Updated",
-        "Your profile has been successfully updated."
-      );
-    } catch (error) {
-      Alert.alert(
-        "Profile Update Failed",
-        "An error occurred during profile update."
-      );
-    }
-  };
-
-  const handleChangePassword = async () => {
-    try {
-      // Your code to change the password
-      Alert.alert(
-        "Password Changed",
-        "Your password has been successfully changed."
-      );
-      setNewPassword(""); // Clear the new password field
-    } catch (error) {
-      Alert.alert(
-        "Password Change Failed",
-        "An error occurred during password change."
-      );
-    }
-  };
+    const getUser = async () => {
+      const userName = await AuthService.getUserName();
+      console.log("Fetched User Name:", userName); // Debugging log
+      setUser(userName || "Unnamed User"); // Fallback to 'Unnamed User' if name is not available
+    };
+    getUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -97,16 +63,61 @@ const SettingsScreen: FC<SettingsScreenProps> = () => {
     }
   };
 
-  const ModalHeader: FC<{ onClose: () => void; title: string }> = ({
-    onClose,
-    title,
-  }) => (
-    <View style={styles.modalHeader}>
-      <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
-        <Icon name="chevron-back" size={30} color="#F6EB14" />
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
-      <Text style={styles.modalHeaderText}>{title}</Text>
+  const fetchUsers = async () => {
+    const fetchedUsers = await AuthService.fetchAllUsers();
+    //@ts-ignore
+    setUsers(fetchedUsers);
+  };
+
+  const handleAccessChange = async (userId: string, hasAccess: boolean) => {
+    try {
+      const response = hasAccess
+        ? await AuthService.revokeAccess(userId)
+        : await AuthService.grantAccess(userId);
+      if (response.success) {
+        Alert.alert("Success", `User access updated.`);
+        fetchUsers();
+      } else {
+        Alert.alert("Error", response.message);
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while updating user access.");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const response = await AuthService.deleteUser(userId);
+      if (response.success) {
+        Alert.alert("Success", "User deleted successfully.");
+        fetchUsers();
+      } else {
+        Alert.alert("Error", response.message);
+      }
+    } catch (error) {
+      Alert.alert("Error", "An error occurred while deleting the user.");
+    }
+  };
+
+  const renderUserItem = ({ item }: { item: IUser }) => (
+    <View style={styles.userItem}>
+      <Text style={styles.userName}>{item.name}</Text>
+      <View style={styles.roleButtons}>
+        <TouchableOpacity
+          style={[styles.roleButton, styles.additionalMargin]}
+          onPress={() => handleAccessChange(item.id, item.hasAccess)}
+        >
+          <Text style={styles.buttonText}>
+            {item.hasAccess ? "Revoke Access" : "Grant Access"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.roleButton}
+          onPress={() => handleDeleteUser(item.id)}
+        >
+          <Text style={styles.buttonText}>Delete User</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -117,59 +128,18 @@ const SettingsScreen: FC<SettingsScreenProps> = () => {
         <TouchableOpacity onPress={handleLogout} style={styles.button}>
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => setIsModalVisible(true)}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Modify User</Text>
-        </TouchableOpacity>
+        {isDev && (
+          <>
+            <Text style={styles.headerText}>Dev User Management</Text>
+            <FlatList
+              data={users}
+              renderItem={renderUserItem}
+              keyExtractor={(item) => item.id}
+              style={styles.userList}
+            />
+          </>
+        )}
       </ScrollView>
-
-      <Modal
-        visible={isModalVisible}
-        animationType="slide"
-        transparent={false}
-        onRequestClose={() => setIsModalVisible(false)}
-      >
-        <View style={styles.fullScreenModal}>
-          <ModalHeader
-            title="Modify User"
-            onClose={() => setIsModalVisible(false)}
-          />
-          <ScrollView style={styles.modalContent}>
-            <TextInput
-              placeholder="Name"
-              style={styles.input}
-              value={name}
-              onChangeText={(text) => setName(text)}
-            />
-            <TouchableOpacity
-              onPress={handleChangeProfile}
-              style={styles.Modalbutton}
-            >
-              <Text style={styles.buttonText}>Change Name</Text>
-            </TouchableOpacity>
-            <TextInput
-              placeholder="New Password"
-              secureTextEntry
-              style={styles.input}
-              value={newPassword}
-              onChangeText={(text) => setNewPassword(text)}
-            />
-            <TouchableOpacity
-              onPress={handleChangePassword}
-              style={styles.Modalbutton}
-            >
-              <Text style={styles.buttonText}>Change Password</Text>
-            </TouchableOpacity>
-          </ScrollView>
-          {isDev && (
-            <Text>Dev</Text>
-          )
-          }
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -178,6 +148,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#fff",
+  },
+  userItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    width: "100%", // Ensure full width
+  },
+  // ... rest of the styles ...
+
+  userList: {
+    marginTop: 20,
+    width: "100%", // Ensure full width
+  },
+  userName: {
+    fontSize: 18,
+    flex: 1, // Give the user name component flex to take available space
+    paddingRight: 10, // Add some padding to prevent text from touching the buttons
+  },
+  roleButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    // Remove flex property to allow natural sizing of buttons
+  },
+  roleButton: {
+    backgroundColor: "#1E1E1E",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  additionalMargin: {
+    marginRight: 0,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  buttonText: {
+    color: "red",
+    fontSize: 14,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -200,11 +217,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 50,
   },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 30,
-  },
   button: {
     backgroundColor: "#1E1E1E",
     padding: 15,
@@ -213,42 +225,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  buttonText: {
-    fontSize: 16,
-    color: "#F6EB14",
-    fontWeight: "bold",
-  },
   modalContent: {
     flexGrow: 1,
     padding: 20,
   },
-  modalHeader: {
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    backgroundColor: "#1E1E1E",
-  },
-  backButtonWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "absolute",
-    left: 10,
-    top: 45,
-  },
   fullScreenModal: {
     flex: 1,
     backgroundColor: "#f2f2f2",
-  },
-  backButtonText: {
-    color: "#F6EB14",
-    marginLeft: 5,
-  },
-  modalHeaderText: {
-    fontSize: 16,
-    color: "#F6EB14",
-    fontWeight: "bold",
   },
 });
 

@@ -13,6 +13,7 @@ import { PitModel } from '../../models/PitModel';
 import Icon from '@expo/vector-icons/Ionicons';
 import { DataContext } from '../../contexts/DataContext';
 import MatchView from './MatchView';
+import ModalHeader from '../components/ModalHeader';
 
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
@@ -100,22 +101,12 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         onRequestClose={() => setIsModalVisible(false)}
         animationType='slide'
       >
-        <ModalHeader onClose={() => setIsModalVisible(false)} />
+        <ModalHeader title='All Matches' onClose={() => setIsModalVisible(false)} />
         <MatchView matches={selectedTeam?.matches || []} />
       </Modal>
     </ScrollView>
   );
 };
-
-const ModalHeader: FC<{ onClose: () => void }> = ({ onClose }) => (
-  <View style={styles.modalHeader}>
-    <TouchableOpacity style={styles.backButtonWrapper} onPress={onClose}>
-      <Icon name="chevron-back" size={30} color="#F6EB14" />
-      <Text style={styles.backButtonText}>Back</Text>
-    </TouchableOpacity>
-    <Text style={styles.modalHeaderText}>Match Details</Text>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -152,39 +143,6 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: 'bold',
     textAlign: 'center', // Center the text within the view
-  },
-  modalHeader: {
-    paddingTop: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 15,
-    backgroundColor: "#1E1E1E",
-  },
-  backButtonWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "absolute",
-    left: 10,
-    top: 45,
-  },
-  backButtonText: {
-    color: "#F6EB14",
-    marginLeft: 5,
-  },
-  modalHeaderText: {
-    fontSize: 16,
-    color: "#F6EB14",
-    fontWeight: "bold",
-  },
-  modal: {
-    paddingVertical: 20,
-    justifyContent: "center",
-    color: "#F6EB14",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   teamTitle: {
     fontSize: 20,

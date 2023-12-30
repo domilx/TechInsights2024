@@ -9,7 +9,7 @@ import {
   updatePassword,
 } from 'firebase/auth';
 import { db } from '../firebase'; // Adjust this import as per your Firebase configuration
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 
 type AuthStateChangedCallback = (user: User | null) => void;
 
@@ -163,6 +163,88 @@ class AuthService {
       }
     } catch (error) {
       return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
+    }
+  }
+
+  // Fetch all users from the database
+  async fetchAllUsers() {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'users'));
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      return [];
+    }
+  }
+
+  // Grant 'DEV' role to a user
+  async grantDevRole(userId: string) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        role: 'DEV'
+      });
+      return { success: true };
+    } catch (error: any) {
+      console.error("Error updating user role:", error);
+      return { success: false, message: error.message || 'Failed to update user role' };
+    }
+  }
+
+  // Revoke 'DEV' role from a user
+  async removeDevRole(userId: string) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        role: 'DEFAULT' // or any other role you use for standard users
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      return { success: false, message: (error as any).message || 'Failed to update user role' };
+    }
+  }
+
+  // Method to grant access to a user
+  async grantAccess(userId: string) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        hasAccess: true
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error granting access:", error);
+      return { success: false, message: (error as Error).message || 'Failed to grant access' };
+    }
+  }
+
+  // Method to revoke access from a user
+  async revokeAccess(userId: string) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        hasAccess: false
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error revoking access:", error);
+      return { success: false, message: (error as Error).message || 'Failed to revoke access' };
+    }
+  }
+
+  // Method to delete a user
+  async deleteUser(userId: string) {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await deleteDoc(userRef);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      return { success: false, message: (error as Error).message || 'Failed to delete user' };
     }
   }
 }

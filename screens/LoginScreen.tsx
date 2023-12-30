@@ -23,6 +23,7 @@ const LoginScreen: React.FC = () => {
   
 
   const navigateToRegister = () => {
+    //@ts-ignore
     navigation.navigate("Register");
   };
 
@@ -57,40 +58,43 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    marginTop: 150,
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f2f2f2", // Adjusted to match other screens
     padding: 20,
   },
   headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 22,
+    color: '#333',
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 30,
   },
   input: {
-    width: "100%",
-    padding: 15,
-    marginVertical: 10,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "gray",
     borderRadius: 5,
+    padding: 10,
+    width: "100%",
     backgroundColor: "#fff",
+    marginBottom: 10,
   },
   button: {
-    width: "100%",
+    backgroundColor: "#1E1E1E", // Matched with other screens
     padding: 15,
-    backgroundColor: "#007bff",
+    borderRadius: 8,
+    width: "100%",
     alignItems: "center",
-    borderRadius: 5,
     marginTop: 20,
   },
   buttonText: {
-    color: "#fff",
+    fontSize: 18,
+    color: "#F6EB14", // Adjusted to match other screens
     fontWeight: "bold",
   },
   switchText: {
     marginTop: 15,
-    color: "#007bff",
+    color: "#1E1E1E", // Keep or adjust to match theme
   },
 });
 
