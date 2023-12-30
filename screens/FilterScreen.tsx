@@ -149,7 +149,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     const [newGroupName, setNewGroupName] = useState("");
     const [isRenaming, setIsRenaming] = useState(false);
     const [groupNameToRename, setGroupNameToRename] = useState<string | null>(null);
-      
+
     const handleSaveGroup = () => {
       if (!newGroupName.trim()) {
         Alert.alert("Error", "Group name cannot be empty!");
@@ -468,10 +468,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    fontSize: 22, // Increased font size
+    fontSize: 22,
     color: '#333',
     fontWeight: 'bold',
-    textAlign: 'center', // Center the text within the view
+    textAlign: 'center',
   },
   backButtonWrapper: {
     flexDirection: "row",
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.5)", 
   },
   applyButtonText: {
     fontSize: 18,

@@ -1,59 +1,55 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
-import { Alert } from "react-native";
-import { ImageBackground } from "react-native";
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import AuthService from "../services/AuthService"; // Ensure this path is correct
 
-type LoginScreenProps = {
-  onLogin: () => void;
-};
+const LoginScreen: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const navigation = useNavigation();
 
-const LoginScreen: React.FC<LoginScreenProps> = ({
-  onLogin,
-}: React.PropsWithChildren<LoginScreenProps>) => {
-  const [password, setPassword] = useState("");
-
-  const handleLoginPress = () => {
-    if (password === "FIRST2023$") {
-      onLogin();
-    } else {
-      Alert.alert("Incorrect Password", "Please try again.", [
-        { text: "OK", onPress: () => {} },
-      ]);
+  const handleLoginPress = async () => {
+    try {
+      const { success, message } = await AuthService.login(email, password);
+      if (success) {
+        // Login was successful, navigate based on the user's role or to the main app screen
+      } else {
+        Alert.alert('Login Failed', message);
+      }
+    } catch (error) {
+      Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
     }
+  };
+  
+
+  const navigateToRegister = () => {
+    navigation.navigate("Register");
   };
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require("../assets/Mystic.png")}
-        style={StyleSheet.absoluteFill}
-      >
-        <View style={styles.content} />
-      </ImageBackground>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.logoText}>TechInsights</Text>
-          <Text style={styles.logoEmoji}>🔧</Text>
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Access Password"
-          secureTextEntry={true}
-          onChangeText={(text) => setPassword(text)}
-          placeholderTextColor="#8a8a8a"
-        />
-        <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-        <Text style={styles.signUpText}>Need Access? Contact Domenico</Text>
-      </View>
-      <Text style={styles.credit}>made by domi & noril</Text>
+      <Text style={styles.headerText}>Welcome to TechInsights 🔧</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={navigateToRegister}>
+        <Text style={styles.switchText}>Don't have an account? Register</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -61,71 +57,40 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center",
-    paddingTop: 110,
-    paddingHorizontal: 20,
+    backgroundColor: "#f5f5f5",
+    padding: 20,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 40,
-  },
-  logoText: {
-    fontSize: 34,
-    fontWeight: "800",
-    textAlign: "left",
-    flex: 1,
-  },
-  logoEmoji: {
-    fontSize: 34,
+  headerText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 30,
   },
   input: {
     width: "100%",
-    height: 45,
-    backgroundColor: "white",
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 12,
-    borderWidth: 0.5,
-    borderColor: "#c2e9fb",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 4,
+    padding: 15,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    backgroundColor: "#fff",
   },
-  loginButton: {
+  button: {
     width: "100%",
-    height: 45,
-    backgroundColor: "black",
-    justifyContent: "center",
+    padding: 15,
+    backgroundColor: "#007bff",
     alignItems: "center",
-    borderRadius: 12,
+    borderRadius: 5,
+    marginTop: 20,
   },
-  loginButtonText: {
-    color: "white",
+  buttonText: {
+    color: "#fff",
     fontWeight: "bold",
-    fontSize: 18,
   },
-  signUpText: {
-    marginTop: 10,
-    color: "black",
-    textAlign: "center",
-  },
-  credit: {
-    marginTop: 5,
-    marginBottom: 20,
-    color: "grey",
-    textAlign: "center",
+  switchText: {
+    marginTop: 15,
+    color: "#007bff",
   },
 });
 

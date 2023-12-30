@@ -11,44 +11,31 @@ import { createStackNavigator } from "@react-navigation/stack";
 import CameraScreen from "./CameraScreen";
 import UploadScreen from "./UploadScreen";
 import FilterScreen from "./FilterScreen";
+import RegistrationScreen from "./RegistrationScreen";
+import AuthService from "../services/AuthService"; // Ensure this path is correct
+import { User } from "firebase/auth";
+import SettingsScreen from "./SettingsScreen";
+import { auth } from "../firebase";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function AppNavigator() {
+const AppNavigator: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Check if the user is logged in when the component mounts
-    const checkLoginStatus = async () => {
-      try {
-        const value = await AsyncStorage.getItem("isLoggedIn");
-        if (value !== null) {
-          setIsLoggedIn(value === "true");
-        }
-      } catch (error) {
-        // Handle error
-        console.error("Failed to load login status:", error);
-      }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsLoggedIn(!!user);
+    });
+
+    return () => {
+      unsubscribe();
     };
-
-    checkLoginStatus();
   }, []);
-
-  const handleLogin = async () => {
-    try {
-      await AsyncStorage.setItem("isLoggedIn", "true");
-      setIsLoggedIn(true);
-    } catch (error) {
-      // Handle error
-      console.error("Failed to save login status:", error);
-    }
-  };
-
-  if (!isLoggedIn) return <LoginScreen onLogin={handleLogin} />;
-
+  
   return (
     <NavigationContainer>
+      {isLoggedIn ? (
       <Stack.Navigator>
         <Stack.Screen name="MainTabs" options={{ headerShown: false, title: "Home", }}>
           {({ navigation }) => (
@@ -125,6 +112,27 @@ function AppNavigator() {
                     ),
                   }}
                 />
+                <Tab.Screen
+                  name="Settings"
+                  component={SettingsScreen}
+                  options={{
+                    tabBarLabel: "Settings",
+                    headerStyle: {
+                      backgroundColor: "#1E1E1E", // Set your desired background color here
+                    },
+                    headerTintColor: "#F6EB14", // Set your desired text color here
+                    headerTitleStyle: {
+                      fontWeight: "bold",
+                    },
+                    tabBarIcon: ({ color, size, focused }) => (
+                      <Icon
+                        name={focused ? "cog" : "cog-outline"}
+                        color={focused ? "#F6EB14" : color}
+                        size={size}
+                      />
+                    ),
+                  }}
+                />
               </Tab.Navigator>
               <FloatingButton navigation={navigation} />
             </>
@@ -158,7 +166,24 @@ function AppNavigator() {
             title: "Confirm Data",
           }}
         />
-      </Stack.Navigator>
+      </Stack.Navigator> 
+      ) : (
+        // User is not logged in, render the login and register screens
+        <>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegistrationScreen}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+        </>
+      )}
     </NavigationContainer>
   );
 }
