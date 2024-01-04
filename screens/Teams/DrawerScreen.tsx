@@ -77,8 +77,20 @@ export default function DrawerScreen({ navigation }: any) {
     } else {
       Alert.alert("Sync Failed", response.message);
     }
-};
+  };
 
+  //everytime the screen is viewed it will sync
+  useEffect(() => {
+    const sync = async () => {
+      const response = await syncData();
+      if (response.success && response.data) {
+        setTeams(response.data);
+        setLastSync(new Date().toISOString());
+        saveDataLocally("fetchedData", response.data);
+      }
+    };
+    sync();
+  }, []);
 
   // This function remains unchanged
   const loadLastSyncTime = async () => {

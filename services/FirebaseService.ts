@@ -67,3 +67,40 @@ export const uploadMatchDataToFirebase = async (matchData: MatchModel, teamRef: 
     return { success: false, message: error.message || "Failed to upload match data to Firebase." };
   }
 };
+
+export const deleteMatchDataFromFirebase = async (matchRef: any) => {
+  try {
+    await setDoc(matchRef, initialMatchData);
+    return { success: true, message: "Match data deleted successfully." };
+  } catch (error: any) {
+    console.error("Error deleting Match data from Firebase: ", error);
+    return { success: false, message: error.message || "Failed to delete match data from Firebase." };
+  }
+};
+
+export const deletePitDataFromFirebase = async (teamRef: any) => {
+  try {
+    await setDoc(teamRef, initialPitData);
+    return { success: true, message: "Pit data deleted successfully." };
+  } catch (error: any) {
+    console.error("Error deleting Pit data from Firebase: ", error);
+    return { success: false, message: error.message || "Failed to delete pit data from Firebase." };
+  }
+}
+
+export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
+  const teamRef = doc(db, "teams", teamNumber.toString()); 
+
+  try {
+    const docSnap = await getDoc(teamRef);
+    if (docSnap.exists()) {
+      await updateDoc(teamRef, { ...pitData });
+    } else {
+      await setDoc(teamRef, pitData);
+    }
+    return { success: true, message: "Pit data uploaded successfully." };
+  } catch (error: any) {
+    console.error("Error uploading Pit data to Firebase: ", error);
+    return { success: false, message: error.message || "Failed to upload pit data to Firebase." };
+  }
+};

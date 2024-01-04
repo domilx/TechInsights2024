@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Alert,
 } from 'react-native';
 import DisplayPitData from '../../models/DisplayPitData';
 import DisplayStatsData from '../../models/DisplayStatsData';
@@ -14,6 +15,10 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { DataContext } from '../../contexts/DataContext';
 import MatchView from './MatchView';
 import ModalHeader from '../components/ModalHeader';
+import { doc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { deletePitDataFromFirebase } from '../../services/FirebaseService';
+import EditPitDataScreen from './EditPitDataScreen';
 
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
@@ -27,6 +32,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   const { teams } = useContext(DataContext);
   const [selectedTeam, setSelectedTeam] = useState<PitModel | undefined>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   useEffect(() => {
     const teamFromRoute = route.params?.team;
@@ -75,6 +81,29 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     );
   };
 
+  const handleDeletePitData = async () => {
+    if (!selectedTeam) {
+      Alert.alert("Error", "No team selected");
+      return;
+    }
+
+    Alert.alert(
+      "Delete Pit Data",
+      "Are you sure you want to delete pit data for the selected team?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "OK",
+          onPress: async () => {
+            const teamRef = doc(db, "teams", selectedTeam.RobTeamNm);
+            const response = await deletePitDataFromFirebase(teamRef);
+            Alert.alert(response.success ? "Success" : "Error", response.message);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.teamHeader}>
@@ -104,6 +133,27 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         <ModalHeader title='All Matches' onClose={() => setIsModalVisible(false)} />
         <MatchView matches={selectedTeam?.matches || []} />
       </Modal>
+      <Modal
+        visible={editModalVisible}
+        onRequestClose={() => setEditModalVisible(false)}
+        animationType='slide'
+      >
+        <ModalHeader title='Edit Pit Data' onClose={() => setEditModalVisible(false)} />
+        {selectedTeam && <EditPitDataScreen team={selectedTeam} />}
+      </Modal>
+      <TouchableOpacity onPress={() => setEditModalVisible(true)}>
+        <View style={styles.butHeader}>
+          <Text style={styles.butTitle}>
+            {selectedTeam ? selectedTeam.RobTeamNm : 'Team Details'} - Edit Pit Data
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.deleteButton} 
+        onPress={handleDeletePitData}
+      >
+        <Text style={styles.deleteButtonText}>Delete Pit Data</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -124,6 +174,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center', // Center the text horizontally
+  },
+  deleteButton: {
+    backgroundColor: 'red', // Choose a color that indicates a delete action
+    padding: 15,
+    borderRadius: 8,
+    margin: 10,
+    alignItems: 'center', // Center the text horizontally
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  deleteButtonText: {
+    color: '#fff', // Text color that contrasts with the button's background
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   butHeader: {
     padding: 15,
