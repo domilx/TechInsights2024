@@ -78,16 +78,6 @@ export const deleteMatchDataFromFirebase = async (matchRef: any) => {
   }
 };
 
-export const deletePitDataFromFirebase = async (teamRef: any) => {
-  try {
-    await setDoc(teamRef, initialPitData);
-    return { success: true, message: "Pit data deleted successfully." };
-  } catch (error: any) {
-    console.error("Error deleting Pit data from Firebase: ", error);
-    return { success: false, message: error.message || "Failed to delete pit data from Firebase." };
-  }
-}
-
 export const deleteTeamFromFirebase = async (teamRef: any) => {
   try {
     await deleteDoc(teamRef);

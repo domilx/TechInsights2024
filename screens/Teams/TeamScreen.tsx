@@ -17,10 +17,7 @@ import MatchView from "./MatchView";
 import ModalHeader from "../components/ModalHeader";
 import { doc } from "firebase/firestore";
 import { db } from "../../firebase";
-import {
-  deletePitDataFromFirebase,
-  deleteTeamFromFirebase,
-} from "../../services/FirebaseService";
+import { deleteTeamFromFirebase } from "../../services/FirebaseService";
 import EditPitDataScreen from "./EditPitDataScreen";
 import { syncData } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
@@ -91,43 +88,6 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
           })}
         </View>
       )
-    );
-  };
-
-  const handleDeletePitData = async () => {
-    if (!selectedTeam) {
-      Alert.alert("Error", "No team selected");
-      return;
-    }
-
-    Alert.alert(
-      "Delete Pit Data",
-      "Are you sure you want to delete pit data for the selected team?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "OK",
-          onPress: async () => {
-            try {
-              const teamRef = doc(db, "teams", selectedTeam.TeamNb.toString());
-              const response = await deletePitDataFromFirebase(teamRef);
-              Alert.alert(
-                response.success ? "Success" : "Error",
-                response.message
-              );
-              const syncResult = await syncData();
-              if (syncResult.success && syncResult.data) {
-                setTeams(syncResult.data);
-                setLastSync(new Date().toISOString());
-                // Save the updated teams data locally
-                saveDataLocally("fetchedData", syncResult.data);
-              }
-            } catch (error) {
-              Alert.alert("Error", (error as Error).message);
-            }
-          },
-        },
-      ]
     );
   };
 
@@ -215,12 +175,6 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
             Data
           </Text>
         </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={handleDeletePitData}
-      >
-        <Text style={styles.deleteButtonText}>Delete Pit Data</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTeam}>
         <Text style={styles.deleteButtonText}>Delete Team</Text>
