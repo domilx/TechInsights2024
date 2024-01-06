@@ -100,21 +100,6 @@ function getAutoMobilityPercentage(matches: MatchModel[]): number {
 }
 
 /**
- * Calculates the average auto score from the last 5 matches, excluding the highest and lowest scores.
- * @param matches Array of MatchModel objects.
- * @returns Adjusted average auto score.
- */
-function getAutoAverageScore(matches: MatchModel[]): number {
-  const recentMatches = matches.slice(-5);
-  const scores = recentMatches.map((match) => match.TotalPointsAlliance);
-  const sortedScores = scores.sort((a, b) => a - b);
-  sortedScores.pop();
-  sortedScores.shift();
-  const sum = sortedScores.reduce((sum, score) => sum + score, 0);
-  return sum / sortedScores.length;
-}
-
-/**
  * Calculates the adjusted average of auto game pieces handled, removing the highest and lowest values.
  * @param matches Array of MatchModel objects.
  * @returns Adjusted average of auto game pieces.
@@ -313,7 +298,7 @@ function getAveragePlaysDefenseScore(matches: MatchModel[]): number {
   const defenseCount = recentMatches.filter(
     (match) => match.TeleopStatus3
   ).length;
-  return recentMatches.length ? defenseCount / recentMatches.length : 0;
+  return (recentMatches.length ? defenseCount / recentMatches.length : 0) * 100;
 }
 
 /**
@@ -380,18 +365,6 @@ function getAveragePointsPerMatch(matches: MatchModel[]): number {
 }
 
 /**
- * Calculates an efficiency score based on points scored versus number of game pieces used.
- * @param matches Array of MatchModel objects.
- * @returns Efficiency score.
- */
-function getEfficiencyScore(matches: MatchModel[]): number {
-  return matches.reduce((sum, match) => {
-    const totalGamePiecesUsed = match.TeleopGamePiece1 + match.TeleopGamePiece2 + match.TeleopGamePiece3 + match.TeleopGamePiece4;
-    return sum + (totalGamePiecesUsed ? match.TotalPointsAlliance / totalGamePiecesUsed : 0);
-  }, 0) / matches.length;
-}
-
-/**
  * Calculates the win rate for matches where the robot had high auto mobility.
  * @param matches Array of MatchModel objects.
  * @returns Win rate with high mobility.
@@ -400,15 +373,6 @@ function getWinRateWithHighMobility(matches: MatchModel[]): number {
   const highMobilityWins = matches.filter(match => match.AutoMobility && match.WonMatch).length;
   const highMobilityMatches = matches.filter(match => match.AutoMobility).length;
   return highMobilityMatches ? highMobilityWins / highMobilityMatches : 0;
-}
-
-/**
- * Calculates the average score for alliance objectives across matches.
- * @param matches Array of MatchModel objects.
- * @returns Average alliance objective score.
- */
-function getAverageAllianceObjectiveScore(matches: MatchModel[]): number {
-  return matches.reduce((sum, match) => sum + match.AllianceObjective1, 0) / matches.length;
 }
 
 /**
@@ -450,6 +414,70 @@ function getAverageRobotQuickness(matches: MatchModel[]): number {
   return recentMatches.length ? totalQuickness / recentMatches.length : 0;
 }
 
+/**
+ * Calculates the average number of gamepiece 1
+ * @param matches Array of MatchModel objects.
+ * @returns The average number of gamepiece 1
+ */
+function getAverageGamePiece1(matches: MatchModel[]): number {
+  const recentMatches = matches.slice(-5);
+  const totalGamePieces = recentMatches.reduce(
+    (sum, match) => sum + match.TeleopGamePiece1,
+    0
+  );
+  return recentMatches.length
+    ? totalGamePieces / recentMatches.length
+    : 0;
+}
+
+/**
+ * Calculates the average number of gamepiece 2
+ * @param matches Array of MatchModel objects.
+ * @returns The average number of gamepiece 2
+ */
+function getAverageGamePiece2(matches: MatchModel[]): number {
+  const recentMatches = matches.slice(-5);
+  const totalGamePieces = recentMatches.reduce(
+    (sum, match) => sum + match.TeleopGamePiece2,
+    0
+  );
+  return recentMatches.length
+    ? totalGamePieces / recentMatches.length
+    : 0;
+}
+
+/**
+ * Calculates the average number of gamepiece 3
+ * @param matches Array of MatchModel objects.
+ * @returns The average number of gamepiece 3
+ */
+function getAverageGamePiece3(matches: MatchModel[]): number {
+  const recentMatches = matches.slice(-5);
+  const totalGamePieces = recentMatches.reduce(
+    (sum, match) => sum + match.TeleopGamePiece3,
+    0
+  );
+  return recentMatches.length
+    ? totalGamePieces / recentMatches.length
+    : 0;
+}
+
+/**
+ * Calculates the average number of gamepiece 4
+ * @param matches Array of MatchModel objects.
+ * @returns The average number of gamepiece 4
+ */
+function getAverageGamePiece4(matches: MatchModel[]): number {
+  const recentMatches = matches.slice(-5);
+  const totalGamePieces = recentMatches.reduce(
+    (sum, match) => sum + match.TeleopGamePiece4,
+    0
+  );
+  return recentMatches.length
+    ? totalGamePieces / recentMatches.length
+    : 0;
+}
+
 export {
   getMatchesPlayed,
   getMatchesWon,
@@ -458,7 +486,6 @@ export {
   getAverageCycleTime,
   getMostFrequentAutoPosition,
   getAutoMobilityPercentage,
-  getAutoAverageScore,
   getAverageAutoGamePieces,
   getAverageAutoObjectivesAchieved,
   getAverageTeleopGamePiecesScored,
@@ -475,8 +502,10 @@ export {
   getTotalAutoPoints,
   getTotalTeleopPoints,
   getAveragePointsPerMatch,
-  getEfficiencyScore,
   getWinRateWithHighMobility,
-  getAverageAllianceObjectiveScore,
   getPointsContributionRatio,
+  getAverageGamePiece1,
+  getAverageGamePiece2,
+  getAverageGamePiece3,
+  getAverageGamePiece4,
 };

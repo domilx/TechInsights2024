@@ -1,6 +1,7 @@
 import { MatchModel } from "./MatchModel";
 
-export interface PitModel {  RobScout: string;
+export interface PitModel {  
+    RobScout: string;
     TeamNb: number;
     RobTeamNm: string;
     RobDrive: DriveBaseType;
@@ -57,7 +58,8 @@ export interface PitModel {  RobScout: string;
   
   
   // Create an initial state object that matches the PitModel interface
-  export const initialPitData: PitModel = {  RobScout: "",
+  export const initialPitData: PitModel = {  
+    RobScout: "",
     TeamNb: 0, 
     RobTeamNm: "",
     RobDrive: DriveBaseType.Other, // Default value as 'Other'

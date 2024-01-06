@@ -4,7 +4,6 @@ import { PitModel } from "./PitModel";
 const DisplayPitData = (pitData: PitModel) => {
   const data = {
     GeneralInfo: [
-      { label: "Scout Name", value: pitData.RobScout, unit: "" },
       { label: "Team Number", value: pitData.TeamNb.toString(), unit: "" },
       { label: "Team Name", value: pitData.RobTeamNm, unit: "" },
     ],
@@ -21,7 +20,7 @@ const DisplayPitData = (pitData: PitModel) => {
       { label: "Split Intake", value: pitData.RobQuest1 ? "Yes" : "No", unit: "" },
       { label: "Can Pick Up Cones from Ground", value: pitData.RobQuest2 ? "Yes" : "No", unit: "" },
       { label: "Can Pick Up Cones from DSS", value: pitData.RobQuest3 ? "Yes" : "No", unit: "" },
-      { label: "Can Place Cones/Cubes High Row4", value: pitData.RobQuest4 ? "Yes" : "No", unit: "" },
+      { label: "Can Place Cones/Cubes High Row", value: pitData.RobQuest4 ? "Yes" : "No", unit: "" },
       { label: "Dual Intake", value: pitData.RobQuest5 ? "Yes" : "No", unit: "" },
       { label: "Auto Engages from left", value: pitData.RobQuest6 ? "Yes" : "No", unit: "" },
       { label: "Auto Engages from right", value: pitData.RobQuest7 ? "Yes" : "No", unit: "" },

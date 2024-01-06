@@ -6,7 +6,6 @@ import {
   getAverageCycleTime,
   getMostFrequentAutoPosition,
   getAutoMobilityPercentage,
-  getAutoAverageScore,
   getAverageAutoGamePieces,
   getAverageAutoObjectivesAchieved,
   getAverageTeleopGamePiecesScored,
@@ -23,23 +22,28 @@ import {
   getTotalAutoPoints,
   getTotalTeleopPoints,
   getAveragePointsPerMatch,
-  getEfficiencyScore,
   getWinRateWithHighMobility,
-  getAverageAllianceObjectiveScore,
   getPointsContributionRatio,
+  getAverageGamePiece1,
+  getAverageGamePiece2,
+  getAverageGamePiece3,
+  getAverageGamePiece4,
 } from "./StatsCalculations";
 
 const DisplayStatsData = {
   MatchOutcomes: [
     { label: "Matches Played", func: getMatchesPlayed, unit: "matches" },
     { label: "Matches Won", func: getMatchesWon, unit: "matches" },
-    { label: "Win Rate with High Mobility", func: getWinRateWithHighMobility, unit: "%" },
+    { label: "Win Rate", func: getWinRateWithHighMobility, unit: "%" },
   ],
   Scoring: [
     { label: "Total Auto Points", func: getTotalAutoPoints, unit: "points" },
     { label: "Total Teleop Points", func: getTotalTeleopPoints, unit: "points" },
     { label: "Average Points Per Match", func: getAveragePointsPerMatch, unit: "points/match" },
-    { label: "Efficiency Score", func: getEfficiencyScore, unit: "points/game piece" },
+    { label: "Average Game Piece1", func: getAverageGamePiece1, unit: "pieces/match" },
+    { label: "Average Game Piece2", func: getAverageGamePiece2, unit: "pieces/match" },
+    { label: "Average Game Piece3", func: getAverageGamePiece3, unit: "pieces/match" },
+    { label: "Average Game Piece4", func: getAverageGamePiece4, unit: "pieces/match" },
   ],
   Ranking: [
     { label: "Current Ranking Points", func: getCurrentRankingPoints, unit: "points" },
@@ -52,8 +56,8 @@ const DisplayStatsData = {
     { label: "Average Robot Tippy Score", func: getAverageRobotTippyScore, unit: "rating" },
   ],
   GamePieceHandling: [
-    { label: "Max Game Pieces", func: getMaxGamePieces, unit: "pieces/match" },
-    { label: "Min Game Pieces", func: getMinGamePieces, unit: "pieces/match" },
+    { label: "Abs Max Game Pieces", func: getMaxGamePieces, unit: "pieces/match" },
+    { label: "Abs Min Game Pieces", func: getMinGamePieces, unit: "pieces/match" },
     { label: "Standard Deviation of Game Pieces", func: getStandardDeviationOfGamePieces, unit: "pieces" },
     { label: "Average Dropped Game Pieces", func: getAverageDroppedGamePieces, unit: "pieces/match" },
     { label: "Average Teleop Game Pieces Scored", func: getAverageTeleopGamePiecesScored, unit: "pieces/match" },
@@ -67,7 +71,7 @@ const DisplayStatsData = {
   Miscellaneous: [
     { label: "Times Incapacitated", func: getTimesIncapacitated, unit: "" },
     { label: "Times Robot Falls", func: getTimesRobotFalls, unit: "" },
-    { label: "Average Alliance Objective Score", func: getAverageAllianceObjectiveScore, unit: "points" },
+    { label: "Average Plays Defense Score", func: getAveragePlaysDefenseScore, unit: "%" },
     { label: "Points Contribution Ratio", func: getPointsContributionRatio, unit: "ratio" },
   ],
 };
