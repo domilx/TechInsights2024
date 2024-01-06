@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import {
 import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";
+import { DataContext } from "../../contexts/DataContext";
+import { syncData } from "../../services/SyncService";
+import { saveDataLocally } from "../../services/LocalStorageService";
 
 interface EditPitDataScreenProps {
   team: PitModel;
@@ -29,6 +32,7 @@ interface EditPitDataScreenProps {
 
 const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   const [pitData, setPitData] = useState<PitModel>(initialPitData);
+  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
 
   useEffect(() => {
     setPitData(team || initialPitData);
@@ -45,9 +49,19 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       return;
     }
 
-    await updatePitData(pitData, pitData.TeamNb);
-    console.log(pitData);
-    Alert.alert("Success", "Pit data saved successfully");
+    try {
+      await updatePitData(pitData, pitData.TeamNb);
+      Alert.alert("Success", "Pit data saved successfully");
+      const syncResult = await syncData();
+      if (syncResult.success && syncResult.data) {
+        setTeams(syncResult.data);
+        setLastSync(new Date().toISOString());
+        // Save the updated teams data locally
+        saveDataLocally("fetchedData", syncResult.data);
+      }
+    } catch (error) {
+      Alert.alert("Error", (error as Error).message);
+    }
   };
 
   const driveBaseTypeItems = Object.keys(DriveBaseType).map((key) => ({
@@ -224,20 +238,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
   },
   uploadButton: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: "#1E1E1E",
     padding: 15,
     borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 20,
     marginBottom: 70,
     marginHorizontal: 20,
   },
   uploadButtonText: {
-    color: '#FFF',
+    color: "#FFF",
     marginLeft: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 

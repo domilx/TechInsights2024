@@ -1,5 +1,5 @@
 import { db } from "../firebase";
-import { collection, getDocs, getDoc, doc, setDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { PitModel, initialPitData } from "../models/PitModel";
 import { MatchModel, initialMatchData } from "../models/MatchModel";
 
@@ -85,6 +85,16 @@ export const deletePitDataFromFirebase = async (teamRef: any) => {
   } catch (error: any) {
     console.error("Error deleting Pit data from Firebase: ", error);
     return { success: false, message: error.message || "Failed to delete pit data from Firebase." };
+  }
+}
+
+export const deleteTeamFromFirebase = async (teamRef: any) => {
+  try {
+    await deleteDoc(teamRef);
+    return { success: true, message: "Team deleted successfully." };
+  } catch (error: any) {
+    console.error("Error deleting Team from Firebase: ", error);
+    return { success: false, message: error.message || "Failed to delete team from Firebase." };
   }
 }
 
