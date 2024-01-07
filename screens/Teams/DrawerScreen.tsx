@@ -17,9 +17,8 @@ import { DataContext } from "../../contexts/DataContext";
 
 export default function DrawerScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
-  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
+  const { teams, setTeams, lastSync, setLastSync, isTeamSelected, setIsTeamSelected } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
   const defaultTeamName = "Default Team";
 
   const handlePress = (team: PitModel) => {
@@ -90,7 +89,13 @@ export default function DrawerScreen({ navigation }: any) {
       }
     };
     sync();
-  }, []);
+    //set isTeamSelected to true if selectedTeam is not null
+    if (selectedTeam !== "Default Team" && selectedTeam !== null) {
+      setIsTeamSelected(true);
+    } else {
+      setIsTeamSelected(false);
+    }
+  }, [selectedTeam]);
 
   // This function remains unchanged
   const loadLastSyncTime = async () => {

@@ -20,6 +20,8 @@ import {
 import Icon from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import ModalHeader from "./components/ModalHeader";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import TeamScreen from "./Teams/TeamScreen";
 
 interface FilterScreenProps {}
 
@@ -96,6 +98,10 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     }, [])
   );
 
+  useEffect(() => {
+    applyFilters();
+  }, [filters]);
+
   const applyFilters = () => {
     const filteredData = originalPitData.filter((team) => {
       return availableFilters.every((filterField) => {
@@ -142,7 +148,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       await AsyncStorage.setItem("filterGroups", JSON.stringify(newGroups));
       setFilterGroups(newGroups);
     } catch (e) {
-      console.log(e);
+      Alert.alert("Error", (e as Error).message);
     }
   };
 
@@ -370,16 +376,19 @@ const FilterScreen: FC<FilterScreenProps> = () => {
           </TouchableOpacity>
         </View>
       ))}
-      <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
-        <Text style={styles.applyButtonText}>Apply Filters</Text>
-      </TouchableOpacity>
       {renderFilterPicker()}
       {renderFilterValuePicker()}
+
       {displayedPitData.map((team, index) => (
-        <View key={index} style={styles.teamContainer}>
-          <Text style={styles.teamText}>{team.RobTeamNm}</Text>
+        <View style={styles.teamContainer}>
+          <View style={styles.teamTextContainer}>
+            <Text style={styles.teamText}>
+              {team.TeamNb}: {team.RobTeamNm}
+            </Text>
+          </View>
         </View>
       ))}
+
       <TouchableOpacity
         style={styles.applyButton}
         onPress={() => setGroupManagementModalVisible(true)}
@@ -397,6 +406,28 @@ const FilterScreen: FC<FilterScreenProps> = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f2f2f2",
+  },
+  teamContainer: {
+    backgroundColor: "#fff",
+    marginVertical: 5,
+    marginHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 15,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  teamTextContainer: {
+    flex: 1,
+  },
+  teamText: {
+    fontWeight: "bold",
+    color: "#333",
   },
   fullScreenModal: {
     flex: 1,
@@ -552,21 +583,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#F6EB14",
     fontWeight: "bold",
-  },
-  teamContainer: {
-    backgroundColor: "#fff",
-    margin: 10,
-    padding: 15,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  teamText: {
-    fontWeight: "bold",
-    color: "#333",
   },
   modalButton: {
     backgroundColor: "#1E1E1E",

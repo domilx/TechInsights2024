@@ -6,6 +6,8 @@ interface DataContextType {
   setTeams: (teams: PitModel[]) => void;
   lastSync: string;
   setLastSync: (lastSync: string) => void;
+  isTeamSelected: boolean;
+  setIsTeamSelected: (isTeamSelected: boolean) => void;
 }
 
 export const DataContext = createContext<DataContextType>({
@@ -13,6 +15,8 @@ export const DataContext = createContext<DataContextType>({
   setTeams: () => {},
   lastSync: '',
   setLastSync: () => {},
+  isTeamSelected: false,
+  setIsTeamSelected: () => {},
 });
 
 interface DataProviderProps {
@@ -22,9 +26,10 @@ interface DataProviderProps {
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [teams, setTeams] = useState<PitModel[]>([]);
   const [lastSync, setLastSync] = useState<string>('');
+  const [isTeamSelected, setIsTeamSelected] = useState<boolean>(false);
 
   return (
-    <DataContext.Provider value={{ teams, setTeams, lastSync, setLastSync }}>
+    <DataContext.Provider value={{ teams, setTeams, lastSync, setLastSync, isTeamSelected, setIsTeamSelected }}>
       {children}
     </DataContext.Provider>
   );

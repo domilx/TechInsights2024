@@ -21,7 +21,8 @@ import { deleteTeamFromFirebase } from "../../services/FirebaseService";
 import EditPitDataScreen from "./EditPitDataScreen";
 import { syncData } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
-
+import { Platform } from "react-native";
+import { InputField } from "../components/InputField";
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
 };
@@ -34,7 +35,16 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   const [selectedTeam, setSelectedTeam] = useState<PitModel | undefined>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
+  const {
+    teams,
+    setTeams,
+    lastSync,
+    setLastSync,
+    isTeamSelected,
+    setIsTeamSelected,
+  } = useContext(DataContext);
+  const [visible1, setVisible1] = useState(false);
+  const [input, setInput] = useState("");
 
   useEffect(() => {
     const teamFromRoute = route.params?.team;
@@ -91,38 +101,81 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     );
   };
 
+  const handleOpenDialog = () => {
+    setVisible1(true);
+  };
+
+  const handleCloseDialog = async () => {
+    if (input === selectedTeam?.TeamNb.toString()) {
+      await confirmDelete();
+    } else {
+      Alert.alert("Error", "Incorrect team number");
+    }
+    setVisible1(false);
+    setInput("");
+  };
+
+  const handleCancel = () => {
+    setVisible1(false);
+    setInput("");
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const teamRef = doc(db, "teams", (selectedTeam?.TeamNb || "").toString());
+      await deleteTeamFromFirebase(teamRef);
+      const syncResult = await syncData();
+      if (syncResult.success && syncResult.data) {
+        setTeams(syncResult.data);
+        setLastSync(new Date().toISOString());
+        saveDataLocally("fetchedData", syncResult.data);
+        setSelectedTeam(undefined);
+        setIsTeamSelected(false);
+      }
+    } catch (error) {
+      Alert.alert("Error", (error as Error).message);
+    }
+  };
+
   const handleDeleteTeam = async () => {
     if (!selectedTeam) {
       Alert.alert("Error", "No team selected");
       return;
     }
 
-    Alert.alert(
-      "Delete Team",
-      "Are you sure you want to delete the selected team?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "OK",
-          onPress: async () => {
-            try {
-              const teamRef = doc(db, "teams", selectedTeam.TeamNb.toString());
-              await deleteTeamFromFirebase(teamRef);
-              const syncResult = await syncData();
-              if (syncResult.success && syncResult.data) {
-                setTeams(syncResult.data);
-                setLastSync(new Date().toISOString());
-                // Save the updated teams data locally
-                saveDataLocally("fetchedData", syncResult.data);
+    if (Platform.OS === "ios") {
+      Alert.prompt(
+        "Confirm Delete",
+        "Enter the team number to delete",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "OK",
+            onPress: async (text) => {
+              if (text === selectedTeam.TeamNb.toString()) {
+                await confirmDelete();
+              } else {
+                Alert.alert("Error", "Incorrect team number");
               }
-            } catch (error) {
-              Alert.alert("Error", (error as Error).message);
-            }
+            },
           },
-        },
-      ]
-    );
+        ],
+        "plain-text",
+        ""
+      );
+    } else {
+      handleOpenDialog();
+    }
   };
+
+  if (!selectedTeam) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <Text>No team data available</Text>
+        <Text>Please select a team</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>

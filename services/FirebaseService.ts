@@ -80,13 +80,18 @@ export const deleteMatchDataFromFirebase = async (matchRef: any) => {
 
 export const deleteTeamFromFirebase = async (teamRef: any) => {
   try {
+    const matchesCol = collection(db, `${teamRef.path}/matches`);
+    const matchSnapshot = await getDocs(matchesCol);
+    for (const matchDoc of matchSnapshot.docs) {
+      await deleteDoc(matchDoc.ref);
+    }
     await deleteDoc(teamRef);
     return { success: true, message: "Team deleted successfully." };
   } catch (error: any) {
     console.error("Error deleting Team from Firebase: ", error);
     return { success: false, message: error.message || "Failed to delete team from Firebase." };
   }
-}
+};
 
 export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
   const teamRef = doc(db, "teams", teamNumber.toString()); 

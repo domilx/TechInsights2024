@@ -38,7 +38,6 @@ const SettingsScreen: FC = () => {
 
     const getUser = async () => {
       const userName = await AuthService.getUserName();
-      console.log("Fetched User Name:", userName); // Debugging log
       setUser(userName || "Unnamed User"); // Fallback to 'Unnamed User' if name is not available
     };
     getUser();
