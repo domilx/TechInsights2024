@@ -23,6 +23,7 @@ import { syncData } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { Platform } from "react-native";
 import { InputField } from "../components/InputField";
+import PhotoScreen from "./PhotoScreen";
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
 };
@@ -35,6 +36,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   const [selectedTeam, setSelectedTeam] = useState<PitModel | undefined>();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const {
     teams,
     setTeams,
@@ -114,6 +116,10 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     setVisible1(false);
     setInput("");
   };
+
+  const openPhoto = () => {
+    setPhotoModalVisible(true);
+  }
 
   const handleCancel = () => {
     setVisible1(false);
@@ -221,11 +227,29 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         />
         {selectedTeam && <EditPitDataScreen team={selectedTeam} />}
       </Modal>
+      <Modal
+        visible={photoModalVisible}
+        onRequestClose={() => setPhotoModalVisible(false)}
+        animationType="slide"
+      >
+        <ModalHeader
+          title="Photos"
+          onClose={() => setPhotoModalVisible(false)}
+        />
+        {selectedTeam && <PhotoScreen team={selectedTeam} />}
+      </Modal>
       <TouchableOpacity onPress={() => setEditModalVisible(true)}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>
             {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Edit Pit
             Data
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => openPhoto()}>
+        <View style={styles.butHeader}>
+          <Text style={styles.butTitle}>
+            {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Photos
           </Text>
         </View>
       </TouchableOpacity>
