@@ -37,7 +37,6 @@ export const DropDownSelector: React.FC<DropDownSelectorProps> = ({
 
 const styles = StyleSheet.create({
   subViews: {
-    width: "90%",
     alignItems: "center",
     marginVertical: 10,
     borderRadius: 10,
@@ -47,11 +46,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   label: {
+    fontSize: 16,
     color: "#555",
     marginBottom: 5,
+    alignSelf: "flex-start",
   },
   dropdown: {
-    height: 50,
+    height: 45,
     width: "100%",
     backgroundColor: "#F0F0F0",
     borderRadius: 15,
