@@ -65,6 +65,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
         team.TeamNb
       );
       if (uploadResult.success) {
+        //@ts-ignore
         setPhotos([...photos, uploadResult.url]);
       }
     } catch (error) {
@@ -74,18 +75,26 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   };
 
   const removePhoto = async (photoUrl: string) => {
-    const photoName = photoUrl.split("/").pop();
+    // Extract the file path from the URL
+    let photoName = photoUrl.split('/').pop();
+  
+    // Decode the file path
+    photoName = decodeURIComponent(photoName ?? '');
+  
+    // Remove query parameters if any
+    const queryParamIndex = photoName.indexOf('?');
+    if (queryParamIndex !== -1) {
+      photoName = photoName.substring(0, queryParamIndex);
+    }
+  
     if (!photoName) {
       console.error("Invalid photo name");
       Alert.alert("Error", "Invalid photo name.");
       return;
     }
-
+  
     try {
-      const removeResult = await removePhotoFromFirebase(
-        team.TeamNb,
-        photoName
-      );
+      const removeResult = await removePhotoFromFirebase(team.TeamNb, photoName);
       if (removeResult.success) {
         setPhotos(photos.filter((photo) => photo !== photoUrl));
       }
@@ -93,6 +102,19 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       console.error("Error removing photo: ", error);
       Alert.alert("Error", "Failed to remove photo.");
     }
+  };  
+
+
+  const confirmAndRemovePhoto = (photoUrl: string) => {
+    Alert.alert(
+      "Delete Photo",
+      "Are you sure you want to delete this photo?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: () => removePhoto(photoUrl) },
+      ],
+      { cancelable: true }
+    );
   };
 
   const toggleFlash = () => {
@@ -104,7 +126,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   }
   if (hasPermission === false) {
     return <Text>No access to camera.</Text>;
-  }
+  }7
 
   return (
     <View style={styles.container}>
@@ -132,10 +154,10 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
           <View key={index} style={styles.photoContainer}>
             <Image source={{ uri: photoUrl }} style={styles.photo} />
             <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => removePhoto(photoUrl)}
+              style={styles.deleteButton}
+              onPress={() => confirmAndRemovePhoto(photoUrl)}
             >
-              <Ionicons name="trash-bin" size={24} color="white" />
+              <Ionicons name="trash-bin" size={24} color="red" />
             </TouchableOpacity>
           </View>
         ))}
@@ -149,6 +171,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  photoContainer: {
+    position: "relative",
+    alignItems: "center",
+    marginBottom: 20,
+    width: windowWidth * 0.8, // Adjust width as needed
+  },
+  photo: {
+    width: "100%",
+    height: 300,
+    borderRadius: 10,
+  },
+  deleteButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "white",
+    borderRadius: 15,
+    padding: 5,
   },
   camera: {
     width: windowWidth,
@@ -170,15 +211,6 @@ const styles = StyleSheet.create({
   },
   photoScrollContainer: {
     marginTop: 20,
-  },
-  photoContainer: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  photo: {
-    width: 300,
-    height: 300,
-    borderRadius: 10,
   },
   removeButton: {
     marginTop: 10,
