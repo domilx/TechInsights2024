@@ -221,8 +221,8 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       />
       <InputField
         label="Comment"
-        value={pitData.RobComm1.toString()}
-        onChange={(text) => handleChange("RobComm1", parseInt(text))}
+        value={pitData.RobComm1}
+        onChange={(value) => handleChange("RobComm1", value)}
       />
       <TouchableOpacity style={styles.uploadButton} onPress={handleSave}>
         <Text style={styles.uploadButtonText}>Save</Text>
