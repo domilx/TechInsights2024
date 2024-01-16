@@ -20,7 +20,7 @@ const DisplayPitData = (pitData: PitModel) => {
     ],
     RobotCapabilities: [
       { label: "Well Made", value: pitData.WellMade.toString(), unit: "" },
-      { label: "Single Intake Shooter", value: pitData.SingleIntakeShooter ? "Yеs" : "No", unit: "" },
+      { label: "Single Intake Shooter", value: pitData.SingleIntakeShooter ? "Yes" : "No", unit: "" },
       { label: "Pickup Spots", value: pitData.PickupSpots.toString(), unit: "" },
       { label: "Score Spots", value: pitData.ScoreSpots.toString(), unit: "" },
       { label: "Center of Gravity", value: pitData.CenterOfGravity.toString(), unit: "" },
