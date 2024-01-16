@@ -1,89 +1,134 @@
 import { MatchModel } from "./MatchModel";
 
-export interface PitModel {  
-    RobScout: string;
-    TeamNb: number;
-    RobTeamNm: string;
-    RobDrive: DriveBaseType;
-    RobMotor: DriveBaseMotor;
-    RobDriveExp: DriverExperience;
-    RobWtlbs: number;
-    RobWidth: number;
-    RobLength: number;
-    RobStble: Stability;
-    RobQuest1: boolean;
-    RobQuest2: boolean;
-    RobQuest3: boolean;
-    RobQuest4: boolean;
-    RobQuest5: boolean;
-    RobQuest6: boolean;
-    RobQuest7: boolean;
-    RobQuest8: boolean;
-    RobQuest9: boolean;
-    RobQuest10: boolean;
-    RobQuest11: boolean;
-    RobQuest12: boolean;
-    RobQuest13: boolean;
-    RobQuest14: boolean;
-    RobQuest15: boolean;
-    RobComm1: string;
-    matches?: MatchModel[];
-  }
-  
-  // Enums for dropdowns
-  export enum DriveBaseType {
-    Swerve = 'Swerve',
-    Tank = 'Tank',
-    Other = 'Other',
-  }
-  
-  export enum DriveBaseMotor {  CIM = 'CIM',
-    NEO = 'NEO',
-    FALCON = 'FALCON',
-    KRAKEN = 'KRAKEN',
-  }
-  
-  export enum DriverExperience {  Zero = 'Zero',
-    One = 'One',
-    Two = 'Two',
-    Three = 'Three',
-    Four = 'Four',
-    Unknown = 'Unknown',
-  }
-  
-  export enum Stability {  NO = 'Not Stable',
-    YES = 'Stable',
-    VERY_STABLE = 'Very Stable',
-  }
-  
-  
-  // Create an initial state object that matches the PitModel interface
-  export const initialPitData: PitModel = {  
-    RobScout: "",
-    TeamNb: 0, 
-    RobTeamNm: "",
-    RobDrive: DriveBaseType.Other, // Default value as 'Other'
-    RobMotor: DriveBaseMotor.CIM, // Default value as 'CIM'
-    RobDriveExp: DriverExperience.Zero, // Default as 'Zero'
-    RobWtlbs: 0,
-    RobWidth: 0,
-    RobLength: 0,
-    RobStble: Stability.NO, // Default as 'NO'
-    RobQuest1: false,
-    RobQuest2: false,
-    RobQuest3: false,
-    RobQuest4: false,
-    RobQuest5: false,
-    RobQuest6: false,
-    RobQuest7: false,
-    RobQuest8: false,
-    RobQuest9: false,
-    RobQuest10: false,
-    RobQuest11: false,
-    RobQuest12: false,
-    RobQuest13: false,
-    RobQuest14: false,
-    RobQuest15: false,
-    RobComm1: "",
-  };
-  
+export interface PitModel {
+  ScoutName: string;
+  TeamNumber: number;
+  TeamName: string;
+  DriveBaseType: DriveBaseType;
+  DriveBaseMotor: DriveBaseMotor;
+  DriverExperience: Years;
+  WeightLbs: number;
+  WidthInches: number;
+  LengthInches: number;
+  Stability: Stability;
+  WellMade: WellMade;
+  SingleIntakeShooter: boolean; // Boolean for single intake and shooter
+  PickupSpots: PickupSpots;
+  ScoreSpots: ScoreSpots;
+  CenterOfGravity: Gravity;
+  YearsUsingSwerve: Years;
+  ShootsFrom: ShootSpots; // Adding ShootsFrom as an enum
+  ObjectRecognition: boolean;
+  ReadAprilTags: boolean;
+  AutonomousProgram: boolean;
+  AutoProgramsForSpeaker: boolean; // Assuming a boolean representation
+  CanGetOnStage: boolean;
+  CanScoreNotesInTrap: boolean;
+  HumanPlayerSpotlight: HumanPlayerSpotlight;
+  CheesecakeAbility: boolean; // Boolean for robot's lifting ability
+  Comments?: string;
+  HeightInches: number;
+  FrameClearanceInches: number;
+  matches?: MatchModel[];
+}
+
+// Enums for dropdowns and other fields
+export enum DriveBaseType {
+  Swerve = "Swerve",
+  Tank = "Tank",
+  Other = "Other",
+}
+
+export enum DriveBaseMotor {
+  CIM = "CIM",
+  NEO = "NEO",
+  FALCON = "FALCON",
+  KRAKEN = "KRAKEN",
+}
+
+export enum Years {
+  Zero = "0",
+  One = "1",
+  Two = "2",
+  ThreePlus = "3+",
+  Unknown = "Unknown",
+}
+
+export enum Stability {
+  NotStable = "Not Stable",
+  Stable = "Stable",
+  VeryStable = "Very Stable",
+}
+
+export enum WellMade {
+  No = "No",
+  Yes = "Yes",
+  Very = "Very",
+}
+
+export enum PickupSpots {
+  SourceOnly = "Source Only",
+  GroundOnly = "Ground Only",
+  Both = "Both",
+  Neither = "Neither",
+}
+
+export enum ScoreSpots {
+  SpeakerOnly = "Speaker Only",
+  AmpOnly = "Amp Only",
+  Both = "Both",
+  Neither = "Neither",
+}
+
+export enum Gravity {
+  Low = "Low",
+  Medium = "Medium",
+  High = "High",
+}
+
+export enum ShootSpots {
+  StartingZone = "Starting Zone",
+  Podium = "Podium",
+  ElsewhereInWing = "Elsewhere in Wing",
+  NearCentreLine = "Near Centre Line",
+  None = "None",
+}
+
+export enum HumanPlayerSpotlight {
+  OneOfThree = "1 of 3 High Notes",
+  TwoOfThree = "2 of 3 High Notes",
+  AllHighNotes = "3 of 3 High Notes",
+}
+
+// Create an initial state object that matches the PitModel interface
+export const initialPitData: PitModel = {
+  ScoutName: "",
+  TeamNumber: 0,
+  TeamName: "",
+  DriveBaseType: DriveBaseType.Other,
+  DriveBaseMotor: DriveBaseMotor.CIM,
+  DriverExperience: Years.Zero,
+  WeightLbs: 0,
+  WidthInches: 0,
+  LengthInches: 0,
+  Stability: Stability.NotStable,
+  WellMade: WellMade.No,
+  SingleIntakeShooter: false,
+  PickupSpots: PickupSpots.Neither,
+  ScoreSpots: ScoreSpots.Neither,
+  CenterOfGravity: Gravity.Low,
+  YearsUsingSwerve: Years.Zero,
+  ShootsFrom: ShootSpots.None,
+  ObjectRecognition: false,
+  ReadAprilTags: false,
+  AutonomousProgram: false,
+  AutoProgramsForSpeaker: false,
+  CanGetOnStage: false,
+  CanScoreNotesInTrap: false,
+  HumanPlayerSpotlight: HumanPlayerSpotlight.OneOfThree,
+  CheesecakeAbility: false,
+  Comments: "",
+  HeightInches: 0,
+  FrameClearanceInches: 0,
+  matches: [],
+};
