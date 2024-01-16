@@ -1,9 +1,11 @@
 import { MatchModel } from "./MatchModel";
 
 export interface PitModel {
+  //General Info
   ScoutName: string;
   TeamNumber: number;
   TeamName: string;
+  //Robot Specs
   DriveBaseType: DriveBaseType;
   DriveBaseMotor: DriveBaseMotor;
   DriverExperience: Years;
@@ -11,6 +13,7 @@ export interface PitModel {
   WidthInches: number;
   LengthInches: number;
   Stability: Stability;
+  //Robot Capabilities
   WellMade: WellMade;
   SingleIntakeShooter: boolean; // Boolean for single intake and shooter
   PickupSpots: PickupSpots;
