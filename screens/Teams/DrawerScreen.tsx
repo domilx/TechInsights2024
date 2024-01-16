@@ -22,7 +22,7 @@ export default function DrawerScreen({ navigation }: any) {
   const defaultTeamName = "Default Team";
 
   const handlePress = (team: PitModel) => {
-    setSelectedTeam(team.RobTeamNm);
+    setSelectedTeam(team.TeamName);
     navigation.navigate("Teams", { team });
     navigation.closeDrawer();
   };
@@ -160,17 +160,17 @@ export default function DrawerScreen({ navigation }: any) {
         styles.item,
         {
           backgroundColor:
-            selectedTeam === item.RobTeamNm ? "#636262" : "transparent",
+            selectedTeam === item.TeamName ? "#636262" : "transparent",
         },
       ]}
       onPress={() => handlePress(item)}
     >
       <Text
         style={
-          selectedTeam === item.RobTeamNm ? styles.selectedText : styles.text
+          selectedTeam === item.TeamName ? styles.selectedText : styles.text
         }
       >
-        {item.RobTeamNm}
+        {item.TeamName}
       </Text>
       <Text style={styles.chip}>➜</Text>
     </TouchableOpacity>
@@ -226,7 +226,7 @@ export default function DrawerScreen({ navigation }: any) {
       <FlatList
         data={teams}
         renderItem={renderItem}
-        keyExtractor={(item) => item.TeamNb.toString()}
+        keyExtractor={(item) => item.TeamNumber.toString()}
         ListHeaderComponent={<View style={styles.listHeader} />}
       />
     </View>

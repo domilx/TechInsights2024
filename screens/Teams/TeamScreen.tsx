@@ -108,7 +108,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   };
 
   const handleCloseDialog = async () => {
-    if (input === selectedTeam?.TeamNb.toString()) {
+    if (input === selectedTeam?.TeamNumber.toString()) {
       await confirmDelete();
     } else {
       Alert.alert("Error", "Incorrect team number");
@@ -128,7 +128,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 
   const confirmDelete = async () => {
     try {
-      const teamRef = doc(db, "teams", (selectedTeam?.TeamNb || "").toString());
+      const teamRef = doc(db, "teams", (selectedTeam?.TeamNumber || "").toString());
       await deleteTeamFromFirebase(teamRef);
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data) {
@@ -158,7 +158,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
           {
             text: "OK",
             onPress: async (text) => {
-              if (text === selectedTeam.TeamNb.toString()) {
+              if (text === selectedTeam.TeamNumber.toString()) {
                 await confirmDelete();
               } else {
                 Alert.alert("Error", "Incorrect team number");
@@ -187,20 +187,20 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     <ScrollView style={styles.container}>
       <View style={styles.teamHeader}>
         <Text style={styles.headerTitle}>
-          {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Summary
+          {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Summary
         </Text>
       </View>
       {renderRobotDetails()}
       <View style={styles.teamHeader}>
         <Text style={styles.headerTitle}>
-          {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Stats
+          {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Stats
         </Text>
       </View>
       {renderStats()}
       <TouchableOpacity onPress={() => setIsModalVisible(true)}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - All
+            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - All
             Matches
           </Text>
         </View>
@@ -241,7 +241,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
       <TouchableOpacity onPress={() => setEditModalVisible(true)}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Edit Pit
+            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Edit Pit
             Data
           </Text>
         </View>
@@ -249,7 +249,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
       <TouchableOpacity onPress={() => openPhoto()}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.RobTeamNm : "Team Details"} - Photos
+            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Photos
           </Text>
         </View>
       </TouchableOpacity>

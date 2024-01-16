@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { MatchModel } from '../../models/MatchModel';
 import displayMatchData from '../../models/DisplayMatchData';
-import GamePieceGrid from '../components/GamePeiceGrid';
 import Icon from '@expo/vector-icons/Ionicons';
 
 interface MatchViewProps {
@@ -30,7 +29,6 @@ const MatchView: React.FC<MatchViewProps> = ({ matches }) => {
           <Text style={styles.detailValue}>{item.value}</Text>
         </View>
       ))}
-      <GamePieceGrid gridData={match.GamePiecesGrid} />
     </View>
   );
 

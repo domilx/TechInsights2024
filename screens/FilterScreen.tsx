@@ -13,15 +13,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   DriveBaseMotor,
   DriveBaseType,
-  DriverExperience,
+  Gravity,
+  HumanPlayerSpotlight,
+  PickupSpots,
   PitModel,
+  ScoreSpots,
   Stability,
+  WellMade,
+  Years,
 } from "../models/PitModel";
 import Icon from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import ModalHeader from "./components/ModalHeader";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TeamScreen from "./Teams/TeamScreen";
+import { ShootSpots } from "../models/MatchModel";
 
 interface FilterScreenProps {}
 
@@ -36,25 +42,17 @@ type FilterGroup = {
 };
 
 const filterConfig: FilterConfig = {
-  RobDrive: Object.values(DriveBaseType),
-  RobMotor: Object.values(DriveBaseMotor),
-  RobDriveExp: Object.values(DriverExperience),
-  RobStble: Object.values(Stability),
-  RobQuest1: [true, false],
-  RobQuest2: [true, false],
-  RobQuest3: [true, false],
-  RobQuest4: [true, false],
-  RobQuest5: [true, false],
-  RobQuest6: [true, false],
-  RobQuest7: [true, false],
-  RobQuest8: [true, false],
-  RobQuest9: [true, false],
-  RobQuest10: [true, false],
-  RobQuest11: [true, false],
-  RobQuest12: [true, false],
-  RobQuest13: [true, false],
-  RobQuest14: [true, false],
-  RobQuest15: [true, false],
+  DriveBaseType: Object.values(DriveBaseType),
+  DriveBaseMotor: Object.values(DriveBaseMotor),
+  DriverExperience: Object.values(Years),
+  Stability: Object.values(Stability),
+  WellMade: Object.values(WellMade),
+  PickupSpots: Object.values(PickupSpots),
+  ScoreSpots: Object.values(ScoreSpots),
+  CenterOfGravity: Object.values(Gravity),
+  YearsUsingSwerve: Object.values(Years),
+  ShootsFrom: Object.values(ShootSpots),
+  HumanPlayerSpotlight: Object.values(HumanPlayerSpotlight),
 };
 
 const FilterScreen: FC<FilterScreenProps> = () => {
@@ -383,7 +381,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
         <View style={styles.teamContainer}>
           <View style={styles.teamTextContainer}>
             <Text style={styles.teamText}>
-              {team.TeamNb}: {team.RobTeamNm}
+              {team.TeamNumber}: {team.TeamName}
             </Text>
           </View>
         </View>

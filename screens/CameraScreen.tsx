@@ -18,6 +18,7 @@ export default function CameraScreen() {
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
+      //@ts-ignore
       setHasPermission(status === 'granted'); //Type error ignored
     })();
   }, []);
@@ -29,6 +30,7 @@ export default function CameraScreen() {
 
   function handleCapture() {
     if (scannedData) {
+      //@ts-ignore
       navigation.navigate('UploadScreen', { data: scannedData }); //Type error ignored
     } else {
       alert("No QR code detected.");
