@@ -4,7 +4,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./LoginScreen"; // Import your login
 import Icon from "@expo/vector-icons/Ionicons";
 import FloatingButton from "./components/FloatingButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import DrawerNavigator from "./Teams/DrawerNavigator";
 import VisualizeScreen from "./VisualizeScreen";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -12,8 +11,6 @@ import CameraScreen from "./CameraScreen";
 import UploadScreen from "./UploadScreen";
 import FilterScreen from "./FilterScreen";
 import RegistrationScreen from "./RegistrationScreen";
-import AuthService from "../services/AuthService"; // Ensure this path is correct
-import { User } from "firebase/auth";
 import SettingsScreen from "./SettingsScreen";
 import { auth } from "../firebase";
 

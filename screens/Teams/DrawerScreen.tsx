@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { PitModel, initialPitData } from "../../models/PitModel";
+import { PitModel } from "../../models/PitModel";
 import { syncData } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 

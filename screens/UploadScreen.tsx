@@ -3,11 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
-  Button,
-  Alert,
+  StyleSheet, Alert,
   ActivityIndicator,
-  TouchableOpacity,
+  TouchableOpacity
 } from "react-native";
 import { MatchModel } from "../models/MatchModel";
 import { PitModel } from "../models/PitModel";
@@ -20,7 +18,6 @@ import {
 } from "../services/FirebaseService";
 import { doc } from "firebase/firestore";
 import { db } from "../firebase";
-import GamePieceGrid from "./components/GamePeiceGrid";
 import { DataContext } from "../contexts/DataContext";
 import { useContext } from "react";
 import { saveDataLocally } from "../services/LocalStorageService";
@@ -59,7 +56,7 @@ export default function UploadScreen({ route, navigation }: any) {
     } else {
       // TypeScript now infers parsedData is PitModel
       const pitData = parsedData as PitModel;
-      const teamRef = doc(db, "teams", `${pitData.TeamNb}`);
+      const teamRef = doc(db, "teams", `${pitData.TeamNumber}`);
       result = await uploadPitDataToFirebase(pitData, teamRef);
     }
 
@@ -81,22 +78,12 @@ export default function UploadScreen({ route, navigation }: any) {
     }
   };
 
-  const renderGamePiecesGrid = (gridData: any) => {
-    if (Array.isArray(gridData) && gridData[0] && gridData[0].hasOwnProperty('rowIndex')) {
-      return <GamePieceGrid gridData={gridData} />;
-    }
-    return null;
-  };
-
   const renderModel = () => {
     if (parsedData.hasOwnProperty("MatchNumber")) {
       // Render MatchModel data
       return (
         <>
           {Object.entries(parsedData).map(([key, value], index) => {
-            if (key === 'GamePiecesGrid') {
-              return <View key={index}>{renderGamePiecesGrid(value)}</View>;
-            }
             return <Text style={styles.text} key={index}>{`${key}: ${value}`}</Text>;
           })}
         </>

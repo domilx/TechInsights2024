@@ -5,13 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert,
-  Modal,
-  ScrollView,
-  TextInput,
+  Alert, ScrollView
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Icon from "@expo/vector-icons/Ionicons";
 import AuthService from "../services/AuthService";
 
 interface IUser {

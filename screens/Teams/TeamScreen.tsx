@@ -11,7 +11,6 @@ import {
 import DisplayPitData from "../../models/DisplayPitData";
 import DisplayStatsData from "../../models/DisplayStatsData";
 import { PitModel } from "../../models/PitModel";
-import Icon from "@expo/vector-icons/Ionicons";
 import { DataContext } from "../../contexts/DataContext";
 import MatchView from "./MatchView";
 import ModalHeader from "../components/ModalHeader";
@@ -22,7 +21,6 @@ import EditPitDataScreen from "./EditPitDataScreen";
 import { syncData } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { Platform } from "react-native";
-import { InputField } from "../components/InputField";
 import PhotoScreen from "./PhotoScreen";
 export type RootDrawerParamList = {
   Teams: { team: PitModel };

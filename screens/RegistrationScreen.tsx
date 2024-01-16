@@ -7,9 +7,6 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { db } from "../firebase"; // Adjust this import to your Firebase configuration file
-import { doc, setDoc } from "firebase/firestore";
 import AuthService from "../services/AuthService";
 import { useNavigation } from "@react-navigation/native";
 import ModalHeader from "./components/ModalHeader";

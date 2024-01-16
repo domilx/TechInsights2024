@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import TeamScreen from "./TeamScreen";
 import DrawerScreen from "./DrawerScreen";

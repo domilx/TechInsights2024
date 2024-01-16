@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
-  View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
+  Alert
 } from "react-native";
 import {
   DriveBaseMotor,
@@ -16,8 +15,7 @@ import {
   initialPitData,
 } from "../../models/PitModel";
 import {
-  updatePitData,
-  uploadPitDataToFirebase,
+  updatePitData
 } from "../../services/FirebaseService";
 import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";

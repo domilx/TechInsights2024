@@ -25,8 +25,6 @@ import {
 import Icon from "@expo/vector-icons/Ionicons";
 import { useFocusEffect } from "@react-navigation/native";
 import ModalHeader from "./components/ModalHeader";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import TeamScreen from "./Teams/TeamScreen";
 import { ShootSpots } from "../models/MatchModel";
 
 interface FilterScreenProps {}
