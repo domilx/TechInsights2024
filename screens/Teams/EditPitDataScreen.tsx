@@ -127,7 +127,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       />
       <InputField
         label="Team Number"
-        value={pitData.TeamNumber.toString()}
+        value={pitData.TeamNumber}
         keyboardType="numeric"
         onChange={(text) => handleChange("TeamNumber", parseInt(text))}
       />
@@ -158,19 +158,19 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       />
       <InputField
         label="Weight (lbs)"
-        value={pitData.WeightLbs.toString()}
+        value={pitData.WeightLbs}
         keyboardType="numeric"
         onChange={(text) => handleChange("WeightLbs", parseInt(text))}
       />
       <InputField
         label="Width (inches)"
-        value={pitData.WidthInches.toString()}
+        value={pitData.WidthInches}
         keyboardType="numeric"
         onChange={(text) => handleChange("WidthInches", parseInt(text))}
       />
       <InputField
         label="Length (inches)"
-        value={pitData.LengthInches.toString()}
+        value={pitData.LengthInches}
         keyboardType="numeric"
         onChange={(text) => handleChange("LengthInches", parseInt(text))}
       />
@@ -265,13 +265,13 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       />
       <InputField
         label="Height (inches)"
-        value={pitData.HeightInches.toString()}
+        value={pitData.HeightInches}
         keyboardType="numeric"
         onChange={(text) => handleChange("HeightInches", parseInt(text))}
       />
       <InputField
         label="Frame Clearance (inches)"
-        value={pitData.FrameClearanceInches.toString()}
+        value={pitData.FrameClearanceInches}
         keyboardType="numeric"
         onChange={(text) => handleChange("FrameClearanceInches", parseInt(text))}
       />

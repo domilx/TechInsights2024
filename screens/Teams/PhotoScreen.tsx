@@ -41,7 +41,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
 
   const fetchPhoto = async () => {
     try {
-      const result = await fetchPhotosFromFirebase(team.TeamNb);
+      const result = await fetchPhotosFromFirebase(team.TeamNumber);
       if (result.success && result.photos) {
         setPhotos(result.photos);
       }
@@ -62,7 +62,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       const photoTaken = await cameraRef.current.takePictureAsync();
       const uploadResult = await uploadPhotoToFirebase(
         photoTaken.uri,
-        team.TeamNb
+        team.TeamNumber
       );
       if (uploadResult.success) {
         //@ts-ignore
@@ -94,7 +94,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
     }
   
     try {
-      const removeResult = await removePhotoFromFirebase(team.TeamNb, photoName);
+      const removeResult = await removePhotoFromFirebase(team.TeamNumber, photoName);
       if (removeResult.success) {
         setPhotos(photos.filter((photo) => photo !== photoUrl));
       }

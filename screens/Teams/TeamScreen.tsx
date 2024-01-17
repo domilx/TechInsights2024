@@ -106,7 +106,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
   };
 
   const handleCloseDialog = async () => {
-    if (input === selectedTeam?.TeamNumber.toString()) {
+    if (input === selectedTeam?.TeamNumber) {
       await confirmDelete();
     } else {
       Alert.alert("Error", "Incorrect team number");
@@ -126,7 +126,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 
   const confirmDelete = async () => {
     try {
-      const teamRef = doc(db, "teams", (selectedTeam?.TeamNumber || "").toString());
+      const teamRef = doc(db, "teams", (selectedTeam?.TeamNumber || ""));
       await deleteTeamFromFirebase(teamRef);
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data) {
@@ -156,7 +156,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
           {
             text: "OK",
             onPress: async (text) => {
-              if (text === selectedTeam.TeamNumber.toString()) {
+              if (text === selectedTeam.TeamNumber) {
                 await confirmDelete();
               } else {
                 Alert.alert("Error", "Incorrect team number");

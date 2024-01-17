@@ -95,7 +95,7 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
 };
 
 export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
-  const teamRef = doc(db, "teams", teamNumber.toString()); 
+  const teamRef = doc(db, "teams", teamNumber); 
 
   try {
     const docSnap = await getDoc(teamRef);
