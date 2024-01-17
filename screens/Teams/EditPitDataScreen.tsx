@@ -9,9 +9,15 @@ import {
 import {
   DriveBaseMotor,
   DriveBaseType,
-  DriverExperience,
+  Gravity,
+  HumanPlayerSpotlight,
+  PickupSpots,
   PitModel,
+  ScoreSpots,
+  ShootSpots,
   Stability,
+  WellMade,
+  Years,
   initialPitData,
 } from "../../models/PitModel";
 import {
@@ -42,13 +48,13 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
 
   const handleSave = async () => {
     // Implement validation and saving logic
-    if (!pitData.RobScout) {
+    if (!pitData.ScoutName) {
       Alert.alert("Validation Error", "Robot Scout is required");
       return;
     }
 
     try {
-      await updatePitData(pitData, pitData.TeamNb);
+      await updatePitData(pitData, pitData.TeamNumber);
       Alert.alert("Success", "Pit data saved successfully");
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data) {
@@ -72,9 +78,9 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     value: DriveBaseMotor[key as keyof typeof DriveBaseMotor],
   }));
 
-  const driverExperienceItems = Object.keys(DriverExperience).map((key) => ({
-    label: DriverExperience[key as keyof typeof DriverExperience],
-    value: DriverExperience[key as keyof typeof DriverExperience],
+  const driverExperienceItems = Object.keys(Years).map((key) => ({
+    label: Years[key as keyof typeof Years],
+    value: Years[key as keyof typeof Years],
   }));
 
   const stabilityItems = Object.keys(Stability).map((key) => ({
@@ -82,151 +88,198 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     value: Stability[key as keyof typeof Stability],
   }));
 
+  const wellMadeItems = Object.keys(WellMade).map((key) => ({
+    label: WellMade[key as keyof typeof WellMade],
+    value: WellMade[key as keyof typeof WellMade],
+  }));
+
+  const pickupSpotsItems = Object.keys(PickupSpots).map((key) => ({
+    label: PickupSpots[key as keyof typeof PickupSpots],
+    value: PickupSpots[key as keyof typeof PickupSpots],
+  }));
+
+  const scoreSpotsItems = Object.keys(ScoreSpots).map((key) => ({
+    label: ScoreSpots[key as keyof typeof ScoreSpots],
+    value: ScoreSpots[key as keyof typeof ScoreSpots],
+  }));
+
+  const gravityItems = Object.keys(Gravity).map((key) => ({
+    label: Gravity[key as keyof typeof Gravity],
+    value: Gravity[key as keyof typeof Gravity],
+  }));
+
+  const shootsFromItems = Object.keys(ShootSpots).map((key) => ({
+    label: ShootSpots[key as keyof typeof ShootSpots],
+    value: ShootSpots[key as keyof typeof ShootSpots],
+  }));
+
+  const spotlightItems  = Object.keys(HumanPlayerSpotlight).map((key) => ({
+    label: HumanPlayerSpotlight[key as keyof typeof HumanPlayerSpotlight],
+    value: HumanPlayerSpotlight[key as keyof typeof HumanPlayerSpotlight],
+  }));
+
   return (
     <ScrollView style={styles.container}>
       <InputField
-        label="Robot Scout"
-        value={pitData.RobScout}
-        onChange={(text) => handleChange("RobScout", text)}
+        label="Scout Name"
+        value={pitData.ScoutName}
+        onChange={(text) => handleChange("ScoutName", text)}
       />
       <InputField
         label="Team Number"
-        value={pitData.TeamNb.toString()}
+        value={pitData.TeamNumber.toString()}
         keyboardType="numeric"
-        onChange={(text) => handleChange("TeamNb", parseInt(text))}
+        onChange={(text) => handleChange("TeamNumber", parseInt(text))}
       />
       <InputField
-        label="Robot Team Name"
-        value={pitData.RobTeamNm}
-        onChange={(text) => handleChange("RobTeamNm", text)}
+        label="Team Name"
+        value={pitData.TeamName}
+        onChange={(text) => handleChange("TeamName", text)}
       />
+  
+      {/* Robot Specs */}
       <DropDownSelector
         label="Drive Base Type"
         items={driveBaseTypeItems}
-        value={pitData.RobDrive}
-        setValue={(itemValue) => handleChange("RobDrive", itemValue)}
+        value={pitData.DriveBaseType}
+        setValue={(itemValue) => handleChange("DriveBaseType", itemValue)}
       />
       <DropDownSelector
         label="Drive Base Motor"
         items={driveBaseMotorItems}
-        value={pitData.RobMotor}
-        setValue={(itemValue) => handleChange("RobMotor", itemValue)}
+        value={pitData.DriveBaseMotor}
+        setValue={(itemValue) => handleChange("DriveBaseMotor", itemValue)}
       />
       <DropDownSelector
         label="Driver Experience"
         items={driverExperienceItems}
-        value={pitData.RobDriveExp}
-        setValue={(itemValue) => handleChange("RobDriveExp", itemValue)}
+        value={pitData.DriverExperience}
+        setValue={(itemValue) => handleChange("DriverExperience", itemValue)}
       />
       <InputField
-        label="Drive Weight"
-        value={pitData.RobWtlbs.toString()}
+        label="Weight (lbs)"
+        value={pitData.WeightLbs.toString()}
         keyboardType="numeric"
-        onChange={(text) => handleChange("RobWtlbs", parseInt(text))}
+        onChange={(text) => handleChange("WeightLbs", parseInt(text))}
       />
       <InputField
-        label="Drive Width"
-        value={pitData.RobWidth.toString()}
+        label="Width (inches)"
+        value={pitData.WidthInches.toString()}
         keyboardType="numeric"
-        onChange={(text) => handleChange("RobWidth", parseInt(text))}
+        onChange={(text) => handleChange("WidthInches", parseInt(text))}
       />
       <InputField
-        label="Drive Length"
-        value={pitData.RobLength.toString()}
+        label="Length (inches)"
+        value={pitData.LengthInches.toString()}
         keyboardType="numeric"
-        onChange={(text) => handleChange("RobLength", parseInt(text))}
+        onChange={(text) => handleChange("LengthInches", parseInt(text))}
       />
       <DropDownSelector
         label="Stability"
         items={stabilityItems}
-        value={pitData.RobStble}
-        setValue={(itemValue) => handleChange("RobStble", itemValue)}
+        value={pitData.Stability}
+        setValue={(itemValue) => handleChange("Stability", itemValue)}
+      />
+  
+      {/* Robot Capabilities */}
+      <DropDownSelector
+        label="Well Made"
+        items={wellMadeItems}
+        value={pitData.WellMade}
+        setValue={(itemValue) => handleChange("WellMade", itemValue)}
       />
       <ToggleSwitch
-        label="RobQuest1"
-        value={pitData.RobQuest1}
-        onToggle={(value) => handleChange("RobQuest1", value)}
+        label="Single Intake and Shooter"
+        value={pitData.SingleIntakeShooter}
+        onToggle={(value) => handleChange("SingleIntakeShooter", value)}
+      />
+      <DropDownSelector
+        label="Pickup Spots"
+        items={pickupSpotsItems}
+        value={pitData.PickupSpots}
+        setValue={(itemValue) => handleChange("PickupSpots", itemValue)}
+      />
+      <DropDownSelector
+        label="Score Spots"
+        items={scoreSpotsItems}
+        value={pitData.ScoreSpots}
+        setValue={(itemValue) => handleChange("ScoreSpots", itemValue)}
+      />
+      <DropDownSelector
+        label="Center Of Gravity"
+        items={gravityItems}
+        value={pitData.CenterOfGravity}
+        setValue={(itemValue) => handleChange("CenterOfGravity", itemValue)}
+      />
+      <DropDownSelector
+        label="Shoots From"
+        items={shootsFromItems}
+        value={pitData.ShootsFrom}
+        setValue={(itemValue) => handleChange("ShootsFrom", itemValue)}
+      />
+      <DropDownSelector
+        label="Human Player Spotlight"
+        items={spotlightItems}
+        value={pitData.HumanPlayerSpotlight}
+        setValue={(itemValue) => handleChange("HumanPlayerSpotlight", itemValue)}
       />
       <ToggleSwitch
-        label="RobQuest2"
-        value={pitData.RobQuest2}
-        onToggle={(value) => handleChange("RobQuest2", value)}
+        label="Object Recognition"
+        value={pitData.ObjectRecognition}
+        onToggle={(value) => handleChange("ObjectRecognition", value)}
       />
       <ToggleSwitch
-        label="RobQuest3"
-        value={pitData.RobQuest3}
-        onToggle={(value) => handleChange("RobQuest3", value)}
+        label="Read April Tags"
+        value={pitData.ReadAprilTags}
+        onToggle={(value) => handleChange("ReadAprilTags", value)}
       />
       <ToggleSwitch
-        label="RobQuest4"
-        value={pitData.RobQuest4}
-        onToggle={(value) => handleChange("RobQuest4", value)}
+        label="Autonomous Program"
+        value={pitData.AutonomousProgram}
+        onToggle={(value) => handleChange("AutonomousProgram", value)}
       />
       <ToggleSwitch
-        label="RobQuest5"
-        value={pitData.RobQuest5}
-        onToggle={(value) => handleChange("RobQuest5", value)}
+        label="Auto Programs For Speaker"
+        value={pitData.AutoProgramsForSpeaker}
+        onToggle={(value) => handleChange("AutoProgramsForSpeaker", value)}
       />
       <ToggleSwitch
-        label="RobQuest6"
-        value={pitData.RobQuest6}
-        onToggle={(value) => handleChange("RobQuest6", value)}
+        label="Can Get On Stage"
+        value={pitData.CanGetOnStage}
+        onToggle={(value) => handleChange("CanGetOnStage", value)}
       />
       <ToggleSwitch
-        label="RobQuest7"
-        value={pitData.RobQuest7}
-        onToggle={(value) => handleChange("RobQuest7", value)}
+        label="Can Score Notes In Trap"
+        value={pitData.CanScoreNotesInTrap}
+        onToggle={(value) => handleChange("CanScoreNotesInTrap", value)}
       />
       <ToggleSwitch
-        label="RobQuest8"
-        value={pitData.RobQuest8}
-        onToggle={(value) => handleChange("RobQuest8", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest9"
-        value={pitData.RobQuest9}
-        onToggle={(value) => handleChange("RobQuest9", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest10"
-        value={pitData.RobQuest10}
-        onToggle={(value) => handleChange("RobQuest10", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest11"
-        value={pitData.RobQuest11}
-        onToggle={(value) => handleChange("RobQuest11", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest12"
-        value={pitData.RobQuest12}
-        onToggle={(value) => handleChange("RobQuest12", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest13"
-        value={pitData.RobQuest13}
-        onToggle={(value) => handleChange("RobQuest13", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest14"
-        value={pitData.RobQuest14}
-        onToggle={(value) => handleChange("RobQuest14", value)}
-      />
-      <ToggleSwitch
-        label="RobQuest15"
-        value={pitData.RobQuest15}
-        onToggle={(value) => handleChange("RobQuest15", value)}
+        label="Cheesecake Ability"
+        value={pitData.CheesecakeAbility}
+        onToggle={(value) => handleChange("CheesecakeAbility", value)}
       />
       <InputField
-        label="Comment"
-        value={pitData.RobComm1}
-        onChange={(value) => handleChange("RobComm1", value)}
+        label="Comments"
+        value={pitData.Comments || ""}
+        onChange={(value) => handleChange("Comments", value)}
+      />
+      <InputField
+        label="Height (inches)"
+        value={pitData.HeightInches.toString()}
+        keyboardType="numeric"
+        onChange={(text) => handleChange("HeightInches", parseInt(text))}
+      />
+      <InputField
+        label="Frame Clearance (inches)"
+        value={pitData.FrameClearanceInches.toString()}
+        keyboardType="numeric"
+        onChange={(text) => handleChange("FrameClearanceInches", parseInt(text))}
       />
       <TouchableOpacity style={styles.uploadButton} onPress={handleSave}>
         <Text style={styles.uploadButtonText}>Save</Text>
       </TouchableOpacity>
     </ScrollView>
-  );
+  );  
 };
 
 const styles = StyleSheet.create({
