@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   ScrollView,
+  Modal,
 } from "react-native";
 import { Camera, CameraType, FlashMode } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,10 +25,16 @@ const windowHeight = Dimensions.get("window").height;
 
 const PhotoScreen = ({ team }: { team: PitModel }) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [photos, setPhotos] = useState<string[]>([]); // Changed to an array
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState<Record<string, boolean>>(
+    {}
+  );
   const [flashMode, setFlashMode] = useState(FlashMode.off);
-  const cameraRef = useRef<Camera>(null);
   const [cameraVisible, setCameraVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [photoToConfirm, setPhotoToConfirm] = useState<string | null>(null);
+  const cameraRef = useRef<Camera>(null);
 
   useEffect(() => {
     (async () => {
@@ -62,17 +69,21 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
 
     try {
       const photoTaken = await cameraRef.current.takePictureAsync();
-      const uploadResult = await uploadPhotoToFirebase(
-        photoTaken.uri,
-        team.TeamNumber
-      );
+      setPhotoToConfirm(photoTaken.uri);
+    } catch (error) {
+      console.error("Error taking photo: ", error);
+      Alert.alert("Error", "Failed to take photo.");
+    }
+  };
+
+  const confirmPhotoUpload = async () => {
+    if (photoToConfirm) {
+      const uploadResult = await uploadPhotoToFirebase(photoToConfirm, team.TeamNumber);
       if (uploadResult.success) {
         //@ts-ignore
         setPhotos([...photos, uploadResult.url]);
       }
-    } catch (error) {
-      console.error("Error taking photo: ", error);
-      Alert.alert("Error", "Failed to take photo.");
+      setPhotoToConfirm(null);
     }
   };
 
@@ -159,7 +170,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
           <View style={styles.cameraUI}>
             <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
               <Ionicons
-                name={flashMode === FlashMode.off ? 'flash-off' : 'flash'}
+                name={flashMode === FlashMode.off ? "flash-off" : "flash"}
                 size={24}
                 color="white"
               />
@@ -173,7 +184,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       <TouchableOpacity onPress={() => setCameraVisible(!cameraVisible)}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>
-          {cameraVisible ? 'Hide Camera' : 'Show Camera'}
+            {cameraVisible ? "Hide Camera" : "Show Camera"}
           </Text>
         </View>
       </TouchableOpacity>
@@ -183,8 +194,47 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
         renderItem={renderPhotoItem}
         sliderWidth={windowWidth}
         itemWidth={windowWidth * 0.8}
-        layout={'default'}
+        layout={"default"}
       />
+    <Modal
+        visible={isModalVisible}
+        transparent={true}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalView}>
+          {/* @ts-ignore */}
+          <Image source={{ uri: selectedPhoto }} style={styles.fullSizePhoto} />
+          <TouchableOpacity
+            style={styles.closeModalButton}
+            onPress={() => setIsModalVisible(false)}
+          >
+            <Text style={styles.closeModalButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={!!photoToConfirm}
+        transparent={true}
+        onRequestClose={() => setPhotoToConfirm(null)}
+      >
+        <View style={styles.modalView}>
+          {/* @ts-ignore */}
+          <Image source={{ uri: photoToConfirm }} style={styles.fullSizePhoto} />
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={confirmPhotoUpload}
+          >
+            <Text style={styles.confirmButtonText}>Upload Photo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setPhotoToConfirm(null)}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -194,16 +244,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: '#FFF', // Assuming a white background
   },
   photoContainer: {
     position: "relative",
     alignItems: "center",
     marginBottom: 20,
-    width: windowWidth * 0.8, // Adjust width as needed
+    width: windowWidth * 0.8,
   },
   photo: {
     width: "100%",
-    height: 300,
+    height: "100%",
     borderRadius: 10,
   },
   deleteButton: {
@@ -226,13 +277,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     width: windowWidth - 20,
     elevation: 3,
-    alignItems: "center", // Center the text horizontally
-  },
-  headerTitle: {
-    fontSize: 22, // Increased font size
-    color: "#333",
-    fontWeight: "bold",
-    textAlign: "center", // Center the text within the view
+    alignItems: "center",
   },
   butTitle: {
     fontSize: 18,
@@ -241,7 +286,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     width: windowWidth,
-    height: windowHeight * 0.6,
+    height: windowHeight * 0.8,
     justifyContent: "flex-end",
   },
   cameraUI: {
@@ -257,11 +302,50 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 20,
   },
-  photoScrollContainer: {
-    marginTop: 20,
+  modalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
-  removeButton: {
+  fullSizePhoto: {
+    width: windowWidth * 0.8,
+    height: windowHeight * 0.8,
+    borderRadius: 20,
+    marginBottom: 20,
+  },
+  closeModalButton: {
+    padding: 10,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 8,
     marginTop: 10,
+  },
+  closeModalButtonText: {
+    fontSize: 16,
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+  confirmButton: {
+    padding: 10,
+    backgroundColor: "#F6EB14",
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    padding: 10,
+    backgroundColor: "#1E1E1E",
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });
 

@@ -17,7 +17,14 @@ import { DataContext } from "../../contexts/DataContext";
 
 export default function DrawerScreen({ navigation }: any) {
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
-  const { teams, setTeams, lastSync, setLastSync, isTeamSelected, setIsTeamSelected } = useContext(DataContext);
+  const {
+    teams,
+    setTeams,
+    lastSync,
+    setLastSync,
+    isTeamSelected,
+    setIsTeamSelected,
+  } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const defaultTeamName = "Default Team";
 
@@ -223,12 +230,14 @@ export default function DrawerScreen({ navigation }: any) {
         </View>
         <Text style={styles.syncText}>{getLastSyncDisplay()}</Text>
       </View>
-      <FlatList
-        data={teams}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item.TeamNumber.toString()}
-        ListHeaderComponent={<View style={styles.listHeader} />}
-      />
+      {teams.length !== 0 && (
+        <FlatList
+          data={teams}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => item.TeamNumber.toString()}
+          ListHeaderComponent={<View style={styles.listHeader} />}
+        />
+      )}
     </View>
   );
 }
