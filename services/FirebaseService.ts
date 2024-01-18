@@ -19,7 +19,7 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
       const teamData: PitModel = {
         ...initialPitData,
         ...teamDoc.data(),
-        TeamNb: teamNumber,
+        TeamNumber: teamNumber,
         matches: [],
       };
 
@@ -95,7 +95,7 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
 };
 
 export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
-  const teamRef = doc(db, "teams", teamNumber); 
+  const teamRef = doc(db, "teams", teamNumber.toString()); 
 
   try {
     const docSnap = await getDoc(teamRef);

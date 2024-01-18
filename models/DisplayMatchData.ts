@@ -6,7 +6,6 @@ const displayMatchData = (match: MatchModel) => {
         { label: 'Scout Name', value: match.ScoutName },
         { label: 'Team Number', value: match.TeamNumber },
         // Auto Phase Details
-        { label: 'Auto Notes', value: match.AutoNotes },
         { label: 'Auto Amplifier', value: match.AutoAmp },
         { label: 'Auto Speaker', value: match.AutoSpeaker },
         { label: 'Auto Starting Position', value: match.AutoStartingPosition },

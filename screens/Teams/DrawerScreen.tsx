@@ -226,7 +226,7 @@ export default function DrawerScreen({ navigation }: any) {
       <FlatList
         data={teams}
         renderItem={renderItem}
-        keyExtractor={(item) => item.TeamNumber}
+        keyExtractor={(item, index) => item.TeamNumber.toString()}
         ListHeaderComponent={<View style={styles.listHeader} />}
       />
     </View>

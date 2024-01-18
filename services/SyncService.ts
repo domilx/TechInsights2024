@@ -51,7 +51,7 @@ const needsSyncing = async (lastSyncTime: string | null): Promise<boolean> => {
 const syncLocalData = async (): Promise<void> => {
     const localPitData: PitModel | null = await getDataLocally('pitData');
     if (localPitData) {
-        const teamRef = doc(db, "teams", `${localPitData.TeamNb}`);
+        const teamRef = doc(db, "teams", `${localPitData.TeamNumber}`);
         const uploadResult = await uploadPitDataToFirebase(localPitData, teamRef);
         if (uploadResult.success) {
             await removeDataLocally('pitData');

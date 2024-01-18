@@ -4,7 +4,6 @@ export interface MatchModel {
   TeamNumber: number;
   MatchNumber: number;
   //Auto
-  AutoNotes: string;
   AutoAmp: number;
   AutoSpeaker: number;
   AutoStartingPosition: Position;
@@ -22,19 +21,19 @@ export interface MatchModel {
   TeleopAmplifier: number;
   TeleopCycleTime: number;
   TeleopDropped: number;
-  TeleopTrap: TeleopTrap;
+  TeleopTrap: Trap;
   TeleopFell: boolean;
   TeleopIncapacitated: boolean;
   TeleopGamePieceStuck: number;
   TeleopShootsFrom: ShootSpots;
   TeleopUnderStage: boolean;
   //EndGame
-  EndGameOnStage: EndGameOnStage;
-  EndGameHarmony: EndGameHarmony;
-  EndGameTrap: EndGameTrap;
+  EndGameOnStage: EndGameOnStage; // None=0; Park=2; OnStage=3; points
+  EndGameHarmony: EndGameHarmony; // 0=0; 1=2; 2=3; points
+  EndGameTrap: Trap; // 0=0; 1=2; 2=0; points
   EndGameRobotFell: boolean;
   EndGameRobotIncapacitated: boolean;
-  EndGameSpotLighted: boolean;
+  EndGameSpotLighted: boolean;// 0=0; 1=1; points
   //Alliance
   AllianceTotalPoints: number;
   AllianceRankingPoints: RankingPoints;
@@ -67,11 +66,6 @@ export enum ExtraNotes {
   FarRight = "Far Right",
 }
 
-export enum TeleopTrap {
-  On = "On",
-  Off = "Off",
-}
-
 export enum ShootSpots {
   StartingZone = "Starting Zone",
   Podium = "Podium",
@@ -91,9 +85,11 @@ export enum EndGameHarmony {
   HarmonyFailed = "Harmony Failed",
 }
 
-export enum EndGameTrap {
+export enum Trap {
   ZeroPoints = "0 Points",
   FivePoints = "5 Points",
+  TenPoints = "10 Points",
+  FiveTeenPoints = "15 Points",
   TrapFailed = "Trap Failed",
 }
 
@@ -133,7 +129,6 @@ export const initialMatchData: MatchModel = {
   ScoutName: "",
   TeamNumber: 0,
   MatchNumber: 0,
-  AutoNotes: "",
   AutoAmp: 2,
   AutoSpeaker: 5,
   AutoStartingPosition: Position.Middle,
@@ -150,7 +145,7 @@ export const initialMatchData: MatchModel = {
   TeleopAmplifier: 1,
   TeleopCycleTime: 0,
   TeleopDropped: 0,
-  TeleopTrap: TeleopTrap.Off,
+  TeleopTrap: Trap.ZeroPoints,
   TeleopFell: false,
   TeleopIncapacitated: false,
   TeleopGamePieceStuck: 0,
@@ -158,7 +153,7 @@ export const initialMatchData: MatchModel = {
   TeleopUnderStage: false,
   EndGameOnStage: EndGameOnStage.None,
   EndGameHarmony: EndGameHarmony.ZeroPoints,
-  EndGameTrap: EndGameTrap.ZeroPoints,
+  EndGameTrap: Trap.ZeroPoints,
   EndGameRobotFell: false,
   EndGameRobotIncapacitated: false,
   EndGameSpotLighted: false,
