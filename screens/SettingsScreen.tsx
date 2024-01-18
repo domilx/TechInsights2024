@@ -5,7 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert, ScrollView
+  Alert,
+  ScrollView,
 } from "react-native";
 import AuthService from "../services/AuthService";
 
@@ -133,6 +134,12 @@ const SettingsScreen: FC = () => {
             />
           </>
         )}
+        <View style={styles.textContainer}>
+          <Text style={styles.credit}>
+            Made with ❤️ by Domenico and Noril, with assistance from Tanya and
+            the rest of the strategy team.
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
@@ -153,8 +160,17 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     width: "100%", // Ensure full width
   },
-  // ... rest of the styles ...
-
+  textContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    width: "80%", // Ensure full width
+  },
+  credit: {
+    fontSize: 12,
+    color: "#888",
+    textAlign: "center",
+  },
   userList: {
     marginTop: 20,
     width: "100%", // Ensure full width

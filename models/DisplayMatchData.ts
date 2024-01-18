@@ -12,7 +12,6 @@ const displayMatchData = (match: MatchModel) => {
         { label: 'Auto Leave', value: match.AutoLeave ? 'Yes' : 'No' },
         { label: 'Auto Extra Notes', value: match.AutoExtraNotes },
         { label: 'Auto Dropped', value: match.AutoDropped },
-        { label: 'Auto Robot Falls', value: match.AutoRobotFalls ? 'Yes' : 'No' },
         { label: 'Auto A Stop Pressed', value: match.AutoAStopPressed ? 'Yes' : 'No' },
         { label: 'Auto Incapacitated', value: match.AutoIncapacitated ? 'Yes' : 'No' },
         { label: 'Auto Fell', value: match.AutoFell ? 'Yes' : 'No' },
@@ -21,7 +20,7 @@ const displayMatchData = (match: MatchModel) => {
         { label: 'Teleop Speaker Amplified', value: match.TeleopSpeakerAmplified },
         { label: 'Teleop Speaker', value: match.TeleopSpeaker },
         { label: 'Teleop Amplifier', value: match.TeleopAmplifier },
-        { label: 'Teleop Cycle Time', value: match.TeleopCycleTime },
+        { label: 'Teleop Cycle Time', value: match.TeleopCycleTime.map(time => Math.ceil(time * 100) / 100).join(', ') },
         { label: 'Teleop Dropped', value: match.TeleopDropped },
         { label: 'Teleop Trap', value: match.TeleopTrap },
         { label: 'Teleop Fell', value: match.TeleopFell ? 'Yes' : 'No' },
@@ -45,7 +44,7 @@ const displayMatchData = (match: MatchModel) => {
         // Robot Performance
         { label: 'Plays Defense', value: match.PlaysDefense },
         { label: 'Robot Tippy', value: match.RobotTippy },
-        { label: 'Robot Quickness', value: match.RobotQuickness },
+        { label: 'Robot Speed', value: match.RobotSpeed },
         { label: 'Field Awareness', value: match.FieldAwareness },
         // Additional Comments
         { label: 'Comment', value: match.Comment ? match.Comment : 'None' },

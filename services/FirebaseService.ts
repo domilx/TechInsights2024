@@ -3,6 +3,7 @@ import { collection, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc } from "
 import { PitModel, initialPitData } from "../models/PitModel";
 import { MatchModel, initialMatchData } from "../models/MatchModel";
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
   const teamsCol = collection(db, "teams");
@@ -127,15 +128,21 @@ export const fetchPhotosFromFirebase = async (teamNumber: number) => {
 
 export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number) => {
   try {
-    const response = await fetch(photoUri);
-    const blob = await response.blob();
+    // Resize and compress image
+    const resizedImage = await manipulateAsync(
+      photoUri,
+      [{ resize: { width: 800 } }], // Resize to width of 800 pixels
+      { compress: 0.7, format: SaveFormat.JPEG } // Compress and convert to JPEG
+    );
 
-    const teamFolderRef = ref(storage, `${teamNumber}/`);
+    const response = await fetch(resizedImage.uri);
+    const blob = await response.blob();
 
     // Use a timestamp to create a unique photo name
     const timestamp = new Date().getTime();
     const photoName = `photo_${timestamp}.jpg`;
     const photoRef = ref(storage, `${teamNumber}/${photoName}`);
+
     await uploadBytes(photoRef, blob);
 
     // Getting download URL to display the image
@@ -146,6 +153,7 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
     return { success: false, message: error.message || "Failed to upload photo." };
   }
 };
+
 
 export const removePhotoFromFirebase = async (teamNumber: number, photoName: string) => {
   try {

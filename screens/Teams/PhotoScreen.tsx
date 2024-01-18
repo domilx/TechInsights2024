@@ -17,6 +17,7 @@ import {
   uploadPhotoToFirebase,
   removePhotoFromFirebase,
 } from "../../services/FirebaseService";
+import Carousel from "react-native-snap-carousel";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -26,6 +27,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   const [photos, setPhotos] = useState<string[]>([]); // Changed to an array
   const [flashMode, setFlashMode] = useState(FlashMode.off);
   const cameraRef = useRef<Camera>(null);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -76,25 +78,28 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
 
   const removePhoto = async (photoUrl: string) => {
     // Extract the file path from the URL
-    let photoName = photoUrl.split('/').pop();
-  
+    let photoName = photoUrl.split("/").pop();
+
     // Decode the file path
-    photoName = decodeURIComponent(photoName ?? '');
-  
+    photoName = decodeURIComponent(photoName ?? "");
+
     // Remove query parameters if any
-    const queryParamIndex = photoName.indexOf('?');
+    const queryParamIndex = photoName.indexOf("?");
     if (queryParamIndex !== -1) {
       photoName = photoName.substring(0, queryParamIndex);
     }
-  
+
     if (!photoName) {
       console.error("Invalid photo name");
       Alert.alert("Error", "Invalid photo name.");
       return;
     }
-  
+
     try {
-      const removeResult = await removePhotoFromFirebase(team.TeamNumber, photoName);
+      const removeResult = await removePhotoFromFirebase(
+        team.TeamNumber,
+        photoName
+      );
       if (removeResult.success) {
         setPhotos(photos.filter((photo) => photo !== photoUrl));
       }
@@ -102,8 +107,21 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       console.error("Error removing photo: ", error);
       Alert.alert("Error", "Failed to remove photo.");
     }
-  };  
+  };
 
+  const renderPhotoItem = ({ item, index }: any) => {
+    return (
+      <View style={styles.photoContainer}>
+        <Image source={{ uri: item }} style={styles.photo} />
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => confirmAndRemovePhoto(item)}
+        >
+          <Ionicons name="trash-bin" size={24} color="red" />
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const confirmAndRemovePhoto = (photoUrl: string) => {
     Alert.alert(
@@ -126,42 +144,47 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   }
   if (hasPermission === false) {
     return <Text>No access to camera.</Text>;
-  }7
+  }
+  7;
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={styles.camera}
-        type={CameraType.back}
-        flashMode={flashMode}
-        ref={cameraRef}
-      >
-        <View style={styles.cameraUI}>
-          <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
-            <Ionicons
-              name={flashMode === FlashMode.off ? "flash-off" : "flash"}
-              size={24}
-              color="white"
-            />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.captureButton} onPress={takePhoto}>
-            <Ionicons name="camera" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-      </Camera>
-      <ScrollView style={styles.photoScrollContainer}>
-        {photos.map((photoUrl, index) => (
-          <View key={index} style={styles.photoContainer}>
-            <Image source={{ uri: photoUrl }} style={styles.photo} />
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => confirmAndRemovePhoto(photoUrl)}
-            >
-              <Ionicons name="trash-bin" size={24} color="red" />
+      {cameraVisible && (
+        <Camera
+          style={styles.camera}
+          type={CameraType.back}
+          flashMode={flashMode}
+          ref={cameraRef}
+        >
+          <View style={styles.cameraUI}>
+            <TouchableOpacity style={styles.flashButton} onPress={toggleFlash}>
+              <Ionicons
+                name={flashMode === FlashMode.off ? 'flash-off' : 'flash'}
+                size={24}
+                color="white"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.captureButton} onPress={takePhoto}>
+              <Ionicons name="camera" size={24} color="white" />
             </TouchableOpacity>
           </View>
-        ))}
-      </ScrollView>
+        </Camera>
+      )}
+      <TouchableOpacity onPress={() => setCameraVisible(!cameraVisible)}>
+        <View style={styles.butHeader}>
+          <Text style={styles.butTitle}>
+          {cameraVisible ? 'Hide Camera' : 'Show Camera'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+
+      <Carousel
+        data={photos}
+        renderItem={renderPhotoItem}
+        sliderWidth={windowWidth}
+        itemWidth={windowWidth * 0.8}
+        layout={'default'}
+      />
     </View>
   );
 };
@@ -190,6 +213,31 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 15,
     padding: 5,
+  },
+  butHeader: {
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    backgroundColor: "#1E1E1E",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    width: windowWidth - 20,
+    elevation: 3,
+    alignItems: "center", // Center the text horizontally
+  },
+  headerTitle: {
+    fontSize: 22, // Increased font size
+    color: "#333",
+    fontWeight: "bold",
+    textAlign: "center", // Center the text within the view
+  },
+  butTitle: {
+    fontSize: 18,
+    color: "#F6EB14",
+    fontWeight: "bold",
   },
   camera: {
     width: windowWidth,

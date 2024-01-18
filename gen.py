@@ -193,7 +193,7 @@ def generate_random_match(TeamNb):
         "AllianceEnsemble": random.choice([True, False]),
         "PlaysDefense": random.choice([DefenseLevel.No, DefenseLevel.A_Little, DefenseLevel.Average, DefenseLevel.A_Lot]),
         "RobotTippy": random.choice([Tippiness.Not, Tippiness.A_Little, Tippiness.Very]),
-        "RobotQuickness": random.choice([Speed.Slow, Speed.Average, Speed.Fast]),
+        "RobotSpeed": random.choice([Speed.Slow, Speed.Average, Speed.Fast]),
         "FieldAwareness": random.choice([Awareness.LessAware, Awareness.Average, Awareness.VeryAware]),
         "Comment": f"Comment {random.randint(1, 100)}",
         "gotScanned": random.choice([True, False])

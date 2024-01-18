@@ -10,7 +10,6 @@ export interface MatchModel {
   AutoLeave: boolean;
   AutoExtraNotes: ExtraNotes;
   AutoDropped: number;
-  AutoRobotFalls: boolean;
   AutoAStopPressed: boolean;
   AutoIncapacitated: boolean;
   AutoFell: boolean;
@@ -43,7 +42,7 @@ export interface MatchModel {
   //Performance
   PlaysDefense: DefenseLevel;
   RobotTippy: Tippiness;
-  RobotQuickness: Speed;
+  RobotSpeed: Speed;
   FieldAwareness: Awareness;
   Comment?: string;
   gotScanned?: boolean;
@@ -135,7 +134,6 @@ export const initialMatchData: MatchModel = {
   AutoLeave: false,
   AutoExtraNotes: ExtraNotes.LeftWing,
   AutoDropped: 0,
-  AutoRobotFalls: false,
   AutoAStopPressed: false,
   AutoIncapacitated: false,
   AutoFell: false,
@@ -164,7 +162,7 @@ export const initialMatchData: MatchModel = {
   AllianceEnsemble: false,
   PlaysDefense: DefenseLevel.No,
   RobotTippy: Tippiness.Not,
-  RobotQuickness: Speed.Average,
+  RobotSpeed: Speed.Average,
   FieldAwareness: Awareness.Average,
   Comment: "",
   gotScanned: false,
