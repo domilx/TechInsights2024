@@ -7,10 +7,6 @@ import {
   User,
   signOut,
   updatePassword,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
-  inMemoryPersistence,
 } from 'firebase/auth';
 import { db } from '../firebase'; // Adjust this import as per your Firebase configuration
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
@@ -24,40 +20,14 @@ class AuthService {
   private authStateChangedListener: AuthStateChangedCallback | null = null; // Added listener variable
 
   private constructor() {
-    this.auth = getAuth();
-    setPersistence(this.auth, browserLocalPersistence) // Set default persistence
-      .then(() => {
-        // Initialize listener for auth state changes
-        onAuthStateChanged(this.auth, (user) => {
-          this.user = user;
-          // Notify the listener if it's active
-          if (this.authStateChangedListener) {
-            this.authStateChangedListener(this.user);
-          }
-        });
-      })
-      .catch((error) => {
-        console.error("Error setting persistence:", error);
-      });
-  }
-
-  public setAuthPersistence(persistenceType: 'local' | 'session' | 'none'): Promise<void> {
-    let persistence;
-    switch (persistenceType) {
-      case 'local':
-        persistence = browserLocalPersistence;
-        break;
-      case 'session':
-        persistence = browserSessionPersistence;
-        break;
-      case 'none':
-        persistence = inMemoryPersistence;
-        break;
-      default:
-        return Promise.reject(new Error('Invalid persistence type'));
-    }
-
-    return setPersistence(this.auth, persistence);
+    // Initialize listener for auth state changes
+    onAuthStateChanged(this.auth, (user) => {
+      this.user = user;
+      // Notify the listener if it's active
+      if (this.authStateChangedListener) {
+        this.authStateChangedListener(this.user);
+      }
+    });
   }
 
   public static getInstance(): AuthService {

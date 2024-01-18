@@ -1,16 +1,28 @@
-import { EndGameHarmony, EndGameOnStage, Trap, MatchModel, Position, RankingPoints } from "./MatchModel";
+import { EndGameHarmony, EndGameOnStage, Trap, MatchModel, Position, RankingPoints, ShootSpots } from "./MatchModel";
 
 const getMatchesPlayed = (matches: MatchModel[]) => {
-  return matches.filter((match) => match.TeamNumber !== 0);
+  let played = 0;
+  matches.forEach(match => {
+      if (match.AllianceTotalPoints > 0) {
+          played++;
+      }
+  });
+  return played;
 }
 
 const getMatchesWon = (matches: MatchModel[]) => {
-  return matches.filter((match) => match.AllianceRankingPoints === "Win");
+  let won = 0;
+  matches.forEach(match => {
+      if (match.AllianceRankingPoints === RankingPoints.Win) {
+          won++;
+      }
+  });
+  return won;
 }
 
 const getWinRate = (matches: MatchModel[]) => {
-  const played = getMatchesPlayed(matches).length;
-  return played === 0 ? 0 : getMatchesWon(matches).length / played;
+  const played = getMatchesPlayed(matches);
+  return played === 0 ? 0 : getMatchesWon(matches) / played * 100;
 }
 
 const getTotalRankingPoints = (matches: MatchModel[]) => {
@@ -27,20 +39,24 @@ const getTotalRankingPoints = (matches: MatchModel[]) => {
 }
 
 const getAverageRankingPoints = (matches: MatchModel[]) => {
-  const played = getMatchesPlayed(matches).length;
+  const played = getMatchesPlayed(matches);
   return played === 0 ? 0 : getTotalRankingPoints(matches) / played;
 }
 
-const getAutoPositionFrequency = (matches: MatchModel[]) => {
-  const positionFrequency = { Left: 0, Middle: 0, Right: 0 };
+const getAutoPositionFrequencyLeft = (matches: MatchModel[]) => {
+  const left = matches.filter(match => match.AutoStartingPosition === Position.Left).length;
+  return left / (matches.length || 1) * 100;
+}
 
-  matches.forEach(match => {
-      positionFrequency[match.AutoStartingPosition]++;
-  });
+const getAutoPositionFrequencyRight = (matches: MatchModel[]) => {
+  const right = matches.filter(match => match.AutoStartingPosition === Position.Right).length;
+  return right / (matches.length || 1) * 100;
+}
 
-  return positionFrequency;
-};
-
+const getAutoPositionFrequencyMiddle = (matches: MatchModel[]) => {
+  const middle = matches.filter(match => match.AutoStartingPosition === Position.Middle).length;
+  return middle / (matches.length || 1) * 100;
+}
 
 const getAvgAutoNotesAmp = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
@@ -54,12 +70,15 @@ const getAvgAutoNotesSpeaker = (matches: MatchModel[]) => {
 
 const getAvgTotalAutoPoints = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
-  return lastFive.reduce((total, match) => total + match.AutoAmp + match.AutoSpeaker, 0) / (lastFive.length || 1);
+  return lastFive.reduce((total, match) => {
+    const autoPoints = match.AutoAmp * 2 + match.AutoSpeaker * 5;
+    return total + autoPoints + (match.AutoLeave ? 0 : 2);
+  }, 0) / (lastFive.length || 1);
 };
 
 const getLeavePercentage = (matches: MatchModel[]) => {
   const leaveCount = matches.filter((match) => match.AutoLeave).length;
-  return leaveCount / (matches.length || 1);
+  return leaveCount / (matches.length || 1) * 100;
 };
 
 const getAvgTeleopNotesAmp = (matches: MatchModel[]) => {
@@ -79,7 +98,10 @@ const getAvgTeleopNotesAmplifiedSpeaker = (matches: MatchModel[]) => {
 
 const getAvgTotalTeleopPoints = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
-  return lastFive.reduce((total, match) => total + match.TeleopAmplifier + match.TeleopSpeaker + match.TeleopSpeakerAmplified, 0) / (lastFive.length || 1);
+  return lastFive.reduce((total, match) => {
+    const teleopPoints = match.TeleopSpeakerAmplified * 5 + match.TeleopSpeaker * 2 + match.TeleopAmplifier;
+    return total + teleopPoints;
+  }, 0) / (lastFive.length || 1);
 };
 
 const getTrapPoints = (trap: Trap) => {
@@ -150,8 +172,7 @@ const getAvgNumTotalNotesFullMatch = (matches: MatchModel[]) => {
 
 const getAvgTotalPoints = (matches: MatchModel[], isLastFive: boolean = false) => {
   const relevantMatches = isLastFive ? matches.slice(-5) : matches;
-  const lastFive = matches.slice(-5);
-  return lastFive.reduce((total, match) => {
+  return relevantMatches.reduce((total, match) => {
     const autoPoints = match.AutoAmp * 2 + match.AutoSpeaker * 5;
     const teleopPoints = match.TeleopSpeakerAmplified * 5 + match.TeleopSpeaker * 2 + match.TeleopAmplifier;
     let endGamePoints = (match.EndGameOnStage === EndGameOnStage.Park ? 2 : (match.EndGameOnStage === EndGameOnStage.OnStage ? 3 : 0)) +
@@ -159,7 +180,7 @@ const getAvgTotalPoints = (matches: MatchModel[], isLastFive: boolean = false) =
                         getTrapPoints(match.EndGameTrap) +
                         (match.EndGameSpotLighted ? 1 : 0);
     return total + autoPoints + teleopPoints + endGamePoints;
-  }, 0) / (lastFive.length || 1);
+  }, 0) / (relevantMatches.length || 1);
 };
 
 const getAvgPointsContributionRatioAllMatches = (matches: MatchModel[]) => {
@@ -169,7 +190,7 @@ const getAvgPointsContributionRatioAllMatches = (matches: MatchModel[]) => {
   return matches.reduce((total, match) => {
       const matchContributionRatio = match.AllianceTotalPoints > 0 ? match.AllianceTotalPoints / avgTotalPointsAllMatches : 0;
       return total + matchContributionRatio;
-  }, 0) / matches.length;
+  }, 0) / matches.length * 100;
 };
 
 const getAvgPointsContributionRatioLastFive = (matches: MatchModel[]) => {
@@ -180,23 +201,34 @@ const getAvgPointsContributionRatioLastFive = (matches: MatchModel[]) => {
   return lastFive.reduce((total, match) => {
       const matchContributionRatio = match.AllianceTotalPoints > 0 ? match.AllianceTotalPoints / avgTotalPointsLastFive : 0;
       return total + matchContributionRatio;
-  }, 0) / lastFive.length;
+  }, 0) / lastFive.length * 100;
 };
 
-const getAbsMaxMinNotes = (matches: MatchModel[]) => {
-  if (matches.length === 0) return { max: 0, min: 0 };
+const getAbsMaxNotes = (matches: MatchModel[]) => {
+  if (matches.length === 0) return 0;
 
   let maxNotes = Number.MIN_SAFE_INTEGER;
-  let minNotes = Number.MAX_SAFE_INTEGER;
 
   matches.forEach(match => {
       const totalNotes = match.AutoAmp + match.AutoSpeaker + match.TeleopAmplifier + match.TeleopSpeaker + match.TeleopSpeakerAmplified;
       maxNotes = Math.max(maxNotes, totalNotes);
+  });
+
+  return maxNotes;
+}
+
+const getAbsMinNotes = (matches: MatchModel[]) => {
+  if (matches.length === 0) return 0;
+
+  let minNotes = Number.MAX_SAFE_INTEGER;
+
+  matches.forEach(match => {
+      const totalNotes = match.AutoAmp + match.AutoSpeaker + match.TeleopAmplifier + match.TeleopSpeaker + match.TeleopSpeakerAmplified;
       minNotes = Math.min(minNotes, totalNotes);
   });
 
-  return { max: maxNotes, min: minNotes };
-};
+  return minNotes;
+}
 
 const getStandardDeviationNotes = (matches: MatchModel[]) => {
   if (matches.length === 0) return 0;
@@ -210,22 +242,25 @@ const getStandardDeviationNotes = (matches: MatchModel[]) => {
   return Math.sqrt(variance);
 };
 
-const getShootingPositionFrequency = (matches: MatchModel[]) => {
-  const shootingFrequency = {
-      "Starting Zone": 0, 
-      "Podium": 0, 
-      "Elsewhere in Wing": 0, 
-      "Near Centre Line": 0
-  };
+const getShootingPositionFrequencyStartingZone = (matches: MatchModel[]) => {
+  const startingZone = matches.filter(match => match.TeleopShootsFrom === ShootSpots.StartingZone).length;
+  return startingZone / (matches.length || 1) * 100;
+}
 
-  matches.forEach(match => {
-      if (match.TeleopShootsFrom in shootingFrequency) {
-          shootingFrequency[match.TeleopShootsFrom]++;
-      }
-  });
+const getShootingPositionFrequencyPodium = (matches: MatchModel[]) => {
+  const podium = matches.filter(match => match.TeleopShootsFrom === ShootSpots.Podium).length;
+  return podium / (matches.length || 1) * 100;
+}
 
-  return shootingFrequency;
-};
+const getShootingPositionFrequencyElsewhereInWing = (matches: MatchModel[]) => {
+  const elsewhereInWing = matches.filter(match => match.TeleopShootsFrom === ShootSpots.ElsewhereInWing).length;
+  return elsewhereInWing / (matches.length || 1) * 100;
+}
+
+const getShootingPositionFrequencyNearCenterLine = (matches: MatchModel[]) => {
+  const nearCenterLine = matches.filter(match => match.TeleopShootsFrom === ShootSpots.NearCentreLine).length;
+  return nearCenterLine / (matches.length || 1) * 100;
+}
 
 const getAvgCycleTimeLastFive = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
@@ -239,11 +274,12 @@ const getPercentageDroppedNotes = (matches: MatchModel[]) => {
   return totalNotes > 0 ? (totalDropped / totalNotes) * 100 : 0;
 };
 
-const getTimesIncapacitatedAndFalls = (matches: MatchModel[]) => {
-  const incapacitated = matches.filter(match => match.TeleopIncapacitated || match.AutoIncapacitated).length;
-  const falls = matches.filter(match => match.TeleopFell || match.AutoFell).length;
+const getTimesIncapacitated = (matches: MatchModel[]) => {
+  return matches.filter(match => match.TeleopIncapacitated).length;
+};
 
-  return { incapacitated, falls };
+const getTimesFell = (matches: MatchModel[]) => {
+  return matches.filter(match => match.TeleopFell).length + matches.filter(match => match.AutoFell).length;
 };
 
 export {
@@ -252,7 +288,9 @@ export {
   getWinRate,
   getTotalRankingPoints,
   getAverageRankingPoints,
-  getAutoPositionFrequency,
+  getAutoPositionFrequencyLeft,
+  getAutoPositionFrequencyRight,
+  getAutoPositionFrequencyMiddle,
   getAvgAutoNotesAmp,
   getAvgAutoNotesSpeaker,
   getAvgTotalAutoPoints,
@@ -268,10 +306,15 @@ export {
   getAvgTotalPoints,
   getAvgPointsContributionRatioAllMatches,
   getAvgPointsContributionRatioLastFive,
-  getAbsMaxMinNotes,
+  getAbsMaxNotes,
+  getAbsMinNotes,
   getStandardDeviationNotes,
-  getShootingPositionFrequency,
+  getShootingPositionFrequencyStartingZone,
+  getShootingPositionFrequencyPodium,
+  getShootingPositionFrequencyElsewhereInWing,
+  getShootingPositionFrequencyNearCenterLine,
   getAvgCycleTimeLastFive,
   getPercentageDroppedNotes,
-  getTimesIncapacitatedAndFalls,
+  getTimesIncapacitated,
+  getTimesFell
 }

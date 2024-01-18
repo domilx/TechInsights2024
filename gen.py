@@ -3,12 +3,11 @@ import random
 import qrcode
 import os
 
-
+# Enums for PitModel
 class DriveBaseType:
     Swerve = 'Swerve'
     Tank = 'Tank'
     Other = 'Other'
-
 
 class DriveBaseMotor:
     CIM = 'CIM'
@@ -16,105 +15,191 @@ class DriveBaseMotor:
     FALCON = 'FALCON'
     KRAKEN = 'KRAKEN'
 
-
-class DriverExperience:
-    Zero = 'Zero'
-    One = 'One'
-    Two = 'Two'
-    Three = 'Three'
-    Four = 'Four'
+class Years:
+    Zero = '0'
+    One = '1'
+    Two = '2'
+    ThreePlus = '3+'
     Unknown = 'Unknown'
 
-
 class Stability:
-    NO = 'Not Stable'
-    YES = 'Stable'
-    VERY_STABLE = 'Very Stable'
+    NotStable = 'Not Stable'
+    Stable = 'Stable'
+    VeryStable = 'Very Stable'
 
-# generate pit data
+class WellMade:
+    No = 'No'
+    Yes = 'Yes'
+    Very = 'Very'
 
+class PickupSpots:
+    SourceOnly = 'Source Only'
+    GroundOnly = 'Ground Only'
+    Both = 'Both'
+    Neither = 'Neither'
 
+class ScoreSpots:
+    SpeakerOnly = 'Speaker Only'
+    AmpOnly = 'Amp Only'
+    Both = 'Both'
+    Neither = 'Neither'
+
+class Gravity:
+    Low = 'Low'
+    Medium = 'Medium'
+    High = 'High'
+
+class ShootSpots:
+    StartingZone = 'Starting Zone'
+    Podium = 'Podium'
+    ElsewhereInWing = 'Elsewhere in Wing'
+    NearCentreLine = 'Near Centre Line'
+
+class HumanPlayerSpotlight:
+    OneOfThree = '1 of 3 High Notes'
+    TwoOfThree = '2 of 3 High Notes'
+    AllHighNotes = '3 of 3 High Notes'
+
+# Enums for MatchModel
+class Position:
+    Left = 'Left'
+    Middle = 'Middle'
+    Right = 'Right'
+
+class ExtraNotes:
+    LeftWing = 'Left Wing'
+    CentreWing = 'Centre Wing'
+    RightWing = 'Right Wing'
+    FarLeftCentre = 'Far Left Centre'
+    LeftCentre = 'Left Centre'
+    CentreCentre = 'Centre Centre'
+    RightCentre = 'Right Centre'
+    FarRight = 'Far Right'
+
+class EndGameOnStage:
+    Park = 'Park'
+    OnStage = 'OnStage'
+
+class EndGameHarmony:
+    ZeroPoints = '0 Points'
+    TwoPoints = '2 Points'
+    HarmonyFailed = 'Harmony Failed'
+
+class Trap:
+    ZeroPoints = '0 Points'
+    FivePoints = '5 Points'
+    TenPoints = '10 Points'
+    FifteenPoints = '15 Points'
+    TrapFailed = 'Trap Failed'
+
+class RankingPoints:
+    Lose = 'Lose'
+    Tie = 'Tie'
+    Win = 'Win'
+
+class DefenseLevel:
+    No = 'No'
+    A_Little = 'A Little'
+    Average = 'Average'
+    A_Lot = 'A Lot'
+
+class Tippiness:
+    Not = 'Not'
+    A_Little = 'A Little'
+    Very = 'Very'
+
+class Speed:
+    Slow = 'Slow'
+    Average = 'Average'
+    Fast = 'Fast'
+
+class Awareness:
+    LessAware = 'Less Aware'
+    Average = 'Average'
+    VeryAware = 'Very Aware'
+
+# Generate team data based on PitModel
 def generate_team_data(TeamNb):
     return {
-        "RobScout": f"Scout{random.randint(1, 10)}",
-        "TeamNb": TeamNb,
-        "RobTeamNm": f"Team{TeamNb}",
-        "RobDrive": random.choice([DriveBaseType.Swerve, DriveBaseType.Tank, DriveBaseType.Other]),
-        "RobMotor": random.choice([DriveBaseMotor.CIM, DriveBaseMotor.NEO, DriveBaseMotor.FALCON, DriveBaseMotor.KRAKEN]),
-        "RobDriveExp": random.choice([DriverExperience.Zero, DriverExperience.One, DriverExperience.Two, DriverExperience.Three, DriverExperience.Four, DriverExperience.Unknown]),
-        "RobWtlbs": random.randint(0, 100),
-        "RobWidth": random.randint(0, 100),
-        "RobLength": random.randint(0, 100),
-        "RobStble": random.choice([Stability.NO, Stability.YES, Stability.VERY_STABLE]),
-        "RobQuest1": random.choice([True, False]),
-        "RobQuest2": random.choice([True, False]),
-        "RobQuest3": random.choice([True, False]),
-        "RobQuest4": random.choice([True, False]),
-        "RobQuest5": random.choice([True, False]),
-        "RobQuest6": random.choice([True, False]),
-        "RobQuest7": random.choice([True, False]),
-        "RobQuest8": random.choice([True, False]),
-        "RobQuest9": random.choice([True, False]),
-        "RobQuest10": random.choice([True, False]),
-        "RobQuest11": random.choice([True, False]),
-        "RobQuest12": random.choice([True, False]),
-        "RobQuest13": random.choice([True, False]),
-        "RobQuest14": random.choice([True, False]),
-        "RobQuest15": random.choice([True, False]),
-        "RobComm1": f"Comment {random.randint(1, 100)}",
+        "ScoutName": f"Scout{random.randint(1, 10)}",
+        "TeamNumber": TeamNb,
+        "TeamName": f"Team{TeamNb}",
+        "DriveBaseType": random.choice([DriveBaseType.Swerve, DriveBaseType.Tank, DriveBaseType.Other]),
+        "DriveBaseMotor": random.choice([DriveBaseMotor.CIM, DriveBaseMotor.NEO, DriveBaseMotor.FALCON, DriveBaseMotor.KRAKEN]),
+        "DriverExperience": random.choice([Years.Zero, Years.One, Years.Two, Years.ThreePlus, Years.Unknown]),
+        "WeightLbs": random.randint(0, 100),
+        "WidthInches": random.randint(0, 100),
+        "LengthInches": random.randint(0, 100),
+        "Stability": random.choice([Stability.NotStable, Stability.Stable, Stability.VeryStable]),
+        "WellMade": random.choice([WellMade.No, WellMade.Yes, WellMade.Very]),
+        "SingleIntakeShooter": random.choice([True, False]),
+        "PickupSpots": random.choice([PickupSpots.SourceOnly, PickupSpots.GroundOnly, PickupSpots.Both, PickupSpots.Neither]),
+        "ScoreSpots": random.choice([ScoreSpots.SpeakerOnly, ScoreSpots.AmpOnly, ScoreSpots.Both, ScoreSpots.Neither]),
+        "CenterOfGravity": random.choice([Gravity.Low, Gravity.Medium, Gravity.High]),
+        "YearsUsingSwerve": random.choice([Years.Zero, Years.One, Years.Two, Years.ThreePlus, Years.Unknown]),
+        "ShootsFrom": random.choice([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine]),
+        "ObjectRecognition": random.choice([True, False]),
+        "ReadAprilTags": random.choice([True, False]),
+        "AutonomousProgram": random.choice([True, False]),
+        "AutoProgramsForSpeaker": random.choice([True, False]),
+        "CanGetOnStage": random.choice([True, False]),
+        "CanScoreNotesInTrap": random.choice([True, False]),
+        "HumanPlayerSpotlight": random.choice([HumanPlayerSpotlight.OneOfThree, HumanPlayerSpotlight.TwoOfThree, HumanPlayerSpotlight.AllHighNotes]),
+        "CheesecakeAbility": random.choice([True, False]),
+        "Comments": f"Comment {random.randint(1, 100)}",
+        "HeightInches": random.randint(0, 100),
+        "FrameClearanceInches": random.randint(0, 100),
         "matches": []  # Assuming an empty list for simplicity
     }
 
-# Function to generate a random match with the updated flattened GamePiecesGrid
-
-
+# Generate a random match based on MatchModel
 def generate_random_match(TeamNb):
     return {
         "ScoutName": f"Scout{random.randint(1, 10)}",
         "TeamNumber": TeamNb,
         "MatchNumber": random.randint(1, 100),
-        "AutoGamePiece1": random.randint(0, 10),
-        "AutoGamePiece2": random.randint(0, 10),
-        "AutoGamePiece3": random.randint(0, 10),
-        "AutoGamePiece4": random.randint(0, 10),
-        "AutoPosition": random.choice(["Left", "Middle", "Right"]),
-        "AutoMobility": random.choice([True, False]),
-        "AutoObjective1": random.choice(["Stage 1", "Stage 2", "Stage 3", "Stage 4"]),
-        "AutoObjective2": random.choice(["Stage 1", "Stage 2", "Stage 3", "Stage 4"]),
+        "AutoAmp": random.randint(0, 10),
+        "AutoSpeaker": random.randint(0, 10),
+        "AutoStartingPosition": random.choice([Position.Left, Position.Middle, Position.Right]),
+        "AutoLeave": random.choice([True, False]),
+        "AutoExtraNotes": random.choice([ExtraNotes.LeftWing, ExtraNotes.CentreWing, ExtraNotes.RightWing, ExtraNotes.FarLeftCentre, ExtraNotes.LeftCentre, ExtraNotes.CentreCentre, ExtraNotes.RightCentre, ExtraNotes.FarRight]),
+        "AutoDropped": random.randint(0, 10),
         "AutoRobotFalls": random.choice([True, False]),
-        "CycleTime": [random.uniform(0.0, 10.0) for _ in range(random.randint(1, 5))],
-        "EndGameObjective1": random.choice(["Stage 1", "Stage 2", "Stage 3", "Stage 4"]),
-        "EndGameObjective2": random.choice(["Stage 1", "Stage 2", "Stage 3", "Stage 4"]),
-        "DroppedGamePiece": random.randint(0, 10),
+        "AutoAStopPressed": random.choice([True, False]),
+        "AutoIncapacitated": random.choice([True, False]),
+        "AutoFell": random.choice([True, False]),
+        "AutoRobotDidNotPlay": random.choice([True, False]),
+        "TeleopSpeakerAmplified": random.randint(0, 10),
+        "TeleopSpeaker": random.randint(0, 10),
+        "TeleopAmplifier": random.randint(0, 10),
+        "TeleopCycleTime": random.uniform(0.0, 10.0),
+        "TeleopDropped": random.randint(0, 10),
+        "TeleopTrap": random.choice([Trap.ZeroPoints, Trap.FivePoints, Trap.TenPoints, Trap.FifteenPoints, Trap.TrapFailed]),
+        "TeleopFell": random.choice([True, False]),
+        "TeleopIncapacitated": random.choice([True, False]),
+        "TeleopGamePieceStuck": random.randint(0, 10),
+        "TeleopShootsFrom": random.choice([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine]),
+        "TeleopUnderStage": random.choice([True, False]),
+        "EndGameOnStage": random.choice([EndGameOnStage.Park, EndGameOnStage.OnStage]),
+        "EndGameHarmony": random.choice([EndGameHarmony.ZeroPoints, EndGameHarmony.TwoPoints, EndGameHarmony.HarmonyFailed]),
+        "EndGameTrap": random.choice([Trap.ZeroPoints, Trap.FivePoints, Trap.TenPoints, Trap.FifteenPoints, Trap.TrapFailed]),
+        "EndGameRobotFell": random.choice([True, False]),
+        "EndGameRobotIncapacitated": random.choice([True, False]),
+        "EndGameSpotLighted": random.choice([True, False]),
+        "AllianceTotalPoints": random.randint(0, 100),
+        "AllianceRankingPoints": random.choice([RankingPoints.Lose, RankingPoints.Tie, RankingPoints.Win]),
+        "AllianceMelody": random.choice([True, False]),
+        "AllianceCoopertition": random.choice([True, False]),
+        "AllianceEnsemble": random.choice([True, False]),
+        "PlaysDefense": random.choice([DefenseLevel.No, DefenseLevel.A_Little, DefenseLevel.Average, DefenseLevel.A_Lot]),
+        "RobotTippy": random.choice([Tippiness.Not, Tippiness.A_Little, Tippiness.Very]),
+        "RobotQuickness": random.choice([Speed.Slow, Speed.Average, Speed.Fast]),
+        "FieldAwareness": random.choice([Awareness.LessAware, Awareness.Average, Awareness.VeryAware]),
         "Comment": f"Comment {random.randint(1, 100)}",
-        "TotalPointsAlliance": random.randint(0, 100),
-        "RankingPointsAlliance": random.randint(0, 100),
-        "AllianceObjective1": random.randint(0, 10),
-        "AllianceObjective2": random.choice([True, False]),
-        "WonMatch": random.choice([True, False]),
-        "TeleopStatus1": random.choice([True, False]),
-        "TeleopStatus2": random.choice([True, False]),
-        "TeleopStatus3": random.choice([True, False]),
-        "TeleopStatus4": random.choice([True, False]),
-        "TeleopStatus5": random.choice(["Slow", "Average", "Fast"]),
-        "TeleopStatus6": random.choice(["Less aware", "Average", "Very aware"]),
-        "TeleopGamePiece1": random.randint(0, 10),
-        "TeleopGamePiece2": random.randint(0, 10),
-        "TeleopGamePiece3": random.randint(0, 10),
-        "TeleopGamePiece4": random.randint(0, 10),
-        "GamePiecesGrid": [
-            {
-                "rowIndex": i,
-                "columnIndex": j,
-                "autoScored": random.randint(0, 5),
-                "GamePieceType": random.choice(["GamePiece1", "GamePiece2", "GamePiece3", "GamePiece4"]),
-                "count": random.randint(0, 5)
-            }
-            for i in range(3) for j in range(3)
-        ],
         "gotScanned": random.choice([True, False])
     }
 
+# QR code generation and main execution flow remains the same as in your original script
 
 def generate_qr_code(data, file_path):
     qr = qrcode.QRCode(
@@ -130,7 +215,7 @@ def generate_qr_code(data, file_path):
 
 
 # Directory to save QR codes
-qr_code_dir = "./qr_codes2"
+qr_code_dir = "./qr_codes"
 os.makedirs(qr_code_dir, exist_ok=True)
 
 # Number of teams
