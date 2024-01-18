@@ -89,7 +89,7 @@ export enum Trap {
   ZeroPoints = "0 Points",
   FivePoints = "5 Points",
   TenPoints = "10 Points",
-  FiveTeenPoints = "15 Points",
+  FifteenPoints = "15 Points",
   TrapFailed = "Trap Failed",
 }
 
