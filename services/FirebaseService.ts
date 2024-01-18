@@ -136,10 +136,6 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
     const timestamp = new Date().getTime();
     const photoName = `photo_${timestamp}.jpg`;
     const photoRef = ref(storage, `${teamNumber}/${photoName}`);
-    console.log("Uploading photo to Firebase: ", photoRef);
-    console.log("Photo URI: ", photoUri);
-    console.log("Photo blob: ", blob);
-    
     await uploadBytes(photoRef, blob);
 
     // Getting download URL to display the image

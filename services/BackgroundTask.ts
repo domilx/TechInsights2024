@@ -9,10 +9,8 @@ TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
     // Call your sync function
     const response = await syncData();
     if (response.success) {
-      console.log('Background fetch executed, new data fetched.');
       return 'new-data';
     } else {
-      console.log('Background fetch executed, but no new data.');
       return 'no-data';
     }
   } catch (err) {

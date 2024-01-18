@@ -172,7 +172,7 @@ def generate_random_match(TeamNb):
         "TeleopSpeakerAmplified": random.randint(0, 10),
         "TeleopSpeaker": random.randint(0, 10),
         "TeleopAmplifier": random.randint(0, 10),
-        "TeleopCycleTime": random.uniform(0.0, 10.0),
+        "TeleopCycleTime": [random.uniform(0.0, 10.0) for _ in range(random.randint(1, 5))],
         "TeleopDropped": random.randint(0, 10),
         "TeleopTrap": random.choice([Trap.ZeroPoints, Trap.FivePoints, Trap.TenPoints, Trap.FifteenPoints, Trap.TrapFailed]),
         "TeleopFell": random.choice([True, False]),

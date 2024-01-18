@@ -19,7 +19,7 @@ export interface MatchModel {
   TeleopSpeakerAmplified: number;
   TeleopSpeaker: number;
   TeleopAmplifier: number;
-  TeleopCycleTime: number;
+  TeleopCycleTime: number[];
   TeleopDropped: number;
   TeleopTrap: Trap;
   TeleopFell: boolean;
@@ -143,7 +143,7 @@ export const initialMatchData: MatchModel = {
   TeleopSpeakerAmplified: 5,
   TeleopSpeaker: 2,
   TeleopAmplifier: 1,
-  TeleopCycleTime: 0,
+  TeleopCycleTime: [0],
   TeleopDropped: 0,
   TeleopTrap: Trap.ZeroPoints,
   TeleopFell: false,

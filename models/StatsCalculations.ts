@@ -264,7 +264,8 @@ const getShootingPositionFrequencyNearCenterLine = (matches: MatchModel[]) => {
 
 const getAvgCycleTimeLastFive = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
-  return lastFive.reduce((total, match) => total + match.TeleopCycleTime, 0) / (lastFive.length || 1);
+  const cycleTime = lastFive.reduce((total, match) => total.concat(match.TeleopCycleTime), [] as number[]);
+  return cycleTime.reduce((total, time) => total + time, 0) / (cycleTime.length || 1);
 };
 
 const getPercentageDroppedNotes = (matches: MatchModel[]) => {
