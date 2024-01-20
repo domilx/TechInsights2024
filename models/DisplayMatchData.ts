@@ -10,7 +10,7 @@ const displayMatchData = (match: MatchModel) => {
         { label: 'Auto Speaker', value: match.AutoSpeaker },
         { label: 'Auto Starting Position', value: match.AutoStartingPosition },
         { label: 'Auto Leave', value: match.AutoLeave ? 'Yes' : 'No' },
-        { label: 'Auto Extra Notes', value: match.AutoExtraNotes },
+        { label: 'Auto Extra Notes', value: match.AutoExtraNotes.join(', ') },
         { label: 'Auto Dropped', value: match.AutoDropped },
         { label: 'Auto A Stop Pressed', value: match.AutoAStopPressed ? 'Yes' : 'No' },
         { label: 'Auto Incapacitated', value: match.AutoIncapacitated ? 'Yes' : 'No' },
@@ -26,7 +26,7 @@ const displayMatchData = (match: MatchModel) => {
         { label: 'Teleop Fell', value: match.TeleopFell ? 'Yes' : 'No' },
         { label: 'Teleop Incapacitated', value: match.TeleopIncapacitated ? 'Yes' : 'No' },
         { label: 'Teleop Game Piece Stuck', value: match.TeleopGamePieceStuck },
-        { label: 'Teleop Shoots From', value: match.TeleopShootsFrom },
+        { label: 'Teleop Shoots From', value: match.TeleopShootsFrom.join(', ') },
         { label: 'Teleop Under Stage', value: match.TeleopUnderStage ? 'Yes' : 'No' },
         // EndGame Details
         { label: 'End Game On Stage', value: match.EndGameOnStage },

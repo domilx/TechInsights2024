@@ -16,11 +16,11 @@ export interface PitModel {
   //Robot Capabilities
   WellMade: WellMade;
   SingleIntakeShooter: boolean; // Boolean for single intake and shooter
-  PickupSpots: PickupSpots;
+  PickupSpots: PickupSpots[];
   ScoreSpots: ScoreSpots;
   CenterOfGravity: Gravity;
   YearsUsingSwerve: Years;
-  ShootsFrom: ShootSpots; // Adding ShootsFrom as an enum
+  ShootsFrom: ShootSpots[]; // Adding ShootsFrom as an enum
   ObjectRecognition: boolean;
   ReadAprilTags: boolean;
   AutonomousProgram: boolean;
@@ -73,14 +73,12 @@ export enum PickupSpots {
   SourceOnly = "Source Only",
   GroundOnly = "Ground Only",
   Both = "Both",
-  Neither = "Neither",
 }
 
 export enum ScoreSpots {
   SpeakerOnly = "Speaker Only",
   AmpOnly = "Amp Only",
   Both = "Both",
-  Neither = "Neither",
 }
 
 export enum Gravity {
@@ -117,11 +115,11 @@ export const initialPitData: PitModel = {
   Stability: Stability.NotStable,
   WellMade: WellMade.No,
   SingleIntakeShooter: false,
-  PickupSpots: PickupSpots.Neither,
-  ScoreSpots: ScoreSpots.Neither,
+  PickupSpots: [PickupSpots.Both],
+  ScoreSpots: ScoreSpots.Both,
   CenterOfGravity: Gravity.Low,
   YearsUsingSwerve: Years.Zero,
-  ShootsFrom: ShootSpots.None,
+  ShootsFrom: [ShootSpots.None],
   ObjectRecognition: false,
   ReadAprilTags: false,
   AutonomousProgram: false,

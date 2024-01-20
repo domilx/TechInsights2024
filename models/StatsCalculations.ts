@@ -242,24 +242,36 @@ const getStandardDeviationNotes = (matches: MatchModel[]) => {
   return Math.sqrt(variance);
 };
 
-const getShootingPositionFrequencyStartingZone = (matches: MatchModel[]) => {
-  const startingZone = matches.filter(match => match.TeleopShootsFrom === ShootSpots.StartingZone).length;
-  return startingZone / (matches.length || 1) * 100;
+const getShootingPositionIfStartingZone = (match: MatchModel) => {
+  //if the shooting position contains starting zone, return true 
+  if (match.TeleopShootsFrom.includes(ShootSpots.StartingZone)) {
+    return true;
+  }
+  return false;
 }
 
-const getShootingPositionFrequencyPodium = (matches: MatchModel[]) => {
-  const podium = matches.filter(match => match.TeleopShootsFrom === ShootSpots.Podium).length;
-  return podium / (matches.length || 1) * 100;
+const getShootingPositionIfPodium = (match: MatchModel) => {
+  //if the shooting position contains podium, return true 
+  if (match.TeleopShootsFrom.includes(ShootSpots.Podium)) {
+    return true;
+  }
+  return false;
 }
 
-const getShootingPositionFrequencyElsewhereInWing = (matches: MatchModel[]) => {
-  const elsewhereInWing = matches.filter(match => match.TeleopShootsFrom === ShootSpots.ElsewhereInWing).length;
-  return elsewhereInWing / (matches.length || 1) * 100;
+const getShootingPositionIfElsewhereInWing = (match: MatchModel) => {
+  //if the shooting position contains else in wing, return true 
+  if (match.TeleopShootsFrom.includes(ShootSpots.ElsewhereInWing)) {
+    return true;
+  }
+  return false;
 }
 
-const getShootingPositionFrequencyNearCenterLine = (matches: MatchModel[]) => {
-  const nearCenterLine = matches.filter(match => match.TeleopShootsFrom === ShootSpots.NearCentreLine).length;
-  return nearCenterLine / (matches.length || 1) * 100;
+const getShootingPositionIfNearCenterLine = (match: MatchModel) => {
+  //if the shooting position contains near center line, return true 
+  if (match.TeleopShootsFrom.includes(ShootSpots.NearCentreLine)) {
+    return true;
+  }
+  return false;
 }
 
 const getAvgCycleTimeLastFive = (matches: MatchModel[]) => {
@@ -310,10 +322,10 @@ export {
   getAbsMaxNotes,
   getAbsMinNotes,
   getStandardDeviationNotes,
-  getShootingPositionFrequencyStartingZone,
-  getShootingPositionFrequencyPodium,
-  getShootingPositionFrequencyElsewhereInWing,
-  getShootingPositionFrequencyNearCenterLine,
+  getShootingPositionIfStartingZone,
+  getShootingPositionIfPodium,
+  getShootingPositionIfElsewhereInWing,
+  getShootingPositionIfNearCenterLine,
   getAvgCycleTimeLastFive,
   getPercentageDroppedNotes,
   getTimesIncapacitated,

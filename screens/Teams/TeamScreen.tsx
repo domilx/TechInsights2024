@@ -78,26 +78,63 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     const matches = selectedTeam?.matches || [];
 
     return Object.entries(DisplayStatsData).map(
-      ([sectionKey, stats], sectionIndex) => (
-        <View key={sectionIndex} style={styles.dataCard}>
-          <Text style={styles.sectionTitle}>
-            {sectionKey.replace(/([A-Z])/g, " $1").trim()}
-          </Text>
-          {stats.map((stat, statIndex) => {
+      ([sectionKey, stats], sectionIndex) => {
+        if (sectionKey === "PositionFrequency") {
+          // Handle PositionFrequency section differently
+          const positionStats = stats.map((stat) => {
+             //@ts-ignore
             const value = stat.func(matches);
             const displayValue =
               typeof value === "number" ? value.toFixed(2) : value;
-            return (
-              <View key={statIndex} style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{stat.label}:</Text>
-                <Text style={styles.detailValue}>{`${displayValue}${
-                  stat.unit ? ` ${stat.unit}` : ""
-                }`}</Text>
+            return {
+              label: stat.label,
+              value: displayValue,
+              unit: stat.unit,
+            };
+          });
+
+          return (
+            <View key={sectionIndex} style={styles.dataCard}>
+              <Text style={styles.sectionTitle}>
+                {sectionKey.replace(/([A-Z])/g, " $1").trim()}
+              </Text>
+              <View style={styles.detailRow}>
+                {positionStats.map((stat, statIndex) => (
+                  <View key={statIndex} style={styles.positionStat}>
+                    <Text style={styles.detailLabel}>{stat.label}:</Text>
+                    <Text style={styles.detailValue}>{`${stat.value}${
+                      stat.unit ? ` ${stat.unit}` : ""
+                    }`}</Text>
+                  </View>
+                ))}
               </View>
-            );
-          })}
-        </View>
-      )
+            </View>
+          );
+        } else {
+          // Render other sections as a list
+          return (
+            <View key={sectionIndex} style={styles.dataCard}>
+              <Text style={styles.sectionTitle}>
+                {sectionKey.replace(/([A-Z])/g, " $1").trim()}
+              </Text>
+              {stats.map((stat, statIndex) => {
+                //@ts-ignore
+                const value = stat.func(matches);
+                const displayValue =
+                  typeof value === "number" ? value.toFixed(2) : value;
+                return (
+                  <View key={statIndex} style={styles.detailRow}>
+                    <Text style={styles.detailLabel}>{stat.label}:</Text>
+                    <Text style={styles.detailValue}>{`${displayValue}${
+                      stat.unit ? ` ${stat.unit}` : ""
+                    }`}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          );
+        }
+      }
     );
   };
 
@@ -261,6 +298,10 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f2f2f2",
+  },
+  positionStat: {
+    flex: 1,
+    flexDirection: "row",
   },
   teamHeader: {
     padding: 15,
