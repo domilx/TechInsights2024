@@ -27,14 +27,37 @@ const getWinRate = (matches: MatchModel[]) => {
 
 const getTotalRankingPoints = (matches: MatchModel[]) => {
   return matches.reduce((total, match) => {
+    let points = 0;
+
     switch (match.AllianceRankingPoints) {
       case RankingPoints.Win:
-        return total + 2; // Assuming 2 points for a win
+        points += 2;
+        break;
       case RankingPoints.Tie:
-        return total + 1; // Assuming 1 point for a tie
+        points += 1;
+        break;
       case RankingPoints.Lose:
-        return total;
+        break;
     }
+
+    if (match.EndGameOnStage === EndGameOnStage.OnStage) {
+      points += 1;
+    }
+
+    if (
+      match.AutoAmp + match.AutoSpeaker >= 18 &&
+      match.TeleopAmplifier + match.TeleopSpeakerAmplified + match.TeleopSpeaker >= 18
+    ) {
+      points += 1;
+    } else if (
+      match.AutoAmp + match.AutoSpeaker >= 15 &&
+      match.TeleopAmplifier + match.TeleopSpeakerAmplified + match.TeleopSpeaker >= 15 &&
+      match.EndGameHarmony === EndGameHarmony.TwoPoints
+    ) {
+      points += 1;
+    }
+
+    return total + points;
   }, 0);
 }
 
@@ -243,35 +266,19 @@ const getStandardDeviationNotes = (matches: MatchModel[]) => {
 };
 
 const getShootingPositionIfStartingZone = (match: MatchModel) => {
-  //if the shooting position contains starting zone, return true 
-  if (match.TeleopShootsFrom.includes(ShootSpots.StartingZone)) {
-    return true;
-  }
-  return false;
+  return match.TeleopShootsFrom?.includes(ShootSpots.StartingZone) || false;
 }
 
 const getShootingPositionIfPodium = (match: MatchModel) => {
-  //if the shooting position contains podium, return true 
-  if (match.TeleopShootsFrom.includes(ShootSpots.Podium)) {
-    return true;
-  }
-  return false;
+  return match.TeleopShootsFrom?.includes(ShootSpots.Podium) || false;
 }
 
 const getShootingPositionIfElsewhereInWing = (match: MatchModel) => {
-  //if the shooting position contains else in wing, return true 
-  if (match.TeleopShootsFrom.includes(ShootSpots.ElsewhereInWing)) {
-    return true;
-  }
-  return false;
+  return match.TeleopShootsFrom?.includes(ShootSpots.ElsewhereInWing) || false;
 }
 
 const getShootingPositionIfNearCenterLine = (match: MatchModel) => {
-  //if the shooting position contains near center line, return true 
-  if (match.TeleopShootsFrom.includes(ShootSpots.NearCentreLine)) {
-    return true;
-  }
-  return false;
+  return match.TeleopShootsFrom?.includes(ShootSpots.NearCentreLine) || false;
 }
 
 const getAvgCycleTimeLastFive = (matches: MatchModel[]) => {

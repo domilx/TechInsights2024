@@ -45,10 +45,10 @@ const DisplayStatsData = {
         { label: "Total Ranking Points", func: getTotalRankingPoints, unit: "points" },
         { label: "Average Ranking Points", func: getAverageRankingPoints, unit: "points" },
     ],
-    PositionFrquency: [
+    AutoPositionFrequency: [
         { label: "Left", func: getAutoPositionFrequencyLeft, unit: "%" },
-        { label: "Right", func: getAutoPositionFrequencyRight, unit: "%" },
         { label: "Middle", func: getAutoPositionFrequencyMiddle, unit: "%" },
+        { label: "Right", func: getAutoPositionFrequencyRight, unit: "%" },
     ],
     Auto: [
         { label: "Avg Notes Amp", func: getAvgAutoNotesAmp, unit: "notes" },

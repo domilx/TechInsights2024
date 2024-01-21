@@ -21,11 +21,19 @@ const DisplayPitData = (pitData: PitModel) => {
     ],
     RobotCapabilities: [
       { label: "Single Intake Shooter", value: pitData.SingleIntakeShooter ? "Yes" : "No", unit: "" },
-      { label: "Pickup Spots", value: pitData.PickupSpots.join(', '), unit: "" },
+      {
+        label: "Pickup Spots", 
+        value: Array.isArray(pitData.PickupSpots) ? pitData.PickupSpots.join(', ') : '', 
+        unit: ""
+      },
       { label: "Score Spots", value: pitData.ScoreSpots, unit: "" },
       { label: "Center of Gravity", value: pitData.CenterOfGravity, unit: "" },
       { label: "Years Using Swerve", value: pitData.YearsUsingSwerve, unit: "years" },
-      { label: "Shoots From", value: pitData.ShootsFrom.join(', '), unit: "" },
+      {
+        label: "Shoots From", 
+        value: Array.isArray(pitData.ShootsFrom) ? pitData.ShootsFrom.join(', ') : '', 
+        unit: ""
+      },
       { label: "Object Recognition", value: pitData.ObjectRecognition ? "Yes" : "No", unit: "" },
       { label: "Read April Tags", value: pitData.ReadAprilTags ? "Yes" : "No", unit: "" },
       { label: "Autonomous Program", value: pitData.AutonomousProgram ? "Yes" : "No", unit: "" },

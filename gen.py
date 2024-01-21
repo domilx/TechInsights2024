@@ -3,7 +3,7 @@ import random
 import qrcode
 import os
 
-# Enums for PitModel
+# Enums updated to match TypeScript models
 class DriveBaseType:
     Swerve = 'Swerve'
     Tank = 'Tank'
@@ -49,18 +49,11 @@ class Gravity:
     Medium = 'Medium'
     High = 'High'
 
-class ShootSpots:
-    StartingZone = 'Starting Zone'
-    Podium = 'Podium'
-    ElsewhereInWing = 'Elsewhere in Wing'
-    NearCentreLine = 'Near Centre Line'
-
 class HumanPlayerSpotlight:
     OneOfThree = '1 of 3 High Notes'
     TwoOfThree = '2 of 3 High Notes'
     AllHighNotes = '3 of 3 High Notes'
 
-# Enums for MatchModel
 class Position:
     Left = 'Left'
     Middle = 'Middle'
@@ -75,6 +68,12 @@ class ExtraNotes:
     CentreCentre = 'Centre Centre'
     RightCentre = 'Right Centre'
     FarRight = 'Far Right'
+
+class ShootSpots:
+    StartingZone = 'Starting Zone'
+    Podium = 'Podium'
+    ElsewhereInWing = 'Elsewhere in Wing'
+    NearCentreLine = 'Near Centre Line'
 
 class EndGameOnStage:
     Park = 'Park'
@@ -133,11 +132,11 @@ def generate_team_data(TeamNb):
         "Stability": random.choice([Stability.NotStable, Stability.Stable, Stability.VeryStable]),
         "WellMade": random.choice([WellMade.No, WellMade.Yes, WellMade.Very]),
         "SingleIntakeShooter": random.choice([True, False]),
-        "PickupSpots": random.choice([PickupSpots.SourceOnly, PickupSpots.GroundOnly, PickupSpots.Both, PickupSpots.Neither]),
+        "PickupSpots": random.sample([PickupSpots.SourceOnly, PickupSpots.GroundOnly, PickupSpots.Both, PickupSpots.Neither], k=random.randint(1, 3)),
         "ScoreSpots": random.choice([ScoreSpots.SpeakerOnly, ScoreSpots.AmpOnly, ScoreSpots.Both, ScoreSpots.Neither]),
         "CenterOfGravity": random.choice([Gravity.Low, Gravity.Medium, Gravity.High]),
         "YearsUsingSwerve": random.choice([Years.Zero, Years.One, Years.Two, Years.ThreePlus, Years.Unknown]),
-        "ShootsFrom": random.choice([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine]),
+        "ShootsFrom": random.sample([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine], k=random.randint(1, 3)),
         "ObjectRecognition": random.choice([True, False]),
         "ReadAprilTags": random.choice([True, False]),
         "AutonomousProgram": random.choice([True, False]),
@@ -149,7 +148,7 @@ def generate_team_data(TeamNb):
         "Comments": f"Comment {random.randint(1, 100)}",
         "HeightInches": random.randint(0, 100),
         "FrameClearanceInches": random.randint(0, 100),
-        "matches": []  # Assuming an empty list for simplicity
+        "matches": []  # Empty list for simplicity
     }
 
 # Generate a random match based on MatchModel
@@ -162,9 +161,8 @@ def generate_random_match(TeamNb):
         "AutoSpeaker": random.randint(0, 10),
         "AutoStartingPosition": random.choice([Position.Left, Position.Middle, Position.Right]),
         "AutoLeave": random.choice([True, False]),
-        "AutoExtraNotes": random.choice([ExtraNotes.LeftWing, ExtraNotes.CentreWing, ExtraNotes.RightWing, ExtraNotes.FarLeftCentre, ExtraNotes.LeftCentre, ExtraNotes.CentreCentre, ExtraNotes.RightCentre, ExtraNotes.FarRight]),
+        "AutoExtraNotes": random.sample([ExtraNotes.LeftWing, ExtraNotes.CentreWing, ExtraNotes.RightWing, ExtraNotes.FarLeftCentre, ExtraNotes.LeftCentre, ExtraNotes.CentreCentre, ExtraNotes.RightCentre, ExtraNotes.FarRight], k=random.randint(1, 3)),
         "AutoDropped": random.randint(0, 10),
-        "AutoRobotFalls": random.choice([True, False]),
         "AutoAStopPressed": random.choice([True, False]),
         "AutoIncapacitated": random.choice([True, False]),
         "AutoFell": random.choice([True, False]),
@@ -178,7 +176,7 @@ def generate_random_match(TeamNb):
         "TeleopFell": random.choice([True, False]),
         "TeleopIncapacitated": random.choice([True, False]),
         "TeleopGamePieceStuck": random.randint(0, 10),
-        "TeleopShootsFrom": random.choice([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine]),
+        "TeleopShootsFrom": random.sample([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine], k=random.randint(1, 3)),
         "TeleopUnderStage": random.choice([True, False]),
         "EndGameOnStage": random.choice([EndGameOnStage.Park, EndGameOnStage.OnStage]),
         "EndGameHarmony": random.choice([EndGameHarmony.ZeroPoints, EndGameHarmony.TwoPoints, EndGameHarmony.HarmonyFailed]),
@@ -199,8 +197,7 @@ def generate_random_match(TeamNb):
         "gotScanned": random.choice([True, False])
     }
 
-# QR code generation and main execution flow remains the same as in your original script
-
+# QR code generation function
 def generate_qr_code(data, file_path):
     qr = qrcode.QRCode(
         version=1,
@@ -212,7 +209,6 @@ def generate_qr_code(data, file_path):
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(file_path)
-
 
 # Directory to save QR codes
 qr_code_dir = "./qr_codes"
@@ -234,12 +230,11 @@ for _ in range(1, num_teams + 1):
     generate_qr_code(json_data, file_path)
 
     # Generate and save QR codes for five random matches
-    random_matches = [generate_random_match(team_number) for _ in range(5)]
+    random_matches = [generate_random_match(team_number) for _ in range(10)]
     for i, match in enumerate(random_matches):
         json_data = json.dumps(match, indent=4)
         file_path = os.path.join(team_dir, f"match_{i+1}.png")
         generate_qr_code(json_data, file_path)
 
-# Print a message indicating that the QR codes have been generated
-print(
-    f"QR codes for {num_teams} teams with team data and 5 random matches each have been generated and saved.")
+# Print message indicating completion
+print("QR codes generated and saved.")

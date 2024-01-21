@@ -79,7 +79,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 
     return Object.entries(DisplayStatsData).map(
       ([sectionKey, stats], sectionIndex) => {
-        if (sectionKey === "PositionFrequency") {
+        if (sectionKey === "AutoPositionFrequency") {
           // Handle PositionFrequency section differently
           const positionStats = stats.map((stat) => {
              //@ts-ignore
@@ -226,12 +226,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         </Text>
       </View>
       {renderRobotDetails()}
-      <View style={styles.teamHeader}>
-        <Text style={styles.headerTitle}>
-          {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Stats
-        </Text>
-      </View>
-      {renderStats()}
+      {(selectedTeam.matches?.length ?? 0) > 0 && renderStats()}
       <TouchableOpacity onPress={() => setIsModalVisible(true)}>
         <View style={styles.butHeader}>
           <Text style={styles.butTitle}>

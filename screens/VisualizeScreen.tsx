@@ -6,59 +6,62 @@ import { saveDataLocally } from "../services/LocalStorageService";
 import { syncData } from "../services/SyncService";
 
 export default function VisualizeScreen() {
-  const { teams, setTeams, lastSync, setLastSync, isTeamSelected, setIsTeamSelected } = useContext(DataContext);
+  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const defaultTeamName = "Default Team";
 
   useEffect(() => {
     const syncAndLoadData = async () => {
       try {
+        console.log('Syncing and loading data');
         const response = await syncData();
         if (response.success && response.data) {
           setTeams(response.data);
-          setLastSync(new Date().toISOString());
-          saveDataLocally("fetchedData", response.data);
+          const newLastSync = new Date().toISOString();
+          setLastSync(newLastSync);
+          await saveDataLocally("fetchedData", response.data);
+          await AsyncStorage.setItem("lastSyncTime", JSON.stringify(newLastSync));
         }
         
         const teamsData = await AsyncStorage.getItem("fetchedData");
         if (teamsData) {
-          setTeams(JSON.parse(teamsData));
+          const parsedTeamsData = JSON.parse(teamsData);
+          setTeams(parsedTeamsData);
         }
-
+  
         const lastSyncTime = await AsyncStorage.getItem("lastSyncTime");
         if (lastSyncTime) {
-          const formattedLastSyncTime = lastSyncTime.replace(/['"]+/g, "");
+          const formattedLastSyncTime = JSON.parse(lastSyncTime);
           setLastSync(formattedLastSyncTime);
         }
+  
+        // Determine if a team is selected
+        const currentlySelectedTeam = selectedTeam === null ? defaultTeamName : selectedTeam;
+        if (currentlySelectedTeam !== selectedTeam) {
+          setSelectedTeam(currentlySelectedTeam);
+        }
+  
       } catch (e) {
         console.error("Error in sync and load data: ", e);
       }
-
-      if (selectedTeam !== "Default Team" && selectedTeam !== null) {
-        setIsTeamSelected(true);
-      } else {
-        setIsTeamSelected(false);
-      }
-
-      if (selectedTeam === null) {
-        setSelectedTeam(defaultTeamName);
-      }
     };
-
+  
     syncAndLoadData();
-
+  
     const syncInterval = setInterval(() => {
       syncAndLoadData();
     }, 1000 * 60 * 15); // 15 minutes
-
-    return () => clearInterval(syncInterval);
-  }, [selectedTeam, teams, lastSync]);
+  
+    return () => {
+      console.log('Clearing sync interval');
+      clearInterval(syncInterval);
+    };
+  }, []); // Empty dependency array to prevent infinite loops  
 
   return (
     <View style={styles.container}>
       <Text>Visualize Screen</Text>
       <Text>{lastSync}</Text>
-      <Text>{isTeamSelected ? "Team is selected" : "Team is not selected"}</Text>
     </View>
   );
 }
