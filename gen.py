@@ -116,6 +116,14 @@ class Awareness:
     LessAware = 'Less Aware'
     Average = 'Average'
     VeryAware = 'Very Aware'
+    
+class AutoPositions:
+    RedLeft = 'Red Left'
+    RedRight = 'Red Right'
+    RedCenter = 'Red Center'
+    BlueLeft = 'Blue Left'
+    BlueRight = 'Blue Right'
+    BlueCenter = 'Blue Center'
 
 # Generate team data based on PitModel
 def generate_team_data(TeamNb):
@@ -132,14 +140,14 @@ def generate_team_data(TeamNb):
         "Stability": random.choice([Stability.NotStable, Stability.Stable, Stability.VeryStable]),
         "WellMade": random.choice([WellMade.No, WellMade.Yes, WellMade.Very]),
         "SingleIntakeShooter": random.choice([True, False]),
-        "PickupSpots": random.sample([PickupSpots.SourceOnly, PickupSpots.GroundOnly, PickupSpots.Both, PickupSpots.Neither], k=random.randint(1, 3)),
+        "PickupSpots": random.choice([PickupSpots.SourceOnly, PickupSpots.GroundOnly, PickupSpots.Both, PickupSpots.Neither]),
         "ScoreSpots": random.choice([ScoreSpots.SpeakerOnly, ScoreSpots.AmpOnly, ScoreSpots.Both, ScoreSpots.Neither]),
         "CenterOfGravity": random.choice([Gravity.Low, Gravity.Medium, Gravity.High]),
         "YearsUsingSwerve": random.choice([Years.Zero, Years.One, Years.Two, Years.ThreePlus, Years.Unknown]),
         "ShootsFrom": random.sample([ShootSpots.StartingZone, ShootSpots.Podium, ShootSpots.ElsewhereInWing, ShootSpots.NearCentreLine], k=random.randint(1, 3)),
         "ObjectRecognition": random.choice([True, False]),
         "ReadAprilTags": random.choice([True, False]),
-        "AutonomousProgram": random.choice([True, False]),
+        "AutonomousProgram": random.sample([AutoPositions.RedLeft, AutoPositions.RedRight, AutoPositions.RedCenter, AutoPositions.BlueLeft, AutoPositions.BlueRight, AutoPositions.BlueCenter], k=random.randint(1, 3)),
         "AutoProgramsForSpeaker": random.choice([True, False]),
         "CanGetOnStage": random.choice([True, False]),
         "CanScoreNotesInTrap": random.choice([True, False]),

@@ -69,8 +69,8 @@ const DisplayStatsData = {
     ],
     Notes: [
         { label: "Avg Total Points", func: getAvgTotalPoints, unit: "points" },
-        { label: "Avg Points Contribution Ratio All Matches", func: getAvgPointsContributionRatioAllMatches, unit: "%" },
-        { label: "Avg Points Contribution Ratio Last Five", func: getAvgPointsContributionRatioLastFive, unit: "%" },
+        { label: "Avg Points Contribution All", func: getAvgPointsContributionRatioAllMatches, unit: "%" },
+        { label: "Avg Points Contribution Last Five", func: getAvgPointsContributionRatioLastFive, unit: "%" },
         { label: "Avg Num Total Notes Full Match", func: getAvgNumTotalNotesFullMatch, unit: "notes" },
         { label: "Abs Max", func: getAbsMaxNotes, unit: "notes" },
         { label: "Abs Min", func: getAbsMinNotes, unit: "notes" },

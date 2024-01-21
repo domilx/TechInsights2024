@@ -31,12 +31,12 @@ const DisplayPitData = (pitData: PitModel) => {
       { label: "Years Using Swerve", value: pitData.YearsUsingSwerve, unit: "years" },
       {
         label: "Shoots From", 
-        value: Array.isArray(pitData.ShootsFrom) ? pitData.ShootsFrom.join(', ') : '', 
+        value: pitData.ShootsFrom,
         unit: ""
       },
       { label: "Object Recognition", value: pitData.ObjectRecognition ? "Yes" : "No", unit: "" },
       { label: "Read April Tags", value: pitData.ReadAprilTags ? "Yes" : "No", unit: "" },
-      { label: "Autonomous Program", value: pitData.AutonomousProgram ? "Yes" : "No", unit: "" },
+      { label: "Autonomous Program", value: Array.isArray(pitData.AutonomousProgram) ? pitData.AutonomousProgram.join(', ') : '', unit: "" },
       { label: "Auto Programs For Speaker", value: pitData.AutoProgramsForSpeaker ? "Yes" : "No", unit: "" },
       { label: "Can Get On Stage", value: pitData.CanGetOnStage ? "Yes" : "No", unit: "" },
       { label: "Can Score Notes In Trap", value: pitData.CanScoreNotesInTrap ? "Yes" : "No", unit: "" },

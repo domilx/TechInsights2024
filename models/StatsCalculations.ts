@@ -262,23 +262,51 @@ const getStandardDeviationNotes = (matches: MatchModel[]) => {
       return acc + Math.pow(totalNotes - mean, 2);
   }, 0) / matches.length;
 
-  return Math.sqrt(variance);
+  return "±" + Math.sqrt(variance).toPrecision(3);
 };
 
-const getShootingPositionIfStartingZone = (match: MatchModel) => {
-  return match.TeleopShootsFrom?.includes(ShootSpots.StartingZone) || false;
+const getShootingPositionIfStartingZone = (match: MatchModel[]) => {
+  let bool = false;
+  for (let i = 0; i < match.length; i++) {
+      if (match[i].AutoStartingPosition === Position.Middle) {
+          bool = true;
+          break;
+      }
+  }
+  return bool;
 }
 
-const getShootingPositionIfPodium = (match: MatchModel) => {
-  return match.TeleopShootsFrom?.includes(ShootSpots.Podium) || false;
+const getShootingPositionIfPodium = (match: MatchModel[]) => {
+  let bool = false;
+  for (let i = 0; i < match.length; i++) {
+      if (match[i].AutoStartingPosition === Position.Left || match[i].AutoStartingPosition === Position.Right) {
+          bool = true;
+          break;
+      }
+  }
+  return bool;
 }
 
-const getShootingPositionIfElsewhereInWing = (match: MatchModel) => {
-  return match.TeleopShootsFrom?.includes(ShootSpots.ElsewhereInWing) || false;
+const getShootingPositionIfElsewhereInWing = (match: MatchModel[]) => {
+  let bool = false;
+  for (let i = 0; i < match.length; i++) {
+      if (match[i].AutoStartingPosition === Position.Middle) {
+          bool = true;
+          break;
+      }
+  }
+  return bool;
 }
 
-const getShootingPositionIfNearCenterLine = (match: MatchModel) => {
-  return match.TeleopShootsFrom?.includes(ShootSpots.NearCentreLine) || false;
+const getShootingPositionIfNearCenterLine = (match: MatchModel[]) => {
+  let bool = false;
+  for (let i = 0; i < match.length; i++) {
+      if (match[i].AutoStartingPosition === Position.Middle) {
+          bool = true;
+          break;
+      }
+  }
+  return bool;
 }
 
 const getAvgCycleTimeLastFive = (matches: MatchModel[]) => {
