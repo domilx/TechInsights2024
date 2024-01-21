@@ -30,7 +30,14 @@ export default function CameraScreen() {
   function handleCapture() {
     if (scannedData) {
       //@ts-ignore
-      navigation.navigate('UploadScreen', { data: scannedData }); //Type error ignored
+      //if scanne data is not a TeamModel or MatchModel, ignore it
+      if (scannedData.includes("TeamNumber")) {
+        console.log("TeamModel detected");
+        //@ts-ignore
+        navigation.navigate("UploadScreen", { data: scannedData });
+      } else {
+        alert("Invalid QR code detected.");
+      }
     } else {
       alert("No QR code detected.");
     }
