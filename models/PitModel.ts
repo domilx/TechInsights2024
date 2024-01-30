@@ -16,14 +16,14 @@ export interface PitModel {
   //Robot Capabilities
   WellMade: WellMade;
   SingleIntakeShooter: boolean; // Boolean for single intake and shooter
-  PickupSpots: PickupSpots[];
+  PickupSpots: PickupSpots;
   ScoreSpots: ScoreSpots;
   CenterOfGravity: Gravity;
   YearsUsingSwerve: Years;
   ShootsFrom: ShootSpots[]; // Adding ShootsFrom as an enum
   ObjectRecognition: boolean;
   ReadAprilTags: boolean;
-  AutonomousProgram: boolean;
+  AutonomousProgram: AutoPositions[];
   AutoProgramsForSpeaker: boolean; // Assuming a boolean representation
   CanGetOnStage: boolean;
   CanScoreNotesInTrap: boolean;
@@ -33,6 +33,15 @@ export interface PitModel {
   HeightInches: number;
   FrameClearanceInches: number;
   matches?: MatchModel[];
+}
+
+export enum AutoPositions {
+  RedLeft = "Red Left",
+  RedRight = "Red Right",
+  RedCenter = "Red Center",
+  BlueLeft = "Blue Left",
+  BlueRight = "Blue Right",
+  BlueCenter = "Blue Center",
 }
 
 // Enums for dropdowns and other fields
@@ -115,14 +124,14 @@ export const initialPitData: PitModel = {
   Stability: Stability.NotStable,
   WellMade: WellMade.No,
   SingleIntakeShooter: false,
-  PickupSpots: [PickupSpots.Both],
+  PickupSpots: PickupSpots.Both,
   ScoreSpots: ScoreSpots.Both,
   CenterOfGravity: Gravity.Low,
   YearsUsingSwerve: Years.Zero,
   ShootsFrom: [ShootSpots.None],
   ObjectRecognition: false,
   ReadAprilTags: false,
-  AutonomousProgram: false,
+  AutonomousProgram: [AutoPositions.RedLeft],
   AutoProgramsForSpeaker: false,
   CanGetOnStage: false,
   CanScoreNotesInTrap: false,
