@@ -1,5 +1,4 @@
-import { MatchModel } from "./MatchModel";
-
+import { MatchModel } from './MatchModel';
 export interface PitModel {
   //General Info
   ScoutName: string;
@@ -20,11 +19,12 @@ export interface PitModel {
   ScoreSpots: ScoreSpots;
   CenterOfGravity: Gravity;
   YearsUsingSwerve: Years;
-  ShootsFrom: ShootSpots[]; // Adding ShootsFrom as an enum
+  ShootsFrom: ShootSpots[];
+  AutoExtraNotesButtons?: number[]; //For the buttons in the form
   ObjectRecognition: boolean;
   ReadAprilTags: boolean;
   AutonomousProgram: AutoPositions[];
-  AutoProgramsForSpeaker: boolean; // Assuming a boolean representation
+  AutoProgramsForSpeaker: boolean;
   CanGetOnStage: boolean;
   CanScoreNotesInTrap: boolean;
   HumanPlayerSpotlight: HumanPlayerSpotlight;
@@ -35,16 +35,7 @@ export interface PitModel {
   matches?: MatchModel[];
 }
 
-export enum AutoPositions {
-  RedLeft = "Red Left",
-  RedRight = "Red Right",
-  RedCenter = "Red Center",
-  BlueLeft = "Blue Left",
-  BlueRight = "Blue Right",
-  BlueCenter = "Blue Center",
-}
-
-// Enums for dropdowns and other fields
+// Enums for dropdowns
 export enum DriveBaseType {
   Swerve = "Swerve",
   Tank = "Tank",
@@ -82,17 +73,18 @@ export enum PickupSpots {
   SourceOnly = "Source Only",
   GroundOnly = "Ground Only",
   Both = "Both",
+  Neither = "Neither",
 }
 
 export enum ScoreSpots {
-  SpeakerOnly = "Speaker Only",
+  SpeakerOnly = 'Speaker Only',
   AmpOnly = "Amp Only",
   Both = "Both",
+  Neither = "Neither",
 }
 
 export enum Gravity {
   Low = "Low",
-  Medium = "Medium",
   High = "High",
 }
 
@@ -110,8 +102,18 @@ export enum HumanPlayerSpotlight {
   AllHighNotes = "3 of 3 High Notes",
 }
 
+export enum AutoPositions {
+  RedLeft = "Red Left",
+  RedCenter = "Red Center",
+  RedRight = "Red Right",
+  BlueLeft = "Blue Left",
+  BlueCenter = "Blue Center",
+  BlueRight = "Blue Right",
+}
+
+
 // Create an initial state object that matches the PitModel interface
-export const initialPitData: PitModel = {
+export const initialPitData: PitModel = {  
   ScoutName: "",
   TeamNumber: 0,
   TeamName: "",
@@ -124,11 +126,12 @@ export const initialPitData: PitModel = {
   Stability: Stability.NotStable,
   WellMade: WellMade.No,
   SingleIntakeShooter: false,
-  PickupSpots: PickupSpots.Both,
-  ScoreSpots: ScoreSpots.Both,
+  PickupSpots: PickupSpots.Neither,
+  ScoreSpots: ScoreSpots.Neither,
   CenterOfGravity: Gravity.Low,
   YearsUsingSwerve: Years.Zero,
   ShootsFrom: [ShootSpots.None],
+  AutoExtraNotesButtons: [],
   ObjectRecognition: false,
   ReadAprilTags: false,
   AutonomousProgram: [AutoPositions.RedLeft],
