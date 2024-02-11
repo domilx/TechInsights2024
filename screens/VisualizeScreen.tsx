@@ -1,75 +1,140 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DataContext } from "../contexts/DataContext";
-import { saveDataLocally } from "../services/LocalStorageService";
+import { PitModel } from "../models/PitModel";
 import { syncData } from "../services/SyncService";
+import Chart1 from "./components/Charts/Chart1";
+import Chart2 from "./components/Charts/Chart2";
+import Chart3 from "./components/Charts/Chart3";
+import ScoreTable from "./components/Charts/ScoreTable";
+import { Picker } from "@react-native-picker/picker";
 
-export default function VisualizeScreen() {
+const VisualizeScreen = () => {
   const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
-  const defaultTeamName = "Default Team";
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const syncAndLoadData = async () => {
+    const initializeData = async () => {
+      setIsLoading(true);
       try {
-        console.log('Syncing and loading data');
-        const response = await syncData();
-        if (response.success && response.data) {
-          setTeams(response.data);
-          const newLastSync = new Date().toISOString();
-          setLastSync(newLastSync);
-          await saveDataLocally("fetchedData", response.data);
-          await AsyncStorage.setItem("lastSyncTime", JSON.stringify(newLastSync));
-        }
-        
-        const teamsData = await AsyncStorage.getItem("fetchedData");
-        if (teamsData) {
-          const parsedTeamsData = JSON.parse(teamsData);
-          setTeams(parsedTeamsData);
-        }
-  
         const lastSyncTime = await AsyncStorage.getItem("lastSyncTime");
         if (lastSyncTime) {
-          const formattedLastSyncTime = JSON.parse(lastSyncTime);
-          setLastSync(formattedLastSyncTime);
+          setLastSync(JSON.parse(lastSyncTime));
         }
-  
-        // Determine if a team is selected
-        const currentlySelectedTeam = selectedTeam === null ? defaultTeamName : selectedTeam;
-        if (currentlySelectedTeam !== selectedTeam) {
-          setSelectedTeam(currentlySelectedTeam);
+
+        const teamsData = await AsyncStorage.getItem("fetchedData");
+        if (teamsData) {
+          const parsedTeamsData: PitModel[] = JSON.parse(teamsData);
+          setTeams(parsedTeamsData);
         }
-  
-      } catch (e) {
-        console.error("Error in sync and load data: ", e);
+      } catch (error) {
+        console.error("Error initializing data: ", error);
+        Alert.alert("Initialization Error", "Failed to load initial data.");
+      } finally {
+        setIsLoading(false);
       }
     };
-  
-    syncAndLoadData();
-  
-    const syncInterval = setInterval(() => {
-      syncAndLoadData();
-    }, 1000 * 60 * 15); // 15 minutes
-  
-    return () => {
-      console.log('Clearing sync interval');
-      clearInterval(syncInterval);
-    };
-  }, []); // Empty dependency array to prevent infinite loops  
+
+    initializeData();
+  }, []);
+
+  const handleSync = async () => {
+    setIsLoading(true);
+    try {
+      const response = await syncData();
+      if (response.success && response.data) {
+        setTeams(response.data);
+        const newLastSync = new Date().toISOString();
+        setLastSync(newLastSync);
+        await AsyncStorage.setItem("lastSyncTime", JSON.stringify(newLastSync));
+        await AsyncStorage.setItem("fetchedData", JSON.stringify(response.data));
+        Alert.alert("Sync Successful", "Data has been updated.");
+      } else {
+        Alert.alert("Sync Failed", response.message || "An unknown error occurred.");
+      }
+    } catch (error) {
+      console.error("Error during sync: ", error);
+      Alert.alert("Sync Error", "Failed to sync data.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (teams.length === 0) {
+      return <Text style={styles.noDataText}>No teams data available. Please sync to update data.</Text>;
+    }
+
+    switch (selectedIndex) {
+      case 0:
+        return <Chart1 data={teams} />;
+      case 1:
+        return <Chart2 data={teams} />;
+      case 2:
+        return <Chart3 data={teams} />;
+      case 3:
+        return <ScoreTable data={teams} />;
+      default:
+        return <Text>Select a visualization</Text>;
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text>Visualize Screen</Text>
-      <Text>{lastSync}</Text>
-    </View>
+    <ScrollView style={styles.container}>
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+      <View style={styles.syncSection}>
+        <TouchableOpacity onPress={handleSync} style={styles.syncButton}>
+          <Text style={styles.syncButtonText}>Sync Data</Text>
+        </TouchableOpacity>
+        <Text>Last Sync: {lastSync ? new Date(lastSync).toLocaleString() : "Never"}</Text>
+      </View>
+      <View style={styles.contentSection}>
+        {renderContent()}
+      </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 10,
+  },
+  syncSection: {
+    marginBottom: 20,
+  },
+  syncButton: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'center',
+  },
+  syncButtonText: {
+    color: 'white',
+    textAlign: 'center',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    marginBottom: 20,
+  },
+  contentSection: {
+    flex: 1,
+  },
+  noDataText: {
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
+
+export default VisualizeScreen;

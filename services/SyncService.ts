@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkInternetConnection } from './NetworkService';
 import { fetchDataFromFirebase, uploadPitDataToFirebase, uploadMatchDataToFirebase } from './FirebaseService';
+import { getDataLocally, removeDataLocally, saveDataLocally } from './LocalStorageService';
 import { PitModel } from '../models/PitModel';
 import { MatchModel } from '../models/MatchModel';
 import { db } from "../firebase";
@@ -15,59 +16,60 @@ interface SyncResult {
 export const syncData = async (): Promise<SyncResult> => {
     try {
         const isConnected = await checkInternetConnection();
-        if (isConnected) {
-            await processSyncQueue();
-            const fetchedData: PitModel[] = await fetchDataFromFirebase();
-            await saveDataLocally('fetchedData', fetchedData);
-            await updateLastSyncTime();
-            return { success: true, data: fetchedData, message: "Data synced successfully." };
-        } else {
-            return { success: true, message: "Offline: Data queued for sync." };
+        if (!isConnected) {
+            throw new Error("No internet connection available.");
         }
+
+        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
+        const syncNeeded = await needsSyncing(lastSyncTime);
+        if (!syncNeeded) {
+            return { success: true, message: "Data already up-to-date." };
+        }
+
+        await syncLocalData();
+
+        const fetchedData: PitModel[] = await fetchDataFromFirebase();
+        await saveDataLocally('fetchedData', fetchedData);
+        await updateLastSyncTime();
+
+        return { success: true, data: fetchedData, message: "Data synced successfully." };
     } catch (error: any) {
         console.error("Error during sync: ", error);
         return { success: false, message: error.message || "Failed to sync data." };
     }
 };
 
-const processSyncQueue = async (): Promise<void> => {
-    const syncQueue = JSON.parse(await AsyncStorage.getItem('syncQueue') || '') || [];
+const needsSyncing = async (lastSyncTime: string | null): Promise<boolean> => {
+  const localLastModified = await AsyncStorage.getItem('lastModifiedTime');
+  if (localLastModified === null) {
+      return true; // If there's no recorded last modified time, assume syncing is needed
+  }
+  return new Date(localLastModified) > new Date(lastSyncTime ?? 0);
+};
 
-    for (const item of syncQueue) {
-        if (item.type === 'pitData') {
-            const teamRef = doc(db, "teams", `${item.data.TeamNumber}`);
-            const uploadResult = await uploadPitDataToFirebase(item.data, teamRef);
-            if (!uploadResult.success) {
-                throw new Error('Failed to sync pit data');
-            }
-        } else if (item.type === 'matchData') {
-            const teamRef = doc(db, "teams", `${item.data.TeamNumber}`);
-            const matchRef = doc(db, `teams/${item.data.TeamNumber}/matches`, `${item.data.MatchNumber}`);
-            const uploadResult = await uploadMatchDataToFirebase(item.data, teamRef, matchRef);
-            if (!uploadResult.success) {
-                throw new Error('Failed to sync match data');
-            }
+
+const syncLocalData = async (): Promise<void> => {
+    const localPitData: PitModel | null = await getDataLocally('pitData');
+    if (localPitData) {
+        const teamRef = doc(db, "teams", `${localPitData.TeamNumber}`);
+        const uploadResult = await uploadPitDataToFirebase(localPitData, teamRef);
+        if (uploadResult.success) {
+            await removeDataLocally('pitData');
         }
     }
 
-    await clearSyncQueue();
-};
-
-export const addToSyncQueue = async (data: PitModel | MatchModel, type: 'pitData' | 'matchData') => {
-    const syncQueue = JSON.parse(await AsyncStorage.getItem('syncQueue') || '') || [];
-    syncQueue.push({ data, type });
-    await AsyncStorage.setItem('syncQueue', JSON.stringify(syncQueue));
-};
-
-const clearSyncQueue = async () => {
-    await AsyncStorage.setItem('syncQueue', JSON.stringify([]));
+    const localMatchData: MatchModel | null = await getDataLocally('matchData');
+    if (localMatchData) {
+        const teamRef = doc(db, "teams", `${localMatchData.TeamNumber}`);
+        const matchRef = doc(db, `teams/${localMatchData.TeamNumber}/matches`, `${localMatchData.MatchNumber}`);
+        const uploadResult = await uploadMatchDataToFirebase(localMatchData, teamRef, matchRef);
+        if (uploadResult.success) {
+            await removeDataLocally('matchData');
+        }
+    }
 };
 
 const updateLastSyncTime = async (): Promise<void> => {
     const lastSyncTime = new Date().toISOString();
     await AsyncStorage.setItem('lastSyncTime', lastSyncTime);
-};
-
-const saveDataLocally = async (key: string, data: any) => {
-    await AsyncStorage.setItem(key, JSON.stringify(data));
 };

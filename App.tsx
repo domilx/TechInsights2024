@@ -7,7 +7,7 @@ export default function App() {
   useEffect(() => {
     registerBackgroundFetchAsync();
   }, []);
-
+  
   return (
     <>
       <DataProvider>

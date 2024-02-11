@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#F6EB14',
   },
-  // ... any additional styles
 });
 
 export default MatchView;

@@ -129,8 +129,6 @@ const getAvgTotalTeleopPoints = (matches: MatchModel[]) => {
 
 const getTrapPoints = (trap: Trap) => {
   switch (trap) {
-    case Trap.ZeroPoints:
-      return 0;
     case Trap.FivePoints:
       return 5;
     case Trap.TenPoints:
@@ -170,7 +168,6 @@ const getAvgTrapPoints = (matches: MatchModel[]) => {
 
 const getTrapNotes = (trap: Trap) => {
   switch (trap) {
-    case Trap.ZeroPoints:
     case Trap.TrapFailed:
       return 0;
     case Trap.FivePoints:

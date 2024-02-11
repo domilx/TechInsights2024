@@ -32,7 +32,7 @@ export interface MatchModel {
   //EndGame
   EndGameOnStage: EndGameOnStage; // None=0; Park=2; OnStage=3; points
   EndGameHarmony: EndGameHarmony; // 0=0; 1=2; 2=3; points
-  EndGameTrap: TrapEndGame; // 0=0; 1=2; 2=0; points
+  EndGameTrap: Trap; // 0=0; 1=2; 2=0; points
   EndGameRobotFell: boolean;
   EndGameRobotIncapacitated: boolean;
   EndGameSpotLighted: boolean;// 0=0; 1=1; points
@@ -91,12 +91,6 @@ export enum Trap {
   FivePoints = "5 Points",
   TenPoints = "10 Points",
   FifteenPoints = "15 Points",
-  TrapFailed = "Trap Failed",
-}
-
-export enum TrapEndGame {
-  ZeroPoints = "0 Points",
-  FivePoints = "5 Points",
   TrapFailed = "Trap Failed",
 }
 
@@ -162,7 +156,7 @@ export const initialMatchData: MatchModel = {
   TeleopUnderStage: false,
   EndGameOnStage: EndGameOnStage.None,
   EndGameHarmony: EndGameHarmony.ZeroPoints,
-  EndGameTrap: TrapEndGame.ZeroPoints,
+  EndGameTrap: Trap.TrapFailed,
   EndGameRobotFell: false,
   EndGameRobotIncapacitated: false,
   EndGameSpotLighted: false,
