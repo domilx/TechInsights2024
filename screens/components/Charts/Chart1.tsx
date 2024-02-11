@@ -13,23 +13,23 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
   // TODO: Each PitModel has a matches array and a teamNumber
   
 
-  console.log('filteredData', ));
+  console.log('filteredData', );
 
-  if (filteredData.length === 0) {
+  if (data.length === 0) {
     return <Text>No sufficient data for visualization.</Text>;
   }
 
   // Processed data for scatter plot
-  const processedData = filteredData.map((pit) => {
+  const processedData = data.map((pit) => {
     // Calculate averages for the last five matches for each team
-    const lastFiveMatches = pit.matches.slice(-5);
+    const lastFiveMatches = pit.matches?.slice(-5) ?? []; // Add nullish coalescing operator
     const avgTeleopPoints = getAvgTotalTeleopPoints(lastFiveMatches);
     const avgAutoEndGamePoints = getAvgTotalAutoPoints(lastFiveMatches) + getAvgTotalEndGamePoints(lastFiveMatches);
 
     return {
       x: avgTeleopPoints,
       y: avgAutoEndGamePoints,
-      label: `Team ${pit.teamNumber}`
+      label: `Team ${pit.TeamNumber}`
     };
   });
 
