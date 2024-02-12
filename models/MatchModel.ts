@@ -9,7 +9,7 @@ export interface MatchModel {
   AutoStartingPosition: Position;
   AutoLeave: boolean;
   AutoExtraNotes: ExtraNotes[];
-  AutoExtraNotesButtons?: number[]; //For the buttons in the form
+  AutoExtraNotesButtons: number[];
   AutoDropped: number;
   AutoAStopPressed: boolean;
   AutoIncapacitated: boolean;
@@ -22,17 +22,17 @@ export interface MatchModel {
   TeleopCycleTime: number[];
   TeleopDropped: number;
   TeleopTrap: Trap;
-  TeleopTrapButtons?:number[]; //For the buttons in the form
+  TeleopTrapButtons:number[];
   TeleopFell: boolean;
   TeleopIncapacitated: boolean;
   TeleopGamePieceStuck: number;
   TeleopShootsFrom: ShootSpots[];
-  TeleopShootsFromButtons?:number[]; //For the buttons in the form
+  TeleopShootsFromButtons:number[];
   TeleopUnderStage: boolean;
   //EndGame
   EndGameOnStage: EndGameOnStage; // None=0; Park=2; OnStage=3; points
   EndGameHarmony: EndGameHarmony; // 0=0; 1=2; 2=3; points
-  EndGameTrap: Trap; // 0=0; 1=2; 2=0; points
+  EndGameTrap: TrapEndGame; // 0=0; 1=2; 2=0; points
   EndGameRobotFell: boolean;
   EndGameRobotIncapacitated: boolean;
   EndGameSpotLighted: boolean;// 0=0; 1=1; points
@@ -91,6 +91,12 @@ export enum Trap {
   FivePoints = "5 Points",
   TenPoints = "10 Points",
   FifteenPoints = "15 Points",
+  TrapFailed = "Trap Failed",
+}
+
+export enum TrapEndGame {
+  ZeroPoints = "0 Points",
+  FivePoints = "5 Points",
   TrapFailed = "Trap Failed",
 }
 
@@ -156,7 +162,7 @@ export const initialMatchData: MatchModel = {
   TeleopUnderStage: false,
   EndGameOnStage: EndGameOnStage.None,
   EndGameHarmony: EndGameHarmony.ZeroPoints,
-  EndGameTrap: Trap.TrapFailed,
+  EndGameTrap: TrapEndGame.ZeroPoints,
   EndGameRobotFell: false,
   EndGameRobotIncapacitated: false,
   EndGameSpotLighted: false,

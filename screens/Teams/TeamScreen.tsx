@@ -244,7 +244,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
           title="All Matches"
           onClose={() => setIsModalVisible(false)}
         />
-        <MatchView matches={selectedTeam?.matches || []} />
+        <MatchView matches={selectedTeam?.matches || []} team={selectedTeam}/>
       </Modal>
       <Modal
         visible={editModalVisible}
