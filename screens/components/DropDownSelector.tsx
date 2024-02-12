@@ -5,7 +5,7 @@ const Dropdown: any = require('react-native-element-dropdown').Dropdown;
 interface DropDownSelectorProps {
   label: string;
   items?: { label: string; value: string | number }[];
-  value: string | number;
+  value: any;
   setValue: (value: string | number) => void;
 }
 
@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#F0F0F0",
     padding: 10,
     marginHorizontal: 20,
     flexDirection: "column",
@@ -54,7 +53,6 @@ const styles = StyleSheet.create({
   dropdown: {
     height: 45,
     width: "100%",
-    backgroundColor: "#F0F0F0",
     borderRadius: 15,
     borderWidth: 1,
     borderColor: "#A0A0A0",

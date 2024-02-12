@@ -4,7 +4,7 @@ import { View, Text, Switch, StyleSheet } from "react-native";
 interface ToggleSwitchProps {
   label: string;
   onToggle: (value: boolean) => void;
-  value: boolean;
+  value: any;
 }
 
 export const ToggleSwitch: React.FC<ToggleSwitchProps> = ({

@@ -3,8 +3,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  Alert
+  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  FlatList,
 } from "react-native";
 import {
   DriveBaseMotor,
@@ -20,15 +23,14 @@ import {
   Years,
   initialPitData,
 } from "../../models/PitModel";
-import {
-  updatePitData
-} from "../../services/FirebaseService";
+import { updatePitData } from "../../services/FirebaseService";
 import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";
 import { DataContext } from "../../contexts/DataContext";
 import { syncData } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
+import { RadioButtonGrid } from "../components/RadioButtonGrid";
 
 interface EditPitDataScreenProps {
   team: PitModel;
@@ -42,7 +44,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     setPitData(team || initialPitData);
   }, [team]);
 
-  const handleChange = (field: keyof PitModel, value: any) => {
+  const handleChange = (field: any, value: any) => {
     setPitData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -68,225 +70,282 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     }
   };
 
-  const driveBaseTypeItems = Object.keys(DriveBaseType).map((key) => ({
-    label: DriveBaseType[key as keyof typeof DriveBaseType],
-    value: DriveBaseType[key as keyof typeof DriveBaseType],
-  }));
+  function generateEnumItems(enumObject: any) {
+    return Object.keys(enumObject).map((key) => ({
+      label: enumObject[key],
+      value: enumObject[key],
+    }));
+  }
 
-  const driveBaseMotorItems = Object.keys(DriveBaseMotor).map((key) => ({
-    label: DriveBaseMotor[key as keyof typeof DriveBaseMotor],
-    value: DriveBaseMotor[key as keyof typeof DriveBaseMotor],
-  }));
+  const driveBaseTypeItems = generateEnumItems(DriveBaseType);
+  const driveBaseMotorItems = generateEnumItems(DriveBaseMotor);
+  const years = generateEnumItems(Years);
+  const stabilityItems = generateEnumItems(Stability);
+  const wellMadeItems = generateEnumItems(WellMade);
+  const pickupSpotsItems = generateEnumItems(PickupSpots);
+  const scoreSpotsItems = generateEnumItems(ScoreSpots);
+  const gravityItems = generateEnumItems(Gravity);
+  const shootSpotsItems = generateEnumItems(ShootSpots);
+  const humanPlayerSpotlightItems = generateEnumItems(HumanPlayerSpotlight);
 
-  const driverExperienceItems = Object.keys(Years).map((key) => ({
-    label: Years[key as keyof typeof Years],
-    value: Years[key as keyof typeof Years],
-  }));
-
-  const stabilityItems = Object.keys(Stability).map((key) => ({
-    label: Stability[key as keyof typeof Stability],
-    value: Stability[key as keyof typeof Stability],
-  }));
-
-  const wellMadeItems = Object.keys(WellMade).map((key) => ({
-    label: WellMade[key as keyof typeof WellMade],
-    value: WellMade[key as keyof typeof WellMade],
-  }));
-
-  const pickupSpotsItems = Object.keys(PickupSpots).map((key) => ({
-    label: PickupSpots[key as keyof typeof PickupSpots],
-    value: PickupSpots[key as keyof typeof PickupSpots],
-  }));
-
-  const scoreSpotsItems = Object.keys(ScoreSpots).map((key) => ({
-    label: ScoreSpots[key as keyof typeof ScoreSpots],
-    value: ScoreSpots[key as keyof typeof ScoreSpots],
-  }));
-
-  const gravityItems = Object.keys(Gravity).map((key) => ({
-    label: Gravity[key as keyof typeof Gravity],
-    value: Gravity[key as keyof typeof Gravity],
-  }));
-
-  const shootsFromItems = Object.keys(ShootSpots).map((key) => ({
-    label: ShootSpots[key as keyof typeof ShootSpots],
-    value: ShootSpots[key as keyof typeof ShootSpots],
-  }));
-
-  const spotlightItems  = Object.keys(HumanPlayerSpotlight).map((key) => ({
-    label: HumanPlayerSpotlight[key as keyof typeof HumanPlayerSpotlight],
-    value: HumanPlayerSpotlight[key as keyof typeof HumanPlayerSpotlight],
-  }));
+  // FlatList data
+  const data = [
+    {
+      label: "Team Name",
+      key: "TeamName",
+      value: pitData.TeamName,
+      type: "text",
+    },
+    {
+      label: "Drivebase Type",
+      key: "DriveBaseType",
+      value: pitData.DriveBaseType,
+      type: "dropdown",
+      droptype: driveBaseTypeItems,
+    },
+    {
+      label: "Drivebase Motor",
+      key: "DriveBaseMotor",
+      value: pitData.DriveBaseMotor,
+      type: "dropdown",
+      droptype: driveBaseMotorItems,
+    },
+    {
+      label: "Driver Experience",
+      key: "DriverExperience",
+      value: pitData.DriverExperience,
+      type: "dropdown",
+      droptype: years,
+    },
+    {
+      label: "Robot Weight (lbs)",
+      key: "WeightLbs",
+      value: pitData.WeightLbs.toString(),
+      type: "number",
+    },
+    {
+      label: "Robot Width (in)",
+      key: "WidthInches",
+      value: pitData.WidthInches.toString(),
+      type: "number",
+    },
+    {
+      label: "Robot Length (in)",
+      key: "LengthInches",
+      value: pitData.LengthInches.toString(),
+      type: "number",
+    },
+    {
+      label: "Height (in)",
+      key: "HeightInches",
+      value: pitData.HeightInches.toString(),
+      type: "number",
+    },
+    {
+      label: "Frame Clearance (in)",
+      key: "FrameClearanceInches",
+      value: pitData.FrameClearanceInches.toString(),
+      type: "number",
+    },
+    {
+      label: "Stability",
+      key: "Stability",
+      value: pitData.Stability,
+      type: "dropdown",
+      droptype: stabilityItems,
+    },
+    {
+      label: "Well Made",
+      key: "WellMade",
+      value: pitData.WellMade,
+      type: "dropdown",
+      droptype: wellMadeItems,
+    },
+    {
+      label: "Single Intake/Shooter",
+      key: "SingleIntakeShooter",
+      value: pitData.SingleIntakeShooter,
+      type: "boolean",
+    },
+    {
+      label: "Pickup Spots",
+      key: "PickupSpots",
+      value: pitData.PickupSpots,
+      type: "dropdown",
+      droptype: pickupSpotsItems,
+    },
+    {
+      label: "Score Spots",
+      key: "ScoreSpots",
+      value: pitData.ScoreSpots,
+      type: "dropdown",
+      droptype: scoreSpotsItems,
+    },
+    {
+      label: "Center of Gravity",
+      key: "CenterOfGravity",
+      value: pitData.CenterOfGravity,
+      type: "dropdown",
+      droptype: gravityItems,
+    },
+    {
+      label: "Years Using Swerve",
+      key: "YearsUsingSwerve",
+      value: pitData.YearsUsingSwerve,
+      type: "dropdown",
+      droptype: years,
+    },
+    {
+      label: "Shoots From",
+      key: "ShootsFrom",
+      value: pitData.ShootsFrom,
+      type: "radio1",
+      vertical: 1,
+      horizontal: 4,
+      titles: ["Starting Zone", "Podium", "Wing", "Center Line"],
+      saveButton: "AutoExtraNotesButtons",
+    },
+    {
+      label: "Object Recognition",
+      key: "ObjectRecognition",
+      value: pitData.ObjectRecognition,
+      type: "boolean",
+    },
+    {
+      label: "Reads April Tags",
+      key: "ReadAprilTags",
+      value: pitData.ReadAprilTags,
+      type: "boolean",
+    },
+    {
+      label: "Autonomous Program to Leave",
+      key: "AutonomousProgram",
+      value: pitData.AutonomousProgram,
+      type: "boolean",
+    },
+    //{ label: "Auto Programs for Speaker", key: "AutoProgramsForSpeaker", value: pitData.AutoProgramsForSpeaker, type: "custom" },
+    {
+      label: "Can Get OnStage",
+      key: "CanGetOnStage",
+      value: pitData.CanGetOnStage,
+      type: "boolean",
+    },
+    {
+      label: "Can Score Notes in Trap",
+      key: "CanScoreNotesInTrap",
+      value: pitData.CanScoreNotesInTrap,
+      type: "boolean",
+    },
+    {
+      label: "Human Player Spotlight",
+      key: "HumanPlayerSpotlight",
+      value: pitData.HumanPlayerSpotlight,
+      type: "dropdown",
+      droptype: humanPlayerSpotlightItems,
+    },
+    {
+      label: "Can Cheesecake or lift robot",
+      key: "CheesecakeAbility",
+      value: pitData.CheesecakeAbility,
+      type: "boolean",
+    },
+    {
+      label: "Comments",
+      key: "Comments",
+      value: pitData.Comments,
+      type: "text",
+    },
+  ];
 
   return (
-    <ScrollView style={styles.container}>
-      <InputField
-        label="Scout Name"
-        value={pitData.ScoutName}
-        onChange={(text) => handleChange("ScoutName", text)}
-      />
-      <InputField
-        label="Team Number"
-        value={pitData.TeamNumber}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("TeamNumber", parseInt(text))}
-      />
-      <InputField
-        label="Team Name"
-        value={pitData.TeamName}
-        onChange={(text) => handleChange("TeamName", text)}
-      />
-  
-      {/* Robot Specs */}
-      <DropDownSelector
-        label="Drive Base Type"
-        items={driveBaseTypeItems}
-        value={pitData.DriveBaseType}
-        setValue={(itemValue) => handleChange("DriveBaseType", itemValue)}
-      />
-      <DropDownSelector
-        label="Drive Base Motor"
-        items={driveBaseMotorItems}
-        value={pitData.DriveBaseMotor}
-        setValue={(itemValue) => handleChange("DriveBaseMotor", itemValue)}
-      />
-      <DropDownSelector
-        label="Driver Experience"
-        items={driverExperienceItems}
-        value={pitData.DriverExperience}
-        setValue={(itemValue) => handleChange("DriverExperience", itemValue)}
-      />
-      <InputField
-        label="Weight (lbs)"
-        value={pitData.WeightLbs}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("WeightLbs", parseInt(text))}
-      />
-      <InputField
-        label="Width (inches)"
-        value={pitData.WidthInches}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("WidthInches", parseInt(text))}
-      />
-      <InputField
-        label="Length (inches)"
-        value={pitData.LengthInches}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("LengthInches", parseInt(text))}
-      />
-      <DropDownSelector
-        label="Stability"
-        items={stabilityItems}
-        value={pitData.Stability}
-        setValue={(itemValue) => handleChange("Stability", itemValue)}
-      />
-  
-      {/* Robot Capabilities */}
-      <DropDownSelector
-        label="Well Made"
-        items={wellMadeItems}
-        value={pitData.WellMade}
-        setValue={(itemValue) => handleChange("WellMade", itemValue)}
-      />
-      <ToggleSwitch
-        label="Single Intake and Shooter"
-        value={pitData.SingleIntakeShooter}
-        onToggle={(value) => handleChange("SingleIntakeShooter", value)}
-      />
-      <DropDownSelector
-        label="Pickup Spots"
-        items={pickupSpotsItems}
-        value={pitData.PickupSpots}
-        setValue={(itemValue) => handleChange("PickupSpots", itemValue)}
-      />
-      <DropDownSelector
-        label="Score Spots"
-        items={scoreSpotsItems}
-        value={pitData.ScoreSpots}
-        setValue={(itemValue) => handleChange("ScoreSpots", itemValue)}
-      />
-      <DropDownSelector
-        label="Center Of Gravity"
-        items={gravityItems}
-        value={pitData.CenterOfGravity}
-        setValue={(itemValue) => handleChange("CenterOfGravity", itemValue)}
-      />
-      <DropDownSelector
-        label="Shoots From"
-        items={shootsFromItems}
-        value={pitData.ShootsFrom}
-        setValue={(itemValue) => handleChange("ShootsFrom", itemValue)}
-      />
-      <DropDownSelector
-        label="Human Player Spotlight"
-        items={spotlightItems}
-        value={pitData.HumanPlayerSpotlight}
-        setValue={(itemValue) => handleChange("HumanPlayerSpotlight", itemValue)}
-      />
-      <ToggleSwitch
-        label="Object Recognition"
-        value={pitData.ObjectRecognition}
-        onToggle={(value) => handleChange("ObjectRecognition", value)}
-      />
-      <ToggleSwitch
-        label="Read April Tags"
-        value={pitData.ReadAprilTags}
-        onToggle={(value) => handleChange("ReadAprilTags", value)}
-      />
-      <ToggleSwitch
-        label="Autonomous Program"
-        value={pitData.AutonomousProgram}
-        onToggle={(value) => handleChange("AutonomousProgram", value)}
-      />
-      <ToggleSwitch
-        label="Auto Programs For Speaker"
-        value={pitData.AutoProgramsForSpeaker}
-        onToggle={(value) => handleChange("AutoProgramsForSpeaker", value)}
-      />
-      <ToggleSwitch
-        label="Can Get On Stage"
-        value={pitData.CanGetOnStage}
-        onToggle={(value) => handleChange("CanGetOnStage", value)}
-      />
-      <ToggleSwitch
-        label="Can Score Notes In Trap"
-        value={pitData.CanScoreNotesInTrap}
-        onToggle={(value) => handleChange("CanScoreNotesInTrap", value)}
-      />
-      <ToggleSwitch
-        label="Cheesecake Ability"
-        value={pitData.CheesecakeAbility}
-        onToggle={(value) => handleChange("CheesecakeAbility", value)}
-      />
-      <InputField
-        label="Comments"
-        value={pitData.Comments || ""}
-        onChange={(value) => handleChange("Comments", value)}
-      />
-      <InputField
-        label="Height (inches)"
-        value={pitData.HeightInches}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("HeightInches", parseInt(text))}
-      />
-      <InputField
-        label="Frame Clearance (inches)"
-        value={pitData.FrameClearanceInches}
-        keyboardType="numeric"
-        onChange={(text) => handleChange("FrameClearanceInches", parseInt(text))}
-      />
-      <TouchableOpacity style={styles.uploadButton} onPress={handleSave}>
-        <Text style={styles.uploadButtonText}>Save</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );  
+    <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 90} // Adjust this offset as needed
+      >
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>
+            Pit Scouting for Team {pitData.TeamNumber}
+          </Text>
+        </View>
+        <FlatList
+          scrollEnabled={true}
+          style={styles.container}
+          data={data}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) => (
+            <View>
+              {item.type === "text" && (
+                <InputField
+                  label={item.label}
+                  value={item.value}
+                  onChange={(text) => handleChange(item.key, text)}
+                  keyboardType="default"
+                />
+              )}
+              {item.type === "number" && (
+                <InputField
+                  label={item.label}
+                  value={item.value?.toString() ?? ""}
+                  onChange={(text) => handleChange(item.key, text)}
+                  keyboardType="numeric"
+                />
+              )}
+              {item.type === "boolean" && (
+                <ToggleSwitch
+                  label={item.label}
+                  value={item.value}
+                  onToggle={(newValue) => handleChange(item.key, newValue)}
+                />
+              )}
+              {item.type === "dropdown" && (
+                <DropDownSelector
+                  label={item.label}
+                  value={item.value}
+                  items={item.droptype}
+                  setValue={(text) => handleChange(item.key, text)}
+                />
+              )}
+              {item.type === "radio1" && (
+                <RadioButtonGrid
+                  horizontalAmount={item.horizontal}
+                  verticalAmount={item.vertical}
+                  columnTitles={item.titles}
+                  rowTitles={["", ""]}
+                  label={item.label}
+                  onPress={(selectedValue: any) =>
+                    handleChange(item.key, selectedValue)
+                  }
+                  saveButtons={(selectedValue: any) =>
+                    handleChange(item.saveButton, selectedValue)
+                  }
+                  value={pitData.AutoExtraNotesButtons}
+                />
+              )}
+            </View>
+          )}
+        />
+
+        <TouchableOpacity style={styles.uploadButton} onPress={handleSave}>
+          <Text style={styles.uploadButtonText}>Save</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 0,
-    backgroundColor: "#f2f2f2",
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
   uploadButton: {
     backgroundColor: "#1E1E1E",

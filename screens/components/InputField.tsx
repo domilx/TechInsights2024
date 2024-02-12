@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 
 interface InputFieldProps {
   label: string;
-  value: string | number;
+  value: any;
   onChange: (text: string) => void;
   keyboardType?: 'default' | 'numeric' | 'email-address' | 'ascii-capable' | 'numbers-and-punctuation' | 'url' | 'number-pad' | 'phone-pad' | 'name-phone-pad' | 'decimal-pad' | 'twitter' | 'web-search' | 'visible-password';
   maxLength?: number | null;
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#F0F0F0",
     padding: 10,
     marginHorizontal: 20,
   },
