@@ -1,7 +1,7 @@
 import React from 'react';
 import { VictoryScatter, VictoryChart, VictoryTheme, VictoryAxis, VictoryLabel } from 'victory-native';
 import { MatchModel } from '../../../models/MatchModel';
-import { getAvgAutoNotesSpeaker, getAvgTeleopNotesAmplifiedSpeaker } from '../../../models/StatsCalculations';
+import { getAvgAutoNotesSpeaker, getAvgTeleopNotesAmp, getAvgTeleopNotesAmplifiedSpeaker, getAvgTeleopNotesSpeaker } from '../../../models/StatsCalculations';
 import { PitModel } from '../../../models/PitModel';
 import { Text } from 'react-native';
 
@@ -17,19 +17,19 @@ const Chart3: React.FC<ChartProps> = ({ data }) => {
   const processedData = data.map((pit) => {
     // Calculate averages for the last five matches for each team
     const lastFiveMatches = pit.matches?.slice(-5) ?? []; // Add nullish coalescing operator
-    const AvgAutoNotesSpeaker = getAvgAutoNotesSpeaker(lastFiveMatches);
-    const AvgTeleopNotesAmplifiedSpeaker = getAvgTeleopNotesAmplifiedSpeaker(lastFiveMatches);
+    const AvgTeleopNotesAmp = getAvgTeleopNotesAmp(lastFiveMatches);
+    const AvgTeleopNotesSpeaker = getAvgTeleopNotesSpeaker(lastFiveMatches);
 
     return {
-      x: AvgAutoNotesSpeaker,
-      y: AvgTeleopNotesAmplifiedSpeaker,
+      x: AvgTeleopNotesAmp,
+      y: AvgTeleopNotesSpeaker,
       label: `#${pit.TeamNumber}`
     };
   });
 
   return (
     <>
-    <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Auto Notes in Speaker vs. Teleop Notes in Amplifier</Text>
+    <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Avg Teleop Notes in Amplifier vs. Speaker</Text>
     <VictoryChart theme={VictoryTheme.material} domainPadding={20}>
       <VictoryScatter
         data={processedData}
@@ -42,7 +42,7 @@ const Chart3: React.FC<ChartProps> = ({ data }) => {
         labelComponent={<VictoryLabel dy={-10} />}
       />
       <VictoryAxis
-        label="Avg Auto Notes in Speaker"
+        label="Amplifier"
         style={{
           axisLabel: { fontSize: 16, padding: 35 },
           grid: { stroke: "#ddd", strokeWidth: 0.5 },
@@ -52,7 +52,7 @@ const Chart3: React.FC<ChartProps> = ({ data }) => {
       />
       <VictoryAxis
         dependentAxis
-        label="Avg Teleop Notes in Amplifier"
+        label="Speaker"
         style={{
           axisLabel: { fontSize: 16, padding: 35 },
           grid: { stroke: "#ddd", strokeWidth: 0.5 },

@@ -42,7 +42,7 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
         labelComponent={<VictoryLabel dy={-10} />}
       />
       <VictoryAxis
-        label="Avg. Teleop Points"
+        label="Teleop"
         style={{
           axisLabel: { fontSize: 16, padding: 35 },
           grid: { stroke: "#ddd", strokeWidth: 0.5 },
@@ -52,7 +52,7 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
       />
       <VictoryAxis
         dependentAxis
-        label="Avg. Auto + Endgame Points"
+        label="Auto + Endgame"
         style={{
           axisLabel: { fontSize: 16, padding: 35 },
           grid: { stroke: "#ddd", strokeWidth: 0.5 },
