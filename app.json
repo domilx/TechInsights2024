@@ -9,13 +9,18 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1E1E1E" 
+      "backgroundColor": "#1E1E1E"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "location"],
+        "UIBackgroundModes": [
+          "fetch",
+          "location"
+        ],
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes."
       }
     },
@@ -27,7 +32,9 @@
       "permissions": [
         "CAMERA",
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
       "package": "net.domidev.techinsights",
       "versionCode": 1
@@ -42,6 +49,11 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9ca23765-9765-4fcc-8dd3-bddafd27bc12"
+      }
+    }
   }
 }
