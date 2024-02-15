@@ -38,7 +38,7 @@
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "net.domidev.techinsights",
+      "package": "com.team3990.insights",
       "versionCode": 1
     },
     "web": {
