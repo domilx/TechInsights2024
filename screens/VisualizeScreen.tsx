@@ -31,11 +31,14 @@ const VisualizeScreen = () => {
         if (lastSyncTime) {
           setLastSync(JSON.parse(lastSyncTime));
         }
-
+    
         const teamsData = await AsyncStorage.getItem("fetchedData");
         if (teamsData) {
           const parsedTeamsData: PitModel[] = JSON.parse(teamsData);
           setTeams(parsedTeamsData);
+        } else {
+          // Handle case where fetchedData is not available
+          Alert.alert("Initialization Error", "No initial data found.");
         }
       } catch (error) {
         console.error("Error initializing data: ", error);
@@ -44,8 +47,7 @@ const VisualizeScreen = () => {
         setIsLoading(false);
       }
     };
-
-    initializeData();
+    
   }, []);
 
   const handleSync = async () => {
@@ -89,17 +91,34 @@ const VisualizeScreen = () => {
     }
   };
 
+  const renderSegmentedControl = () => (
+    <View style={styles.segmentedControl}>
+      {['Chart 1', 'Chart 2', 'Chart 3', 'Score Table'].map((label, index) => (
+        <TouchableOpacity
+          key={index}
+          style={[styles.segmentButton, selectedIndex === index && styles.segmentButtonSelected]}
+          onPress={() => setSelectedIndex(index)}
+        >
+          <Text style={[styles.segmentButtonText, selectedIndex === index && styles.segmentButtonTextSelected]}>
+            {label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
   return (
     <ScrollView style={styles.container}>
+      {renderSegmentedControl()}
+      <View style={styles.contentSection}>
+        {renderContent()}
+      </View>
       {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
       <View style={styles.syncSection}>
         <TouchableOpacity onPress={handleSync} style={styles.syncButton}>
           <Text style={styles.syncButtonText}>Sync Data</Text>
         </TouchableOpacity>
-        <Text>Last Sync: {lastSync ? new Date(lastSync).toLocaleString() : "Never"}</Text>
-      </View>
-      <View style={styles.contentSection}>
-        {renderContent()}
+        <Text style={styles.sync}>Last Sync: {lastSync ? new Date(lastSync).toLocaleString() : "Never"}</Text>
       </View>
     </ScrollView>
   );
@@ -110,8 +129,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  sync: {
+    textAlign: 'center',
+    marginTop: 10,
+  },
   syncSection: {
-    marginBottom: 20,
+    marginTop: 40,
   },
   syncButton: {
     backgroundColor: 'blue',
@@ -122,6 +145,27 @@ const styles = StyleSheet.create({
   syncButtonText: {
     color: 'white',
     textAlign: 'center',
+  },
+  segmentedControl: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
+  segmentButton: {
+    padding: 10,
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  segmentButtonSelected: {
+    borderBottomWidth: 2,
+    borderBottomColor: 'blue',
+  },
+  segmentButtonText: {
+    color: 'grey',
+  },
+  segmentButtonTextSelected: {
+    color: 'blue',
+    fontWeight: 'bold',
   },
   picker: {
     height: 50,

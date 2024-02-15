@@ -1,23 +1,37 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { MatchModel } from '../../../models/MatchModel';
-import { getAvgTotalPoints } from '../../../models/StatsCalculations';
+import { PitModel } from '../../../models/PitModel';
+import { getAvgTotalPoints, getAvgTotalTeleopPoints, getAvgTotalAutoPoints, getAvgTotalEndGamePoints } from '../../../models/StatsCalculations';
 
 interface TableProps {
-  data: MatchModel[];
+  data: PitModel[];
 }
 
 const ScoreTable: React.FC<TableProps> = ({ data }) => {
-  // Sort data based on Avg Total Points
-  const sortedData = [...data].sort((a, b) => getAvgTotalPoints([b]) - getAvgTotalPoints([a]));
+  // Sort data based on Avg Total Points in descending order using the matches property
+  const sortedData = [...data].sort((a, b) => {
+    const avgPointsB = getAvgTotalPoints(b.matches || []);
+    const avgPointsA = getAvgTotalPoints(a.matches || []);
+    return avgPointsB - avgPointsA;
+  });
 
   return (
     <ScrollView style={styles.container}>
-      {sortedData.map((match, index) => (
+      <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Average Points Scored</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.headerCell}>Team #</Text>
+        <Text style={styles.headerCell}>Total</Text>
+        <Text style={styles.headerCell}>Teleop</Text>
+        <Text style={styles.headerCell}>Auto</Text>
+        <Text style={styles.headerCell}>Endgame</Text>
+      </View>
+      {sortedData.map((pit, index) => (
         <View key={index} style={styles.row}>
-          <Text style={styles.cell}>{match.TeamNumber}</Text>
-          <Text style={styles.cell}>{getAvgTotalPoints([match]).toFixed(2)}</Text>
-          {/* Additional cells for Avg Teleop, Auto, and Endgame scores can be added here */}
+          <Text style={styles.cell}>{pit.TeamNumber}</Text>
+          <Text style={styles.cell}>{getAvgTotalPoints(pit.matches || []).toFixed(2)}</Text>
+          <Text style={styles.cell}>{getAvgTotalTeleopPoints(pit.matches || []).toFixed(2)}</Text>
+          <Text style={styles.cell}>{getAvgTotalAutoPoints(pit.matches || []).toFixed(2)}</Text>
+          <Text style={styles.cell}>{getAvgTotalEndGamePoints(pit.matches || []).toFixed(2)}</Text>
         </View>
       ))}
     </ScrollView>
@@ -28,12 +42,23 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 20,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#f0f0f0', // Added a background color for header row for distinction
+    padding: 10,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+  },
+  headerCell: {
+    flex: 1,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   cell: {
     flex: 1,

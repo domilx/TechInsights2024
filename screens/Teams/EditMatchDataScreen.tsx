@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
+//@ts-ignore
 import { ProgressSteps, ProgressStep } from "react-native-progress-steps";
 import {
   Text,
@@ -25,7 +26,7 @@ import {
   Years,
   initialPitData,
 } from "../../models/PitModel";
-import { updatePitData } from "../../services/FirebaseService";
+import { updateMatchData, updatePitData } from "../../services/FirebaseService";
 import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";
@@ -41,14 +42,21 @@ interface EditPitDataScreenProps {
 
 const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
   const [matchData, setMatchData] = useState<MatchModel>(initialMatchData);
-  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
   const [currentStep, setCurrentStep] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  const {
+    teams,
+    setTeams,
+    lastSync,
+    setLastSync,
+    selectedTeam,
+    setSelectedTeam,
+  } = useContext(DataContext);
 
   const scrollToTop = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ x: 0, y: 0, animated: true });
-    }else{console.log("no ref")}
+    }
   };
   useEffect(() => {
     setMatchData(match || initialMatchData);
@@ -59,9 +67,21 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
   };
 
   const handleSave = async () => {
-
-    try {
-       // Save the match data
+      if (!matchData.ScoutName) {
+        Alert.alert("Validation Error", "Robot Scout is required");
+        return;
+      }
+  
+      try {
+        await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
+        Alert.alert("Success", "Match data saved successfully");
+        const syncResult = await syncData();
+        if (syncResult.success && syncResult.data) {
+          setTeams(syncResult.data);
+          setLastSync(new Date().toISOString());
+          saveDataLocally("fetchedData", syncResult.data);
+          setSelectedTeam(undefined);
+        }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }

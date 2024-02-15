@@ -70,9 +70,14 @@ export const uploadMatchDataToFirebase = async (matchData: MatchModel, teamRef: 
   }
 };
 
-export const deleteMatchDataFromFirebase = async (matchRef: any) => {
+export const deleteMatchDataFromFirebase = async (teamNumber: number, matchId: string) => {
   try {
-    await setDoc(matchRef, initialMatchData);
+    // Construct the reference to the specific match document within the team's matches collection
+    const matchRef = doc(db, `teams/${teamNumber}/matches/${matchId}`);
+    
+    // Delete the match document
+    await deleteDoc(matchRef);
+
     return { success: true, message: "Match data deleted successfully." };
   } catch (error: any) {
     console.error("Error deleting Match data from Firebase: ", error);
@@ -111,6 +116,23 @@ export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
     return { success: false, message: error.message || "Failed to upload pit data to Firebase." };
   }
 };
+
+export const updateMatchData = async (matchData: MatchModel, teamNumber: number, matchId: string) => {
+  const teamRef = doc(db, "teams", teamNumber.toString());
+  const matchRef = doc(db, `teams/${teamNumber}/matches`, matchId);
+
+  try {
+    const teamSnap = await getDoc(teamRef);
+    if (!teamSnap.exists()) {
+      return { success: false, message: "Team does not exist." };
+    }
+    await setDoc(matchRef, matchData);
+    return { success: true, message: "Match data uploaded successfully." };
+  } catch (error: any) {
+    console.error("Error uploading Match data to Firebase: ", error);
+    return { success: false, message: error.message || "Failed to upload match data to Firebase." };
+  }
+}
 
 export const fetchPhotosFromFirebase = async (teamNumber: number) => {
   const teamFolderRef = ref(storage, `${teamNumber}/`);

@@ -16,20 +16,19 @@ import { syncData } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 
 export default function DrawerScreen({ navigation }: any) {
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const {
     teams,
     setTeams,
     lastSync,
     setLastSync,
-    isTeamSelected,
-    setIsTeamSelected,
+    selectedTeam,
+    setSelectedTeam,
   } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const defaultTeamName = "Default Team";
 
   const handlePress = (team: PitModel) => {
-    setSelectedTeam(team.TeamName);
+    setSelectedTeam(team);
     navigation.navigate("Teams", { team });
     navigation.closeDrawer();
   };
@@ -77,7 +76,7 @@ export default function DrawerScreen({ navigation }: any) {
         // Save the updated teams data locally
         saveDataLocally("fetchedData", response.data);
         // Reset the selected team to null after sync
-        setSelectedTeam(null);
+        setSelectedTeam(undefined);
       }
       Alert.alert("Sync Complete", response.message);
     } else {
@@ -96,12 +95,6 @@ export default function DrawerScreen({ navigation }: any) {
       }
     };
     sync();
-    //set isTeamSelected to true if selectedTeam is not null
-    if (selectedTeam !== "Default Team" && selectedTeam !== null) {
-      setIsTeamSelected(true);
-    } else {
-      setIsTeamSelected(false);
-    }
   }, [selectedTeam]);
 
   // This function remains unchanged
@@ -167,14 +160,14 @@ export default function DrawerScreen({ navigation }: any) {
         styles.item,
         {
           backgroundColor:
-            selectedTeam === item.TeamName ? "#636262" : "transparent",
+            selectedTeam === item ? "#636262" : "transparent",
         },
       ]}
       onPress={() => handlePress(item)}
     >
       <Text
         style={
-          selectedTeam === item.TeamName ? styles.selectedText : styles.text
+          selectedTeam === item ? styles.selectedText : styles.text
         }
       >
         {item.TeamName}
@@ -189,7 +182,6 @@ export default function DrawerScreen({ navigation }: any) {
       if (teamsData) {
         setTeams(JSON.parse(teamsData));
       }
-      selectedTeam === null && setSelectedTeam(defaultTeamName);
     };
 
     const syncInterval = setInterval(() => {

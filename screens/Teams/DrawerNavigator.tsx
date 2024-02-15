@@ -15,7 +15,8 @@ const NoTeamDataScreen = () => (
 );
 
 export default function DrawerNavigator() {
-  const { isTeamSelected } = useContext(DataContext);
+  const { selectedTeam } = useContext(DataContext);
+  const isTeamSelected = selectedTeam !== undefined;
 
   return (
     <Drawer.Navigator

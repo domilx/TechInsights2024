@@ -1,4 +1,4 @@
-import { EndGameHarmony, EndGameOnStage, Trap, MatchModel, Position, RankingPoints, ShootSpots } from "./MatchModel";
+import { EndGameHarmony, EndGameOnStage, Trap, MatchModel, Position, RankingPoints, ShootSpots, TrapEndGame } from "./MatchModel";
 
 const getMatchesPlayed = (matches: MatchModel[]) => {
   let played = 0;
@@ -142,13 +142,26 @@ const getTrapPoints = (trap: Trap) => {
   }
 }
 
+const getEndTrapPoints = (trap: TrapEndGame) => {
+  switch (trap) {
+    case TrapEndGame.ZeroPoints:
+      return 0;
+    case TrapEndGame.FivePoints:
+      return 5;
+    case TrapEndGame.TrapFailed:
+      return 0;
+    default:
+      return 0;
+  }
+}
+
 const getAvgTotalEndGamePoints = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
   return lastFive.reduce((total, match) => {
     let points = 0;
     points += match.EndGameOnStage === EndGameOnStage.Park ? 2 : (match.EndGameOnStage === EndGameOnStage.OnStage ? 3 : 0);
     points += match.EndGameHarmony === EndGameHarmony.TwoPoints ? 2 : 0;
-    points += getTrapPoints(match.EndGameTrap);
+    points += getEndTrapPoints(match.EndGameTrap);
     points += match.EndGameSpotLighted ? 1 : 0;
     return total + points;
   }, 0) / (lastFive.length || 1);
@@ -163,7 +176,7 @@ const getAvgOnStagePoints = (matches: MatchModel[]) => {
 
 const getAvgTrapPoints = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
-  return lastFive.reduce((total, match) => total + getTrapPoints(match.EndGameTrap), 0) / (lastFive.length || 1);
+  return lastFive.reduce((total, match) => total + getEndTrapPoints(match.EndGameTrap), 0) / (lastFive.length || 1);
 };
 
 const getTrapNotes = (trap: Trap) => {
@@ -184,7 +197,7 @@ const getTrapNotes = (trap: Trap) => {
 const getAvgNumTotalNotesFullMatch = (matches: MatchModel[]) => {
   const lastFive = matches.slice(-5);
   return lastFive.reduce((total, match) => {
-    const endGameTrap = getTrapNotes(match.EndGameTrap);
+    const endGameTrap = getEndTrapPoints(match.EndGameTrap);
     const teleopTrap = getTrapNotes(match.TeleopTrap);
     return total + match.AutoAmp + match.AutoSpeaker + match.TeleopAmplifier + match.TeleopSpeaker + match.TeleopSpeakerAmplified + endGameTrap + teleopTrap;
   }, 0) / (lastFive.length || 1);
@@ -197,7 +210,7 @@ const getAvgTotalPoints = (matches: MatchModel[], isLastFive: boolean = false) =
     const teleopPoints = match.TeleopSpeakerAmplified * 5 + match.TeleopSpeaker * 2 + match.TeleopAmplifier;
     let endGamePoints = (match.EndGameOnStage === EndGameOnStage.Park ? 2 : (match.EndGameOnStage === EndGameOnStage.OnStage ? 3 : 0)) +
                         (match.EndGameHarmony === EndGameHarmony.TwoPoints ? 2 : 0) +
-                        getTrapPoints(match.EndGameTrap) +
+                        getEndTrapPoints(match.EndGameTrap) +
                         (match.EndGameSpotLighted ? 1 : 0);
     return total + autoPoints + teleopPoints + endGamePoints;
   }, 0) / (relevantMatches.length || 1);

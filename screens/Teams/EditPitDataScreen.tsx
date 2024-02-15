@@ -50,7 +50,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
 
   const handleSave = async () => {
     // Implement validation and saving logic
-    if (!pitData.ScoutName) {
+    if (!pitData.TeamNumber) {
       Alert.alert("Validation Error", "Robot Scout is required");
       return;
     }

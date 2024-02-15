@@ -32,7 +32,6 @@ export default function CameraScreen() {
       //@ts-ignore
       //if scanne data is not a TeamModel or MatchModel, ignore it
       if (scannedData.includes("TeamNumber")) {
-        console.log("TeamModel detected");
         //@ts-ignore
         navigation.navigate("UploadScreen", { data: scannedData });
       } else {

@@ -26,12 +26,8 @@ export type RootDrawerParamList = {
   Teams: { team: PitModel };
 };
 
-interface TeamScreenProps {
-  route: any;
-}
 
-const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
-  const [selectedTeam, setSelectedTeam] = useState<PitModel | undefined>();
+const TeamScreen: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
@@ -40,16 +36,11 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
     setTeams,
     lastSync,
     setLastSync,
-    isTeamSelected,
-    setIsTeamSelected,
+    selectedTeam,
+    setSelectedTeam,
   } = useContext(DataContext);
   const [visible1, setVisible1] = useState(false);
   const [input, setInput] = useState("");
-
-  useEffect(() => {
-    const teamFromRoute = route.params?.team;
-    setSelectedTeam(teamFromRoute || (teams.length > 0 ? teams[0] : undefined));
-  }, [route.params?.team, teams]);
 
   const renderRobotDetails = () => {
     if (!selectedTeam) {
@@ -82,7 +73,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         if (sectionKey === "AutoPositionFrequency") {
           // Handle PositionFrequency section differently
           const positionStats = stats.map((stat) => {
-             //@ts-ignore
+            //@ts-ignore
             const value = stat.func(matches);
             const displayValue =
               typeof value === "number" ? value.toFixed(2) : value;
@@ -154,7 +145,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 
   const openPhoto = () => {
     setPhotoModalVisible(true);
-  }
+  };
 
   const handleCancel = () => {
     setVisible1(false);
@@ -163,7 +154,11 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
 
   const confirmDelete = async () => {
     try {
-      const teamRef = doc(db, "teams", (selectedTeam?.TeamNumber.toString()) || "");
+      const teamRef = doc(
+        db,
+        "teams",
+        selectedTeam?.TeamNumber.toString() || ""
+      );
       await deleteTeamFromFirebase(teamRef);
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data) {
@@ -171,7 +166,6 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
         setLastSync(new Date().toISOString());
         saveDataLocally("fetchedData", syncResult.data);
         setSelectedTeam(undefined);
-        setIsTeamSelected(false);
       }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
@@ -244,7 +238,7 @@ const TeamScreen: FC<TeamScreenProps> = ({ route }) => {
           title="All Matches"
           onClose={() => setIsModalVisible(false)}
         />
-        <MatchView matches={selectedTeam?.matches || []} team={selectedTeam}/>
+        <MatchView/>
       </Modal>
       <Modal
         visible={editModalVisible}

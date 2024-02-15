@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ScrollView,
   View,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   Modal,
+  Platform,
 } from "react-native";
 import { MatchModel } from "../../models/MatchModel";
 import displayMatchData from "../../models/DisplayMatchData";
@@ -14,27 +15,65 @@ import Icon from "@expo/vector-icons/Ionicons";
 import ModalHeader from "../components/ModalHeader";
 import EditMatchDataScreen from "./EditMatchDataScreen";
 import { PitModel } from "../../models/PitModel";
+import { doc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { deleteMatchDataFromFirebase } from "../../services/FirebaseService";
+import { syncData } from "../../services/SyncService";
+import { DataContext } from "../../contexts/DataContext";
+import { saveDataLocally } from "../../services/LocalStorageService";
 
 interface MatchViewProps {
   matches: MatchModel[] | undefined;
   team: PitModel;
 }
 
-const MatchView: React.FC<MatchViewProps> = ({ matches, team }) => {
+const MatchView: React.FC = () => {
   const [selectedMatchNumber, setSelectedMatchNumber] = useState<number | null>(
     null
   );
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [teamNumber, setTeamNumber] = useState(team.TeamNumber);
   const toggleMatchDetails = (matchNumber: number) => {
     setSelectedMatchNumber(
       selectedMatchNumber === matchNumber ? null : matchNumber
     );
   };
+  const {
+    teams,
+    setTeams,
+    lastSync,
+    setLastSync,
+    selectedTeam,
+    setSelectedTeam,
+  } = useContext(DataContext);
 
   const handleDeleteMatch = async () => {
     try {
-      // Delete the match
+        Alert.alert(
+          "Confirm Delete",
+          "Are you sure you want to delete this match?",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            { text: "OK", onPress: () => confirmDelete() },
+          ]
+        );
+    } catch (error) {
+      Alert.alert("Error", (error as Error).message);
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteMatchDataFromFirebase(selectedTeam?.TeamNumber || 0, selectedMatchNumber?.toString() || "");
+      const syncResult = await syncData();
+      if (syncResult.success && syncResult.data) {
+        setTeams(syncResult.data);
+        setLastSync(new Date().toISOString());
+        saveDataLocally("fetchedData", syncResult.data);
+        setSelectedTeam(undefined);
+      }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }
@@ -73,7 +112,7 @@ const MatchView: React.FC<MatchViewProps> = ({ matches, team }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {matches?.map((match, index) => (
+      {selectedTeam?.matches?.map((match, index) => (
         <View key={index}>
           <TouchableOpacity
             onPress={() => toggleMatchDetails(match.MatchNumber)}

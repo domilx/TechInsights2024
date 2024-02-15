@@ -48,7 +48,6 @@ export const RadioButtonGrid: React.FC<RadioButtonGridProps> = ({
 
                 setSelectedButtons(newSelectedButtons);
                 saveButtons(newSelectedButtons); // Save the selected buttons
-                console.log(newSelectedButtons);
 
                 let valuesToSave: string[] = [];
                 if (newSelectedButtons.includes(0)) {

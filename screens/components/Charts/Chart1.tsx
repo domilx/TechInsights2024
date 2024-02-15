@@ -9,12 +9,6 @@ interface ChartProps {
 }
 
 const Chart1: React.FC<ChartProps> = ({ data }) => {
-  // Ensure data is available and has at least 5 matches for each team
-  // TODO: Each PitModel has a matches array and a teamNumber
-  
-
-  console.log('filteredData', );
-
   if (data.length === 0) {
     return <Text>No sufficient data for visualization.</Text>;
   }
@@ -29,11 +23,13 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
     return {
       x: avgTeleopPoints,
       y: avgAutoEndGamePoints,
-      label: `Team ${pit.TeamNumber}`
+      label: `#${pit.TeamNumber}`
     };
   });
 
   return (
+    <>
+    <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Teleop vs. Auto + Endgame Points</Text>
     <VictoryChart theme={VictoryTheme.material} domainPadding={20}>
       <VictoryScatter
         data={processedData}
@@ -52,7 +48,7 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
           grid: { stroke: "#ddd", strokeWidth: 0.5 },
           tickLabels: { fontSize: 10, padding: 5, angle: 0 },
         }}
-        tickFormat={(tick) => Number(tick).toFixed(1)}
+        tickFormat={(tick) => Number(tick).toFixed(0)}
       />
       <VictoryAxis
         dependentAxis
@@ -65,6 +61,7 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
         tickFormat={(tick) => Number(tick).toFixed(0)}
       />
     </VictoryChart>
+    </>
   );
 };
 
