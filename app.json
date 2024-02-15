@@ -23,7 +23,8 @@
           "location"
         ],
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes."
-      }
+      },
+      "bundleIdentifier": "com.team3990.insights"
     },
     "android": {
       "adaptiveIcon": {
