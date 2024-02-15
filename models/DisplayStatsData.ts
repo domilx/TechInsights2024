@@ -1,0 +1,95 @@
+import {
+    getMatchesPlayed,
+    getMatchesWon,
+    getWinRate,
+    getTotalRankingPoints,
+    getAverageRankingPoints,
+    getAvgAutoNotesAmp,
+    getAvgAutoNotesSpeaker,
+    getAvgTotalAutoPoints,
+    getLeavePercentage,
+    getAvgTeleopNotesAmp,
+    getAvgTeleopNotesSpeaker,
+    getAvgTeleopNotesAmplifiedSpeaker,
+    getAvgTotalTeleopPoints,
+    getAvgTotalEndGamePoints,
+    getAvgOnStagePoints,
+    getAvgTrapPoints,
+    getAvgNumTotalNotesFullMatch,
+    getAvgTotalPoints,
+    getAvgPointsContributionRatioAllMatches,
+    getAvgPointsContributionRatioLastFive,
+    getStandardDeviationNotes,
+    getShootingPositionIfStartingZone,
+    getShootingPositionIfPodium,
+    getShootingPositionIfElsewhereInWing,
+    getShootingPositionIfNearCenterLine,
+    getAvgCycleTimeLastFive,
+    getPercentageDroppedNotes,
+    getAutoPositionFrequencyLeft,
+    getAutoPositionFrequencyRight,
+    getAutoPositionFrequencyMiddle,
+    getAbsMaxNotes,
+    getAbsMinNotes,
+    getTimesFell,
+    getTimesIncapacitated
+} from "./StatsCalculations";
+
+const DisplayStatsData = {
+    MatchOutcomes: [
+        { label: "Matches Played", func: getMatchesPlayed, unit: "matches" },
+        { label: "Matches Won", func: getMatchesWon, unit: "matches" },
+        { label: "Win Rate", func: getWinRate, unit: "%" },
+    ],
+    RankingPoints: [
+        { label: "Total Ranking Points", func: getTotalRankingPoints, unit: "points" },
+        { label: "Average Ranking Points", func: getAverageRankingPoints, unit: "points" },
+    ],
+    AutoPositionFrequency: [
+        { label: "Left", func: getAutoPositionFrequencyLeft, unit: "%" },
+        { label: "Middle", func: getAutoPositionFrequencyMiddle, unit: "%" },
+        { label: "Right", func: getAutoPositionFrequencyRight, unit: "%" },
+    ],
+    Auto: [
+        { label: "Avg Notes Amp", func: getAvgAutoNotesAmp, unit: "notes" },
+        { label: "Avg Notes Speaker", func: getAvgAutoNotesSpeaker, unit: "notes" },
+        { label: "Avg Total Points", func: getAvgTotalAutoPoints, unit: "points" },
+        { label: "Leave Percentage", func: getLeavePercentage, unit: "%" },
+    ],
+    Teleop: [
+        { label: "Avg Notes Amp", func: getAvgTeleopNotesAmp, unit: "notes" },
+        { label: "Avg Notes Speaker", func: getAvgTeleopNotesSpeaker, unit: "notes" },
+        { label: "Avg Notes Amplified Speaker", func: getAvgTeleopNotesAmplifiedSpeaker, unit: "notes" },
+        { label: "Avg Total Points", func: getAvgTotalTeleopPoints, unit: "points" },
+    ],
+    EndGame: [
+        { label: "Avg Total End Game Points", func: getAvgTotalEndGamePoints, unit: "points" },
+        { label: "Avg On Stage Points", func: getAvgOnStagePoints, unit: "points" },
+        { label: "Avg Trap Points", func: getAvgTrapPoints, unit: "points" },
+    ],
+    Notes: [
+        { label: "Avg Total Points", func: getAvgTotalPoints, unit: "points" },
+        { label: "Avg Points Contribution All", func: getAvgPointsContributionRatioAllMatches, unit: "%" },
+        { label: "Avg Points Contribution Last Five", func: getAvgPointsContributionRatioLastFive, unit: "%" },
+        { label: "Avg Num Total Notes Full Match", func: getAvgNumTotalNotesFullMatch, unit: "notes" },
+        { label: "Abs Max", func: getAbsMaxNotes, unit: "notes" },
+        { label: "Abs Min", func: getAbsMinNotes, unit: "notes" },
+        { label: "Standard Deviation Notes", func: getStandardDeviationNotes, unit: "notes" },
+    ],
+    ShootingPositions: [
+        { label: "Starting Zone", func: getShootingPositionIfStartingZone, unit: "" },
+        { label: "Podium", func: getShootingPositionIfPodium, unit: "" },
+        { label: "Elsewhere in Wing", func: getShootingPositionIfElsewhereInWing, unit: "" },
+        { label: "Near Centre Line", func: getShootingPositionIfNearCenterLine, unit: "" },
+    ],
+    Cycle: [
+        { label: "Avg Cycle Time Last Five", func: getAvgCycleTimeLastFive, unit: "seconds" },
+        { label: "Percentage Dropped Notes", func: getPercentageDroppedNotes, unit: "%" },
+    ],
+    Incapacitated: [
+        { label: "Times Incapacitated", func: getTimesIncapacitated, unit: "times" },
+        { label: "Times Fell", func: getTimesFell, unit: "times" },
+    ],
+};
+
+export default DisplayStatsData;
