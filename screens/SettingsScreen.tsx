@@ -80,20 +80,6 @@ const SettingsScreen: FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      const response = await AuthService.deleteUser(userId);
-      if (response.success) {
-        Alert.alert("Success", "User deleted successfully.");
-        fetchUsers();
-      } else {
-        Alert.alert("Error", response.message);
-      }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred while deleting the user.");
-    }
-  };
-
   const renderUserItem = ({ item }: { item: IUser }) => (
     <View style={styles.userItem}>
       <Text style={styles.userName}>{item.name}</Text>
@@ -105,12 +91,6 @@ const SettingsScreen: FC = () => {
           <Text style={styles.buttonText}>
             {item.hasAccess ? "Revoke Access" : "Grant Access"}
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.roleButton}
-          onPress={() => handleDeleteUser(item.id)}
-        >
-          <Text style={styles.buttonText}>Delete User</Text>
         </TouchableOpacity>
       </View>
     </View>

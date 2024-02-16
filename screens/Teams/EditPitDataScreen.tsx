@@ -56,10 +56,10 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     }
 
     try {
-      await updatePitData(pitData, pitData.TeamNumber);
-      Alert.alert("Success", "Pit data saved successfully");
+      const resp  = await updatePitData(pitData, pitData.TeamNumber);
       const syncResult = await syncData();
-      if (syncResult.success && syncResult.data) {
+      if (syncResult.success && syncResult.data && resp.success) {
+        Alert.alert("Success", "Pit Data saved successfully");
         setTeams(syncResult.data);
         setLastSync(new Date().toISOString());
         // Save the updated teams data locally

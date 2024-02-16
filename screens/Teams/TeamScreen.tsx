@@ -18,7 +18,7 @@ import { doc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { deleteTeamFromFirebase } from "../../services/FirebaseService";
 import EditPitDataScreen from "./EditPitDataScreen";
-import { syncData } from "../../services/SyncService";
+import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { Platform } from "react-native";
 import PhotoScreen from "./PhotoScreen";
@@ -159,13 +159,13 @@ const TeamScreen: React.FC = () => {
         "teams",
         selectedTeam?.TeamNumber.toString() || ""
       );
-      await deleteTeamFromFirebase(teamRef);
+      const resp = await deleteTeamFromFirebase(teamRef);
       const syncResult = await syncData();
-      if (syncResult.success && syncResult.data) {
+      if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
-        setLastSync(new Date().toISOString());
         saveDataLocally("fetchedData", syncResult.data);
         setSelectedTeam(undefined);
+        updateLastSyncTime();
       }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);

@@ -7,6 +7,7 @@ import {
   User,
   signOut,
   updatePassword,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { db } from '../firebase'; // Adjust this import as per your Firebase configuration
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
@@ -39,6 +40,10 @@ class AuthService {
 
   public getUser(): User | null {
     return this.user;
+  }
+
+  public getEmail(): string | null {
+    return this.user?.email || null;
   }
 
   public async getUserName(): Promise<string | null> {
@@ -139,39 +144,6 @@ async register(email: string, password: string, name: string): Promise<{ success
     }
   }
 
-  // New method to change user profile
-  async changeName(name: string): Promise<{ success: boolean; message?: string }> {
-    try {
-      if (this.user) {
-        await updateProfile(this.user, { displayName: name });
-        // Notify the listener if it's active
-        if (this.authStateChangedListener) {
-          this.authStateChangedListener(this.user);
-        }
-
-        return { success: true };
-      } else {
-        return { success: false, message: 'User not authenticated.' };
-      }
-    } catch (error) {
-      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
-    }
-  }
-
-  async changePassword(newPassword: string): Promise<{ success: boolean; message?: string }> {
-    try {
-      if (this.user) {
-        await updatePassword(this.user, newPassword);
-
-        return { success: true };
-      } else {
-        return { success: false, message: 'User not authenticated.' };
-      }
-    } catch (error) {
-      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
-    }
-  }
-
   // Fetch all users from the database
   async fetchAllUsers() {
     try {
@@ -243,16 +215,16 @@ async register(email: string, password: string, name: string): Promise<{ success
   }
 
   // Method to delete a user
-  async deleteUser(userId: string) {
+  public async sendResetEmail(email: string): Promise<{ success: boolean; message: string }> {
     try {
-      const userRef = doc(db, 'users', userId);
-      await deleteDoc(userRef);
-      return { success: true };
+      await sendPasswordResetEmail(this.auth, email);
+      return { success: true, message: "Password reset email sent successfully." };
     } catch (error) {
-      console.error("Error deleting user:", error);
-      return { success: false, message: (error as Error).message || 'Failed to delete user' };
+      console.error("Error sending password reset email:", error);
+      return { success: false, message: (error as Error).message || "Failed to send password reset email." };
     }
   }
+
 }
 
 export default AuthService.getInstance();

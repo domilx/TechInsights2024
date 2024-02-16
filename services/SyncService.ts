@@ -69,7 +69,7 @@ const syncLocalData = async (): Promise<void> => {
     }
 };
 
-const updateLastSyncTime = async (): Promise<void> => {
+export const updateLastSyncTime = async (): Promise<void> => {
     const lastSyncTime = new Date().toISOString();
     await AsyncStorage.setItem('lastSyncTime', lastSyncTime);
 };

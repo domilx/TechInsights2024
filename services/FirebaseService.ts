@@ -60,7 +60,8 @@ export const uploadMatchDataToFirebase = async (matchData: MatchModel, teamRef: 
   try {
     const teamSnap = await getDoc(teamRef);
     if (!teamSnap.exists()) {
-      await setDoc(teamRef, initialPitData);
+      const initialPitDataWithTeamNumber = { ...initialPitData, TeamNumber: matchData.TeamNumber, TeamName: matchData.TeamNumber.toString() };
+      await setDoc(teamRef, initialPitDataWithTeamNumber);
     }
     await setDoc(matchRef, matchData);
     return { success: true, message: "Match data uploaded successfully." };
@@ -92,17 +93,27 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
     for (const matchDoc of matchSnapshot.docs) {
       await deleteDoc(matchDoc.ref);
     }
+    
+    // List all files in the team's folder and delete them
+    const teamFolderRef = ref(storage, `teams/${teamRef.id}/`); // Adjust the path according to your storage structure
+    const fileList = await listAll(teamFolderRef);
+    for (const fileRef of fileList.items) {
+      await deleteObject(fileRef); // Delete each file
+    }
+
+    // After deleting all photos, delete the team document
     await deleteDoc(teamRef);
-    return { success: true, message: "Team deleted successfully." };
+
+    return { success: true, message: "Team and all associated photos deleted successfully." };
   } catch (error: any) {
     console.error("Error deleting Team from Firebase: ", error);
     return { success: false, message: error.message || "Failed to delete team from Firebase." };
   }
 };
 
+
 export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
   const teamRef = doc(db, "teams", teamNumber.toString()); 
-
   try {
     const docSnap = await getDoc(teamRef);
     if (docSnap.exists()) {

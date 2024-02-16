@@ -23,8 +23,6 @@ const RegistrationScreen: React.FC = () => {
     const response = await AuthService.register(email, password, name);
     if (response.success) {
       Alert.alert("Registration Successful", "Please log in with your new account.");
-      // Navigate back to the Login screen if necessary
-      // navigation.navigate('Login');
     } else {
       Alert.alert("Registration Failed", response.message);
     }

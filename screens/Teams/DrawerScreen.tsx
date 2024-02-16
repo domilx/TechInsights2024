@@ -12,7 +12,7 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PitModel } from "../../models/PitModel";
-import { syncData } from "../../services/SyncService";
+import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 
 export default function DrawerScreen({ navigation }: any) {
@@ -25,7 +25,6 @@ export default function DrawerScreen({ navigation }: any) {
     setSelectedTeam,
   } = useContext(DataContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const defaultTeamName = "Default Team";
 
   const handlePress = (team: PitModel) => {
     setSelectedTeam(team);
@@ -75,8 +74,6 @@ export default function DrawerScreen({ navigation }: any) {
         setLastSync(new Date().toISOString());
         // Save the updated teams data locally
         saveDataLocally("fetchedData", response.data);
-        // Reset the selected team to null after sync
-        setSelectedTeam(undefined);
       }
       Alert.alert("Sync Complete", response.message);
     } else {
@@ -129,6 +126,8 @@ export default function DrawerScreen({ navigation }: any) {
       await AsyncStorage.setItem("isLoggedIn", "true");
       setTeams([]);
       setIsLoading(false);
+      updateLastSyncTime();
+      setSelectedTeam(undefined);
       Alert.alert("Success", "All data cleared successfully");
     } catch (error: any) {
       setIsLoading(false);

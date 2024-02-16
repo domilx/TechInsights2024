@@ -18,7 +18,7 @@ import { PitModel } from "../../models/PitModel";
 import { doc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { deleteMatchDataFromFirebase } from "../../services/FirebaseService";
-import { syncData } from "../../services/SyncService";
+import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 import { saveDataLocally } from "../../services/LocalStorageService";
 
@@ -66,13 +66,13 @@ const MatchView: React.FC = () => {
 
   const confirmDelete = async () => {
     try {
-      await deleteMatchDataFromFirebase(selectedTeam?.TeamNumber || 0, selectedMatchNumber?.toString() || "");
+      const resp = await deleteMatchDataFromFirebase(selectedTeam?.TeamNumber || 0, selectedMatchNumber?.toString() || "");
       const syncResult = await syncData();
-      if (syncResult.success && syncResult.data) {
+      if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
-        setLastSync(new Date().toISOString());
         saveDataLocally("fetchedData", syncResult.data);
         setSelectedTeam(undefined);
+        updateLastSyncTime();
       }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);

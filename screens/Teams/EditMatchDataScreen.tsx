@@ -31,7 +31,7 @@ import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";
 import { DataContext } from "../../contexts/DataContext";
-import { syncData } from "../../services/SyncService";
+import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { RadioButtonGrid } from "../components/RadioButtonGrid";
 import { Awareness, DefenseLevel, EndGameHarmony, EndGameOnStage, MatchModel, Position, RankingPoints, Speed, Tippiness, TrapEndGame, initialMatchData } from "../../models/MatchModel";
@@ -73,14 +73,14 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
       }
   
       try {
-        await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
-        Alert.alert("Success", "Match data saved successfully");
+        const resp = await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
         const syncResult = await syncData();
-        if (syncResult.success && syncResult.data) {
+        if (syncResult.success && syncResult.data && resp.success) {
+          Alert.alert("Success", "Match data saved successfully");
           setTeams(syncResult.data);
-          setLastSync(new Date().toISOString());
           saveDataLocally("fetchedData", syncResult.data);
           setSelectedTeam(undefined);
+          updateLastSyncTime();
         }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
