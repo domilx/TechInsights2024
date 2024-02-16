@@ -3,38 +3,26 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from "reac
 import { useNavigation } from "@react-navigation/native";
 import AuthService from "../services/AuthService"; // Ensure this path is correct
 
-const LoginScreen: React.FC = () => {
+const DeleteScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigation = useNavigation();
 
   const handleLoginPress = async () => {
     try {
-      const { success, message } = await AuthService.login(email, password);
+      const { success, message } = await AuthService.deleteUser(email, password);
       if (success) {
         // Login was successful, navigate based on the user's role or to the main app screen
       } else {
-        Alert.alert('Login Failed', message);
+        Alert.alert('Deleted Account', message);
       }
     } catch (error) {
-      Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
+      Alert.alert('Delet Failed', error instanceof Error ? error.message : 'An error occurred');
     }
   };
-  
-
-  const navigateToRegister = () => {
-    //@ts-ignore
-    navigation.navigate("Register");
-  };
-
-  const deleteUser = () => {
-    //@ts-ignore
-    navigation.navigate("Delete");
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Welcome to TechInsights 🔧</Text>
+      <Text style={styles.headerText}>We're sad to see you go!</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -51,13 +39,7 @@ const LoginScreen: React.FC = () => {
         onChangeText={setPassword}
       />
       <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={navigateToRegister}>
-        <Text style={styles.switchText}>Don't have an account? Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={deleteUser}>
-        <Text style={styles.switchText}>Delete User?</Text>
+        <Text style={styles.buttonText}>Delete Account</Text>
       </TouchableOpacity>
     </View>
   );
@@ -106,4 +88,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default DeleteScreen;

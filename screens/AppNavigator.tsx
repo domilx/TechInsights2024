@@ -13,6 +13,7 @@ import FilterScreen from "./FilterScreen";
 import RegistrationScreen from "./RegistrationScreen";
 import SettingsScreen from "./SettingsScreen";
 import { auth } from "../firebase";
+import DeleteScreen from "./DeleteUser";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -176,6 +177,11 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen
               name="Register"
               component={RegistrationScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Delete"
+              component={DeleteScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

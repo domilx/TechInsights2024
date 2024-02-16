@@ -110,6 +110,33 @@ class AuthService {
     }
   }
 
+  async deleteUser(email: string, password: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+      this.user = userCredential.user;
+      await deleteDoc(doc(db, 'users', this.user.uid));
+      await this.user.delete();
+      this.user = null;
+      return { success: true, message: 'Account deleted successfully'};
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
+    }
+  }
+
+  async deleteLoggedInUser(): Promise<{ success: boolean; message?: string }> {
+    try {
+      if (this.user) {
+        await deleteDoc(doc(db, 'users', this.user.uid));
+        await this.user.delete();
+        this.user = null;
+        return { success: true };
+      }
+      return { success: false, message: 'User not found' };
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
+    }
+  }
+
   // New method to register with email, password, and name
 async register(email: string, password: string, name: string): Promise<{ success: boolean; message?: string }> {
   try {

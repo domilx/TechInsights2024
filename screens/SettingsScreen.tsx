@@ -64,6 +64,25 @@ const SettingsScreen: FC = () => {
     setUsers(fetchedUsers);
   };
 
+  const handleDelete = async () => {
+    try {
+      Alert.alert("Are you sure you want to delete your account?", "", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete Account",
+          onPress: async () => {
+            await AuthService.deleteLoggedInUser();
+          },
+        },
+      ]);
+    } catch (error) {
+      Alert.alert("Deletion Failed", "An error occurred during account deletion.");
+    }
+  };
+
   const handleAccessChange = async (userId: string, hasAccess: boolean) => {
     try {
       const response = hasAccess
@@ -102,6 +121,9 @@ const SettingsScreen: FC = () => {
         <Text style={styles.headerText}>Hello {user}!</Text>
         <TouchableOpacity onPress={handleLogout} style={styles.button}>
           <Text style={styles.buttonText}>Log Out</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleDelete} style={styles.button}>
+          <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
         {isDev && (
           <>
