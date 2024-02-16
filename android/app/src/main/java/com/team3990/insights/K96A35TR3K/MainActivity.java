@@ -1,4 +1,4 @@
-package com.team3990.insights;
+package com.team3990.insights.K96A35TR3K;
 
 import android.os.Build;
 import android.os.Bundle;

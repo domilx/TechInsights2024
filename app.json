@@ -19,13 +19,13 @@
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
-          "fetch",
-          "location"
+          "fetch"
         ],
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes."
       },
-      "bundleIdentifier": "com.team3990.insights"
-    },
+      "bundleIdentifier": "com.team3990.insights.K96A35TR3K",
+      "buildNumber": "2.0.0"
+    },    
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -33,12 +33,10 @@
       },
       "permissions": [
         "CAMERA",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.team3990.insights",
+      "package": "com.team3990.insights.K96A35TR3K",
       "versionCode": 1
     },
     "web": {
@@ -48,7 +46,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to scan QR codes."
         }
       ]
     ],

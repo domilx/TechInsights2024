@@ -83,7 +83,7 @@ android {
 
     namespace 'com.team3990.insights'
     defaultConfig {
-        applicationId 'com.team3990.insights'
+        applicationId 'com.team3990.insights.K96A35TR3K'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
