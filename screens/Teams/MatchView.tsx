@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   ScrollView,
   View,
@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Modal,
-  Platform,
+  Modal
 } from "react-native";
 import { MatchModel } from "../../models/MatchModel";
 import displayMatchData from "../../models/DisplayMatchData";
@@ -15,8 +14,6 @@ import Icon from "@expo/vector-icons/Ionicons";
 import ModalHeader from "../components/ModalHeader";
 import EditMatchDataScreen from "./EditMatchDataScreen";
 import { PitModel } from "../../models/PitModel";
-import { doc } from "firebase/firestore";
-import { db } from "../../firebase";
 import { deleteMatchDataFromFirebase } from "../../services/FirebaseService";
 import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";

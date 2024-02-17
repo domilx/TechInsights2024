@@ -6,9 +6,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
-  Alert,
-  ScrollView,
-  Modal,
+  Alert, Modal
 } from "react-native";
 import { Camera, CameraType, FlashMode } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,12 +25,8 @@ const windowHeight = Dimensions.get("window").height;
 const PhotoScreen = ({ team }: { team: PitModel }) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
-  const [loadingPhotos, setLoadingPhotos] = useState<Record<string, boolean>>(
-    {}
-  );
   const [flashMode, setFlashMode] = useState(FlashMode.off);
   const [cameraVisible, setCameraVisible] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [photoToConfirm, setPhotoToConfirm] = useState<string | null>(null);
   const cameraRef = useRef<Camera>(null);
@@ -54,6 +48,8 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       const result = await fetchPhotosFromFirebase(team.TeamNumber);
       if (result.success && result.photos) {
         setPhotos(result.photos);
+      } else {
+        Alert.alert("Error", result.message);
       }
     } catch (error) {
       console.error("Error fetching photos: ", error);
@@ -84,6 +80,8 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       if (uploadResult.success) {
         //@ts-ignore
         setPhotos([...photos, uploadResult.url]);
+      } else {
+        Alert.alert("Error", uploadResult.message);
       }
       setPhotoToConfirm(null);
     }

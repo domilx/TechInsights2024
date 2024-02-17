@@ -2,31 +2,15 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 //@ts-ignore
 import { ProgressSteps, ProgressStep } from "react-native-progress-steps";
 import {
-  Text,
-  TouchableOpacity,
   StyleSheet,
   View,
   Alert,
   KeyboardAvoidingView,
   Platform,
   FlatList,
-  ScrollView,
+  ScrollView
 } from "react-native";
-import {
-  DriveBaseMotor,
-  DriveBaseType,
-  Gravity,
-  HumanPlayerSpotlight,
-  PickupSpots,
-  PitModel,
-  ScoreSpots,
-  ShootSpots,
-  Stability,
-  WellMade,
-  Years,
-  initialPitData,
-} from "../../models/PitModel";
-import { updateMatchData, updatePitData } from "../../services/FirebaseService";
+import { updateMatchData } from "../../services/FirebaseService";
 import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";

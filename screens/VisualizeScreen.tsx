@@ -16,7 +16,6 @@ import Chart1 from "./components/Charts/Chart1";
 import Chart2 from "./components/Charts/Chart2";
 import Chart3 from "./components/Charts/Chart3";
 import ScoreTable from "./components/Charts/ScoreTable";
-import { Picker } from "@react-native-picker/picker";
 
 const VisualizeScreen = () => {
   const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
