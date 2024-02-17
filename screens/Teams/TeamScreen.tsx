@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import DisplayPitData from "../../models/DisplayPitData";
 import DisplayStatsData from "../../models/DisplayStatsData";
@@ -31,6 +32,8 @@ const TeamScreen: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
   const {
     teams,
     setTeams,
@@ -159,7 +162,9 @@ const TeamScreen: React.FC = () => {
         "teams",
         selectedTeam?.TeamNumber.toString() || ""
       );
+      setLoading(true);
       const resp = await deleteTeamFromFirebase(teamRef);
+      setLoading(false);
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
@@ -195,8 +200,11 @@ const TeamScreen: React.FC = () => {
             },
           },
         ],
+        
         "plain-text",
-        ""
+        "",
+        "number-pad",
+      
       );
     } else {
       handleOpenDialog();
@@ -214,6 +222,11 @@ const TeamScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#F6EB14" />
+        </View>
+      )}
       <View style={styles.teamHeader}>
         <Text style={styles.headerTitle}>
           {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Summary
@@ -291,6 +304,18 @@ const styles = StyleSheet.create({
   positionStat: {
     flex: 1,
     flexDirection: "row",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    borderRadius: 10,
   },
   teamHeader: {
     padding: 15,

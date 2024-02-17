@@ -169,7 +169,7 @@ export default function DrawerScreen({ navigation }: any) {
           selectedTeam === item ? styles.selectedText : styles.text
         }
       >
-        {item.TeamName}
+        {"Team " + item.TeamNumber}
       </Text>
       <Text style={styles.chip}>➜</Text>
     </TouchableOpacity>
