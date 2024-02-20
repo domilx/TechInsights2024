@@ -23,9 +23,9 @@ export interface PitModel {
   AutoExtraNotesButtons: number[];
   ObjectRecognition: boolean;
   ReadAprilTags: boolean;
-  AutonomousProgramRed: AutoPositionsRed[];
+  AutonomousProgramRed: AutoPositions[];
   AutoProgramsForRedButtons: number[];
-  AutonomousProgramBlue: AutoPositionsBlue[];
+  AutonomousProgramBlue: AutoPositions[];
   AutoProgramsForBlueButtons: number[];
   AutoProgramsToLeave: boolean;
   CanGetOnStage: boolean;
@@ -105,17 +105,12 @@ export enum HumanPlayerSpotlight {
   AllHighNotes = "3 of 3 High Notes",
 }
 
-export enum AutoPositionsBlue {
-  Left = "Blue Left",
-  Center = "Blue Center",
-  Right = "Blue Right",
+export enum AutoPositions {
+  Left = " Left",
+  Center = "Center",
+  Right = "Right",
 }
 
-export enum AutoPositionsRed {
-  Left = "Red Left",
-  Center = "Red Center",
-  Right = "Red Right",
-}
 
 
 // Create an initial state object that matches the PitModel interface
@@ -140,9 +135,9 @@ export const initialPitData: PitModel = {
   AutoExtraNotesButtons: [],
   ObjectRecognition: false,
   ReadAprilTags: false,
-  AutonomousProgramRed: [AutoPositionsRed.Left],
+  AutonomousProgramRed: [AutoPositions.Left],
   AutoProgramsForRedButtons: [],
-  AutonomousProgramBlue: [AutoPositionsBlue.Left],
+  AutonomousProgramBlue: [AutoPositions.Left],
   AutoProgramsForBlueButtons: [],
   AutoProgramsToLeave: false,
   CanGetOnStage: false,
