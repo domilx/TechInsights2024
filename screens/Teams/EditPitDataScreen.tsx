@@ -220,10 +220,9 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     {
       label: "Autonomous Program to Leave",
       key: "AutonomousProgram",
-      value: pitData.AutonomousProgram,
+      value: pitData.AutoProgramsToLeave,
       type: "boolean",
     },
-    //{ label: "Auto Programs for Speaker", key: "AutoProgramsForSpeaker", value: pitData.AutoProgramsForSpeaker, type: "custom" },
     {
       label: "Can Get OnStage",
       key: "CanGetOnStage",

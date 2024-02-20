@@ -20,11 +20,14 @@ export interface PitModel {
   CenterOfGravity: Gravity;
   YearsUsingSwerve: Years;
   ShootsFrom: ShootSpots[];
-  AutoExtraNotesButtons?: number[]; //For the buttons in the form
+  AutoExtraNotesButtons: number[];
   ObjectRecognition: boolean;
   ReadAprilTags: boolean;
-  AutonomousProgram: AutoPositions[];
-  AutoProgramsForSpeaker: boolean;
+  AutonomousProgramRed: AutoPositionsRed[];
+  AutoProgramsForRedButtons: number[];
+  AutonomousProgramBlue: AutoPositionsBlue[];
+  AutoProgramsForBlueButtons: number[];
+  AutoProgramsToLeave: boolean;
   CanGetOnStage: boolean;
   CanScoreNotesInTrap: boolean;
   HumanPlayerSpotlight: HumanPlayerSpotlight;
@@ -102,13 +105,16 @@ export enum HumanPlayerSpotlight {
   AllHighNotes = "3 of 3 High Notes",
 }
 
-export enum AutoPositions {
-  RedLeft = "Red Left",
-  RedCenter = "Red Center",
-  RedRight = "Red Right",
-  BlueLeft = "Blue Left",
-  BlueCenter = "Blue Center",
-  BlueRight = "Blue Right",
+export enum AutoPositionsBlue {
+  Left = "Blue Left",
+  Center = "Blue Center",
+  Right = "Blue Right",
+}
+
+export enum AutoPositionsRed {
+  Left = "Red Left",
+  Center = "Red Center",
+  Right = "Red Right",
 }
 
 
@@ -134,8 +140,11 @@ export const initialPitData: PitModel = {
   AutoExtraNotesButtons: [],
   ObjectRecognition: false,
   ReadAprilTags: false,
-  AutonomousProgram: [AutoPositions.RedLeft],
-  AutoProgramsForSpeaker: false,
+  AutonomousProgramRed: [AutoPositionsRed.Left],
+  AutoProgramsForRedButtons: [],
+  AutonomousProgramBlue: [AutoPositionsBlue.Left],
+  AutoProgramsForBlueButtons: [],
+  AutoProgramsToLeave: false,
   CanGetOnStage: false,
   CanScoreNotesInTrap: false,
   HumanPlayerSpotlight: HumanPlayerSpotlight.OneOfThree,
