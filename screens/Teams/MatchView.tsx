@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Modal
+  Modal,
 } from "react-native";
 import { MatchModel } from "../../models/MatchModel";
 import displayMatchData from "../../models/DisplayMatchData";
@@ -45,17 +45,17 @@ const MatchView: React.FC = () => {
 
   const handleDeleteMatch = async () => {
     try {
-        Alert.alert(
-          "Confirm Delete",
-          "Are you sure you want to delete this match?",
-          [
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-            { text: "OK", onPress: () => confirmDelete() },
-          ]
-        );
+      Alert.alert(
+        "Confirm Delete",
+        "Are you sure you want to delete this match?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          { text: "OK", onPress: () => confirmDelete() },
+        ]
+      );
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }
@@ -63,7 +63,10 @@ const MatchView: React.FC = () => {
 
   const confirmDelete = async () => {
     try {
-      const resp = await deleteMatchDataFromFirebase(selectedTeam?.TeamNumber || 0, selectedMatchNumber?.toString() || "");
+      const resp = await deleteMatchDataFromFirebase(
+        selectedTeam?.TeamNumber || 0,
+        selectedMatchNumber?.toString() || ""
+      );
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
@@ -84,7 +87,10 @@ const MatchView: React.FC = () => {
           <Text style={styles.detailValue}>{item.value}</Text>
         </View>
       ))}
-      <TouchableOpacity style={styles.editMatch} onPress={() => setEditModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.editMatch}
+        onPress={() => setEditModalVisible(true)}
+      >
         <Text style={styles.deleteButtonText}>Edit Match Data</Text>
       </TouchableOpacity>
 
@@ -97,8 +103,10 @@ const MatchView: React.FC = () => {
           title="Edit Pit Data"
           onClose={() => setEditModalVisible(false)}
         />
-       {<EditMatchDataScreen match={match} />}
-
+        <EditMatchDataScreen
+          match={match}
+          onClose={() => setEditModalVisible(false)}
+        />
       </Modal>
 
       <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteMatch}>

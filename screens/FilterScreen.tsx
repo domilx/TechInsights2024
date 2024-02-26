@@ -122,7 +122,10 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       applyFilters(); // Apply the filters
       setSelectedGroup(groupName); // Set the selected group
     }
-  };
+    setIsModalVisible(false); // Ensure this is false to prevent reopening the modal
+    setGroupManagementModalVisible(false); // Also ensure this is false to close the group management modal
+};
+
 
   const deleteFilterGroup = async (groupName: any) => {
     const updatedGroups = { ...filterGroups };
@@ -151,32 +154,39 @@ const FilterScreen: FC<FilterScreenProps> = () => {
   const GroupManagementModal = ({ isVisible, onClose }: any) => {
     const [newGroupName, setNewGroupName] = useState("");
     const [isRenaming, setIsRenaming] = useState(false);
-    const [groupNameToRename, setGroupNameToRename] = useState<string | null>(
-      null
-    );
-
-    const handleSaveGroup = () => {
-      if (!newGroupName.trim()) {
-        Alert.alert("Error", "Group name cannot be empty!");
-        return;
-      }
-      if (newGroupName.length > 20) {
-        Alert.alert("Error", "Group name too long (max 20 characters)!");
-        return;
-      }
-
+    const [groupNameToRename, setGroupNameToRename] = useState<string | null>(null);
+  
+    const handleSaveGroup = async () => {
       if (isRenaming && groupNameToRename) {
-        renameFilterGroup(groupNameToRename, newGroupName);
-        setGroupNameToRename(null);
+        await renameFilterGroup(groupNameToRename, newGroupName);
       } else {
-        saveFilterGroup(newGroupName);
+        if (!newGroupName.trim()) {
+          Alert.alert("Error", "Group name cannot be empty!");
+          return;
+        }
+        if (filterGroups.hasOwnProperty(newGroupName)) {
+          Alert.alert("Error", "A group with this name already exists!");
+          return;
+        }
+        await saveFilterGroup(newGroupName);
       }
+      resetRenamingState();
+      onClose(); // Close the modal after saving
+    };
+  
+    const resetRenamingState = () => {
       setNewGroupName("");
       setIsRenaming(false);
-      onClose();
+      setGroupNameToRename(null);
     };
-
-    const handleDeleteClick = (groupName: any) => {
+  
+    const handleRenameClick = (groupName: string) => {
+      setIsRenaming(true);
+      setGroupNameToRename(groupName);
+      setNewGroupName(groupName);
+    };
+  
+    const handleDeleteClick = async (groupName: string) => {
       Alert.alert(
         "Confirm Delete",
         `Are you sure you want to delete '${groupName}'?`,
@@ -184,19 +194,22 @@ const FilterScreen: FC<FilterScreenProps> = () => {
           { text: "Cancel", style: "cancel" },
           {
             text: "OK",
-            onPress: () => {
-              deleteFilterGroup(groupName);
+            onPress: async () => {
+              await deleteFilterGroup(groupName);
             },
           },
         ]
       );
     };
-
+  
     return (
       <Modal visible={isVisible} animationType="slide" transparent={false}>
         <View style={styles.fullScreenModal}>
           <ModalHeader
-            onClose={onClose}
+            onClose={() => {
+              resetRenamingState();
+              onClose();
+            }}
             title={isRenaming ? "Rename Filter Group" : "Manage Filter Groups"}
           />
           <ScrollView contentContainerStyle={styles.modalContent}>
@@ -208,9 +221,14 @@ const FilterScreen: FC<FilterScreenProps> = () => {
             />
             <TouchableOpacity style={styles.button} onPress={handleSaveGroup}>
               <Text style={styles.buttonText}>
-                {isRenaming ? "Rename" : "Save New Group"}
+                {isRenaming ? "Rename Group" : "Save New Group"}
               </Text>
             </TouchableOpacity>
+            {isRenaming && (
+              <TouchableOpacity style={styles.button} onPress={resetRenamingState}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            )}
             {Object.keys(filterGroups).map((groupName, index) => (
               <View key={index} style={styles.groupItem}>
                 <Text style={styles.groupNameText}>{groupName}</Text>
@@ -223,11 +241,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.groupButton}
-                    onPress={() => {
-                      setIsRenaming(true);
-                      setGroupNameToRename(groupName);
-                      setNewGroupName(groupName);
-                    }}
+                    onPress={() => handleRenameClick(groupName)}
                   >
                     <Text>Rename</Text>
                   </TouchableOpacity>
@@ -245,6 +259,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       </Modal>
     );
   };
+  
 
   const setFilter = (
     field: keyof FilterConfig,

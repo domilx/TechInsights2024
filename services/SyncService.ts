@@ -26,13 +26,22 @@ export const syncData = async (): Promise<SyncResult> => {
             return { success: true, message: "Data already up-to-date." };
         }
 
-        await syncLocalData();
-
         const fetchedData: PitModel[] = await fetchDataFromFirebase();
-        await saveDataLocally('fetchedData', fetchedData);
+        const sortedData = fetchedData.sort((a, b) => a.TeamNumber - b.TeamNumber); // Sort data by team number
+
+        for (const pitData of sortedData) {
+            const teamRef = doc(db, "teams", `${pitData.TeamNumber}`);
+            const uploadResult = await uploadPitDataToFirebase(pitData, teamRef);
+            if (uploadResult.success) {
+                await removeDataLocally('pitData');
+            }
+        }
+
+        await syncLocalData();
+        await saveDataLocally('fetchedData', sortedData);
         await updateLastSyncTime();
 
-        return { success: true, data: fetchedData, message: "Data synced successfully." };
+        return { success: true, data: sortedData, message: "Data synced successfully." };
     } catch (error: any) {
         console.error("Error during sync: ", error);
         return { success: false, message: error.message || "Failed to sync data." };

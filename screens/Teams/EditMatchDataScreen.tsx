@@ -22,9 +22,10 @@ import { Awareness, DefenseLevel, EndGameHarmony, EndGameOnStage, MatchModel, Po
 
 interface EditPitDataScreenProps {
   match: MatchModel;
+  onClose: () => void;
 }
 
-const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
+const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose }) => {
   const [matchData, setMatchData] = useState<MatchModel>(initialMatchData);
   const [currentStep, setCurrentStep] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -60,6 +61,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
         const resp = await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
         const syncResult = await syncData();
         if (syncResult.success && syncResult.data && resp.success) {
+          onClose();
           Alert.alert("Success", "Match data saved successfully");
           setTeams(syncResult.data);
           saveDataLocally("fetchedData", syncResult.data);
@@ -69,6 +71,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match }) => {
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     }
+    onClose();
   };
 
   

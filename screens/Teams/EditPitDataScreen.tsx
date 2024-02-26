@@ -28,7 +28,7 @@ import { InputField } from "../components/InputField";
 import { DropDownSelector } from "../components/DropDownSelector";
 import { ToggleSwitch } from "../components/ToggleSwitch";
 import { DataContext } from "../../contexts/DataContext";
-import { syncData } from "../../services/SyncService";
+import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { RadioButtonGrid } from "../components/RadioButtonGrid";
 
@@ -38,7 +38,7 @@ interface EditPitDataScreenProps {
 
 const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   const [pitData, setPitData] = useState<PitModel>(initialPitData);
-  const { teams, setTeams, lastSync, setLastSync } = useContext(DataContext);
+  const { teams, setTeams, lastSync, selectedTeam, setSelectedTeam, setLastSync } = useContext(DataContext);
 
   useEffect(() => {
     setPitData(team || initialPitData);
@@ -64,6 +64,8 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
         setLastSync(new Date().toISOString());
         // Save the updated teams data locally
         saveDataLocally("fetchedData", syncResult.data);
+        updateLastSyncTime();
+        setSelectedTeam(undefined);
       }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
@@ -219,7 +221,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     },
     {
       label: "Autonomous Program to Leave",
-      key: "AutonomousProgram",
+      key: "AutoProgramsToLeave",
       value: pitData.AutoProgramsToLeave,
       type: "boolean",
     },
