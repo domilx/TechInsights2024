@@ -72,7 +72,8 @@ export enum ShootSpots {
   StartingZone = "Starting Zone",
   Podium = "Podium",
   ElsewhereInWing = "Elsewhere in Wing",
-  NearCentreLine = "Near Centre Line",
+  Subwoofer = "Subwoofer",
+  None = "None",
 }
 
 export enum EndGameOnStage {
