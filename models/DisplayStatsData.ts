@@ -37,8 +37,8 @@ import {
 
 const DisplayStatsData = {
     MatchOutcomes: [
-        { label: "Matches Played", func: getMatchesPlayed, unit: "matches" },
-        { label: "Matches Won", func: getMatchesWon, unit: "matches" },
+        { label: "Matches Played", func: getMatchesPlayed, unit: "match(es)" },
+        { label: "Matches Won", func: getMatchesWon, unit: "match(es)" },
         { label: "Win Rate", func: getWinRate, unit: "%" },
     ],
     RankingPoints: [
@@ -67,7 +67,7 @@ const DisplayStatsData = {
         { label: "Avg On Stage Points", func: getAvgOnStagePoints, unit: "points" },
         { label: "Avg Trap Points", func: getAvgTrapPoints, unit: "points" },
     ],
-    Notes: [
+    Match: [
         { label: "Avg Total Points", func: getAvgTotalPoints, unit: "points" },
         { label: "Avg Points Contribution All", func: getAvgPointsContributionRatioAllMatches, unit: "%" },
         { label: "Avg Points Contribution Last Five", func: getAvgPointsContributionRatioLastFive, unit: "%" },
@@ -87,8 +87,8 @@ const DisplayStatsData = {
         { label: "Percentage Dropped Notes", func: getPercentageDroppedNotes, unit: "%" },
     ],
     Incapacitated: [
-        { label: "Times Incapacitated", func: getTimesIncapacitated, unit: "times" },
-        { label: "Times Fell", func: getTimesFell, unit: "times" },
+        { label: "Times Incapacitated", func: getTimesIncapacitated, unit: "time(s)" },
+        { label: "Times Fell", func: getTimesFell, unit: "time(s)" },
     ],
 };
 

@@ -79,7 +79,7 @@ const TeamScreen: React.FC = () => {
             //@ts-ignore
             const value = stat.func(matches);
             const displayValue =
-              typeof value === "number" ? value.toFixed(2) : value;
+              typeof value === "number" ? value.toFixed(0) : value;
             return {
               label: stat.label,
               value: displayValue,
