@@ -10,8 +10,8 @@ interface TableProps {
 const ScoreTable: React.FC<TableProps> = ({ data }) => {
   // Sort data based on Avg Total Points in descending order using the matches property
   const sortedData = [...data].sort((a, b) => {
-    const avgPointsB = getAvgTotalPoints(b.matches || []);
-    const avgPointsA = getAvgTotalPoints(a.matches || []);
+    const avgPointsB = Number(getAvgTotalPoints(b.matches || []));
+    const avgPointsA = Number(getAvgTotalPoints(a.matches || []));
     return avgPointsB - avgPointsA;
   });
 
@@ -28,10 +28,10 @@ const ScoreTable: React.FC<TableProps> = ({ data }) => {
       {sortedData.map((pit, index) => (
         <View key={index} style={styles.row}>
           <Text style={styles.cell}>{pit.TeamNumber}</Text>
-          <Text style={styles.cell}>{getAvgTotalPoints(pit.matches || []).toFixed(2)}</Text>
-          <Text style={styles.cell}>{getAvgTotalTeleopPoints(pit.matches || []).toFixed(2)}</Text>
-          <Text style={styles.cell}>{getAvgTotalAutoPoints(pit.matches || []).toFixed(2)}</Text>
-          <Text style={styles.cell}>{getAvgTotalEndGamePoints(pit.matches || []).toFixed(2)}</Text>
+          <Text style={styles.cell}>{getAvgTotalPoints(pit.matches || [])}</Text>
+          <Text style={styles.cell}>{getAvgTotalTeleopPoints(pit.matches || [])}</Text>
+          <Text style={styles.cell}>{getAvgTotalAutoPoints(pit.matches || [])}</Text>
+          <Text style={styles.cell}>{getAvgTotalEndGamePoints(pit.matches || [])}</Text>
         </View>
       ))}
     </ScrollView>

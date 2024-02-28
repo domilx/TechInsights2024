@@ -37,6 +37,25 @@ export default function UploadScreen({ route, navigation }: any) {
     return null;
   }
 
+  const handleButtonPress = () => {
+      if(parsedData.gotScanned === true) {
+        Alert.alert(
+          "Already Scanned",
+          "Are you sure you want to upload this data? It has already been scanned.",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Upload",
+              onPress: handleUpload,
+            },
+          ]
+        );
+        return;
+      }
+  }
   // Function to handle upload
   const handleUpload = async () => {
     setIsLoading(true);
@@ -109,7 +128,7 @@ export default function UploadScreen({ route, navigation }: any) {
         <View style={styles.dataCard}>
           {renderModel()}
         </View>
-        <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
+        <TouchableOpacity style={styles.uploadButton} onPress={handleButtonPress}>
           <Icon name='cloud-upload' size={20} color='#FFF' />
           <Text style={styles.uploadButtonText}>Upload Data</Text>
         </TouchableOpacity>

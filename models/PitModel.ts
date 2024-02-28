@@ -36,6 +36,7 @@ export interface PitModel {
   HeightInches: number;
   FrameClearanceInches: number;
   matches?: MatchModel[];
+  gotScanned?: boolean;
 }
 
 // Enums for dropdowns
@@ -148,4 +149,5 @@ export const initialPitData: PitModel = {
   HeightInches: 0,
   FrameClearanceInches: 0,
   matches: [],
+  gotScanned: false,
 };
