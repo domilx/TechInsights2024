@@ -17,9 +17,8 @@ const Chart1: React.FC<ChartProps> = ({ data }) => {
   const processedData = data.map((pit) => {
     // Calculate averages for the last five matches for each team
     const lastFiveMatches = pit.matches?.slice(-5) ?? []; // Add nullish coalescing operator
-    const avgTeleopPoints = getAvgTotalTeleopPoints(lastFiveMatches);
-    const avgAutoEndGamePoints = Number(getAvgTotalAutoPoints(lastFiveMatches)) + getAvgTotalEndGamePoints(lastFiveMatches);
-
+    const avgTeleopPoints = Number(getAvgTotalTeleopPoints(lastFiveMatches));
+    const avgAutoEndGamePoints = Number(getAvgTotalAutoPoints(lastFiveMatches)) + Number(getAvgTotalEndGamePoints(lastFiveMatches));
     return {
       x: avgTeleopPoints,
       y: avgAutoEndGamePoints,

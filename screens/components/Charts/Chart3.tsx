@@ -17,8 +17,8 @@ const Chart3: React.FC<ChartProps> = ({ data }) => {
   const processedData = data.map((pit) => {
     // Calculate averages for the last five matches for each team
     const lastFiveMatches = pit.matches?.slice(-5) ?? []; // Add nullish coalescing operator
-    const AvgTeleopNotesAmp = getAvgTeleopNotesAmp(lastFiveMatches);
-    const AvgTeleopNotesSpeaker = getAvgTeleopNotesSpeaker(lastFiveMatches);
+    const AvgTeleopNotesAmp = Number(getAvgTeleopNotesAmp(lastFiveMatches));
+    const AvgTeleopNotesSpeaker = Number(getAvgTeleopNotesSpeaker(lastFiveMatches));
 
     return {
       x: AvgTeleopNotesAmp,

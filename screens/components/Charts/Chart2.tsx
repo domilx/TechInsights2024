@@ -13,8 +13,8 @@ const Chart2: React.FC<ChartProps> = ({ data }) => {
   const processedData = data.map((pit) => {
     // Calculate averages for the last five matches for each team
     const lastFiveMatches = pit.matches?.slice(-5) ?? []; // Add nullish coalescing operator
-    const AvgCycleTimeLastFive = getAvgCycleTimeLastFive(lastFiveMatches);
-    const AvgNumTotalNotesFullMatch = getAvgNumTotalNotesFullMatch(lastFiveMatches);
+    const AvgCycleTimeLastFive = Number(getAvgCycleTimeLastFive(lastFiveMatches));
+    const AvgNumTotalNotesFullMatch = Number(getAvgNumTotalNotesFullMatch(lastFiveMatches));
 
     return {
       x: AvgCycleTimeLastFive,

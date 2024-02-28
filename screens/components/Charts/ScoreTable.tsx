@@ -28,10 +28,10 @@ const ScoreTable: React.FC<TableProps> = ({ data }) => {
       {sortedData.map((pit, index) => (
         <View key={index} style={styles.row}>
           <Text style={styles.cell}>{pit.TeamNumber}</Text>
-          <Text style={styles.cell}>{getAvgTotalPoints(pit.matches || [])}</Text>
-          <Text style={styles.cell}>{getAvgTotalTeleopPoints(pit.matches || [])}</Text>
-          <Text style={styles.cell}>{getAvgTotalAutoPoints(pit.matches || [])}</Text>
-          <Text style={styles.cell}>{getAvgTotalEndGamePoints(pit.matches || [])}</Text>
+          <Text style={styles.cell}>{Number(getAvgTotalPoints(pit.matches || []))}</Text>
+          <Text style={styles.cell}>{Number(getAvgTotalTeleopPoints(pit.matches || []))}</Text>
+          <Text style={styles.cell}>{Number(getAvgTotalAutoPoints(pit.matches || []))}</Text>
+          <Text style={styles.cell}>{Number(getAvgTotalEndGamePoints(pit.matches || []))}</Text>
         </View>
       ))}
     </ScrollView>
