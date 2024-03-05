@@ -6,6 +6,7 @@ export interface PitModel {
   TeamName: string;
   //Robot Specs
   DriveBaseType: DriveBaseType;
+  SwerveType: SwerveType;
   DriveBaseMotor: DriveBaseMotor;
   DriverExperience: Years;
   WeightLbs: number;
@@ -43,6 +44,24 @@ export interface PitModel {
 export enum DriveBaseType {
   Swerve = "Swerve",
   Tank = "Tank",
+  Mecanum = "Mecanum",
+  MecanumTank = "Mecanum Tank",
+  HDrive = "H-Drive",
+  Butterfly = "Butterfly",
+  Other = "Other",
+}
+
+export enum SwerveType {
+  SDS_MK4_L1 = "SDS MK4 L1",
+  SDS_MK4_L2 = "SDS MK4 L2",
+  SDS_MK4_L3 = "SDS MK4 L3",
+  SDS_MK4_L4 = "SDS MK4 L4",
+  SDS_MK4i_L1 = "SDS MK4i L1",
+  SDS_MK4i_L2 = "SDS MK4i L2",
+  SDS_MK4i_L3 = "SDS MK4i L3",
+  SDS_MK4i_L3PLUS = "SDS MK4i L3+",
+  VEX_Swerve = "VEX Swerve",
+  NotSwerve = "Not Swerve",
   Other = "Other",
 }
 
@@ -120,6 +139,7 @@ export const initialPitData: PitModel = {
   TeamNumber: 0,
   TeamName: "",
   DriveBaseType: DriveBaseType.Other,
+  SwerveType: SwerveType.NotSwerve,
   DriveBaseMotor: DriveBaseMotor.CIM,
   DriverExperience: Years.Zero,
   WeightLbs: 0,

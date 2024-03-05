@@ -6,7 +6,6 @@ import {
   Position,
   RankingPoints,
   ShootSpots,
-  TrapEndGame,
 } from "./MatchModel";
 
 const getMatchesPlayed = (matches: MatchModel[]) => {
@@ -167,13 +166,17 @@ const getAvgTotalTeleopPoints = (matches: MatchModel[]) => {
   ).toFixed(1);
 };
 
-const getEndTrapPoints = (trap: TrapEndGame) => {
+const getEndTrapPoints = (trap: Trap) => {
   switch (trap) {
-    case TrapEndGame.ZeroPoints:
-      return 0;
-    case TrapEndGame.FivePoints:
+    case Trap.FifteenPoints:
+      return 15;
+    case Trap.TenPoints:
+      return 10;
+    case Trap.FivePoints:
       return 5;
-    case TrapEndGame.TrapFailed:
+    case Trap.TrapFailed:
+      return 0;
+    case Trap.ZeroPoints:
       return 0;
     default:
       return 0;

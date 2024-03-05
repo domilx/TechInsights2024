@@ -9,6 +9,7 @@ const DisplayPitData = (pitData: PitModel) => {
     ],
     RobotSpecs: [
       { label: "Drive Base Type", value: pitData.DriveBaseType, unit: "" },
+      { label: "Swerve Drive Type", value: pitData.SwerveType, unit: "" },
       { label: "Drive Base Motor", value: pitData.DriveBaseMotor, unit: "" },
       { label: "Driver Experience", value: `${pitData.DriverExperience}`, unit: "years" },
       { label: "Robot Weight", value: `${pitData.WeightLbs}`, unit: "lbs" },

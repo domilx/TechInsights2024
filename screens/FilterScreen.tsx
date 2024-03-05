@@ -19,6 +19,7 @@ import {
   PitModel,
   ScoreSpots,
   Stability,
+  SwerveType,
   WellMade,
   Years,
 } from "../models/PitModel";
@@ -41,6 +42,7 @@ type FilterGroup = {
 
 const filterConfig: FilterConfig = {
   DriveBaseType: Object.values(DriveBaseType),
+  SwerveType: Object.values(SwerveType),
   DriveBaseMotor: Object.values(DriveBaseMotor),
   DriverExperience: Object.values(Years),
   Stability: Object.values(Stability),
