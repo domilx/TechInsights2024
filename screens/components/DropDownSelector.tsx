@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 20,
     flexDirection: "column",
+    flex: 1,
   },
   label: {
     fontSize: 16,

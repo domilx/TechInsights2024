@@ -18,6 +18,7 @@ import { deleteMatchDataFromFirebase } from "../../services/FirebaseService";
 import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 import { saveDataLocally } from "../../services/LocalStorageService";
+import { AuthContext, Role } from "../../contexts/AuthContext";
 
 interface MatchViewProps {
   matches: MatchModel[] | undefined;
@@ -34,6 +35,18 @@ const MatchView: React.FC = () => {
       selectedMatchNumber === matchNumber ? null : matchNumber
     );
   };
+  const {
+    name,
+    setName,
+    email,
+    setEmail,
+    isLoggedIn,
+    id: userId,
+    insightsRole,
+    partsRole,
+    setInsightsRole,
+    setPartsRole,
+  } = useContext(AuthContext);
   const {
     teams,
     setTeams,
@@ -87,12 +100,6 @@ const MatchView: React.FC = () => {
           <Text style={styles.detailValue}>{item.value}</Text>
         </View>
       ))}
-      <TouchableOpacity
-        style={styles.editMatch}
-        onPress={() => setEditModalVisible(true)}
-      >
-        <Text style={styles.deleteButtonText}>Edit Match Data</Text>
-      </TouchableOpacity>
 
       <Modal
         visible={editModalVisible}
@@ -108,10 +115,23 @@ const MatchView: React.FC = () => {
           onClose={() => setEditModalVisible(false)}
         />
       </Modal>
+      {!(insightsRole == Role.VIEW) && (
+        <>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={handleDeleteMatch}
+          >
+            <Text style={styles.deleteButtonText}>Delete Match</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteMatch}>
-        <Text style={styles.deleteButtonText}>Delete Match</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.editMatch}
+            onPress={() => setEditModalVisible(true)}
+          >
+            <Text style={styles.deleteButtonText}>Edit Match Data</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 

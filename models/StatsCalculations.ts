@@ -364,7 +364,7 @@ const getStandardDeviationNotes = (matches: MatchModel[]) => {
 const getShootingPositionIfStartingZone = (match: MatchModel[]) => {
   let bool = false;
   for (let i = 0; i < match.length; i++) {
-    if (match[i].AutoStartingPosition === Position.Middle) {
+    if (match[i].TeleopShootsFrom.includes(ShootSpots.StartingZone)) {
       bool = true;
       break;
     }
@@ -376,8 +376,7 @@ const getShootingPositionIfPodium = (match: MatchModel[]) => {
   let bool = false;
   for (let i = 0; i < match.length; i++) {
     if (
-      match[i].AutoStartingPosition === Position.Left ||
-      match[i].AutoStartingPosition === Position.Right
+      match[i].TeleopShootsFrom.includes(ShootSpots.Podium)
     ) {
       bool = true;
       break;
@@ -389,7 +388,7 @@ const getShootingPositionIfPodium = (match: MatchModel[]) => {
 const getShootingPositionIfElsewhereInWing = (match: MatchModel[]) => {
   let bool = false;
   for (let i = 0; i < match.length; i++) {
-    if (match[i].AutoStartingPosition === Position.Middle) {
+    if (match[i].TeleopShootsFrom.includes(ShootSpots.ElsewhereInWing)) {
       bool = true;
       break;
     }
@@ -397,10 +396,10 @@ const getShootingPositionIfElsewhereInWing = (match: MatchModel[]) => {
   return bool ? "Yes" : "No";
 };
 
-const getShootingPositionIfNearCenterLine = (match: MatchModel[]) => {
+const getShootingPositionIfNearSubwoofer = (match: MatchModel[]) => {
   let bool = false;
   for (let i = 0; i < match.length; i++) {
-    if (match[i].AutoStartingPosition === Position.Middle) {
+    if (match[i].TeleopShootsFrom.includes(ShootSpots.Subwoofer)) {
       bool = true;
       break;
     }
@@ -568,7 +567,7 @@ export {
   getShootingPositionIfStartingZone,
   getShootingPositionIfPodium,
   getShootingPositionIfElsewhereInWing,
-  getShootingPositionIfNearCenterLine,
+  getShootingPositionIfNearSubwoofer,
   getAvgCycleTimeLastFive,
   getPercentageDroppedNotes,
   getTimesIncapacitated,

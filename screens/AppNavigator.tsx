@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer } from "@react-navigation/native";
 import LoginScreen from "./LoginScreen"; // Import your login
@@ -14,22 +14,25 @@ import RegistrationScreen from "./RegistrationScreen";
 import SettingsScreen from "./SettingsScreen";
 import { auth } from "../firebase";
 import DeleteScreen from "./DeleteUser";
+import ForgotScreen from "./ForgotScreen";
+import { AuthContext, Role } from "../contexts/AuthContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const AppNavigator: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setIsLoggedIn(!!user);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const {
+    name,
+    setName,
+    email,
+    setEmail,
+    isLoggedIn,
+    id: userId,
+    insightsRole,
+    partsRole,
+    setInsightsRole,
+    setPartsRole,
+  } = useContext(AuthContext);
   
   return (
     <NavigationContainer>
@@ -132,7 +135,7 @@ const AppNavigator: React.FC = () => {
                   }}
                 />
               </Tab.Navigator>
-              <FloatingButton navigation={navigation} />
+              {!(insightsRole == Role.VIEW) && <FloatingButton navigation={navigation} />}
             </>
           )}
         </Stack.Screen>
@@ -182,6 +185,11 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen
               name="Delete"
               component={DeleteScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Forgot"
+              component={ForgotScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

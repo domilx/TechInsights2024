@@ -49,28 +49,6 @@ const VisualizeScreen = () => {
     
   }, []);
 
-  const handleSync = async () => {
-    setIsLoading(true);
-    try {
-      const response = await syncData();
-      if (response.success && response.data) {
-        setTeams(response.data);
-        const newLastSync = new Date().toISOString();
-        setLastSync(newLastSync);
-        await AsyncStorage.setItem("lastSyncTime", JSON.stringify(newLastSync));
-        await AsyncStorage.setItem("fetchedData", JSON.stringify(response.data));
-        Alert.alert("Sync Successful", "Data has been updated.");
-      } else {
-        Alert.alert("Sync Failed", response.message || "An unknown error occurred.");
-      }
-    } catch (error) {
-      console.error("Error during sync: ", error);
-      Alert.alert("Sync Error", "Failed to sync data.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const renderContent = () => {
     if (teams.length === 0) {
       return <Text style={styles.noDataText}>No teams data available. Please sync to update data.</Text>;
@@ -111,13 +89,6 @@ const VisualizeScreen = () => {
       {renderSegmentedControl()}
       <View style={styles.contentSection}>
         {renderContent()}
-      </View>
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
-      <View style={styles.syncSection}>
-        <TouchableOpacity onPress={handleSync} style={styles.syncButton}>
-          <Text style={styles.syncButtonText}>Sync Data</Text>
-        </TouchableOpacity>
-        <Text style={styles.sync}>Last Sync: {lastSync ? new Date(lastSync).toLocaleString() : "Never"}</Text>
       </View>
     </ScrollView>
   );
@@ -173,6 +144,7 @@ const styles = StyleSheet.create({
   },
   contentSection: {
     flex: 1,
+    marginBottom: 20,
   },
   noDataText: {
     textAlign: 'center',

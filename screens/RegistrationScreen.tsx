@@ -20,7 +20,7 @@ const RegistrationScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const handleRegisterPress = async () => {
-    const response = await AuthService.register(email, password, name);
+    const response = await AuthService.getInstance().register(email, password, name);
     if (response.success) {
       Alert.alert("Registration Successful", "Please log in with your new account.");
     } else {

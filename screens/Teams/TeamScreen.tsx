@@ -23,17 +23,29 @@ import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { Platform } from "react-native";
 import PhotoScreen from "./PhotoScreen";
+import { AuthContext, Role } from "../../contexts/AuthContext";
 export type RootDrawerParamList = {
   Teams: { team: PitModel };
 };
-
 
 const TeamScreen: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+  const {
+    name,
+    setName,
+    email,
+    setEmail,
+    isLoggedIn,
+    id: userId,
+    insightsRole,
+    partsRole,
+    setInsightsRole,
+    setPartsRole,
+  } = useContext(AuthContext);
+
   const {
     teams,
     setTeams,
@@ -200,11 +212,10 @@ const TeamScreen: React.FC = () => {
             },
           },
         ],
-        
+
         "plain-text",
         "",
-        "number-pad",
-      
+        "number-pad"
       );
     } else {
       handleOpenDialog();
@@ -221,79 +232,86 @@ const TeamScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#F6EB14" />
-        </View>
-      )}
-      <View style={styles.teamHeader}>
-        <Text style={styles.headerTitle}>
-          {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Summary
-        </Text>
-      </View>
-      {renderRobotDetails()}
-      {(selectedTeam.matches?.length ?? 0) > 0 && renderStats()}
-      <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-        <View style={styles.butHeader}>
-          <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - All
-            Matches
+    <>
+      <ScrollView style={styles.container}>
+        {loading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#F6EB14" />
+          </View>
+        )}
+        <View style={styles.teamHeader}>
+          <Text style={styles.headerTitle}>
+            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Summary
           </Text>
         </View>
-      </TouchableOpacity>
-      <Modal
-        visible={isModalVisible}
-        onRequestClose={() => setIsModalVisible(false)}
-        animationType="slide"
-      >
-        <ModalHeader
-          title="All Matches"
-          onClose={() => setIsModalVisible(false)}
-        />
-        <MatchView/>
-      </Modal>
-      <Modal
-        visible={editModalVisible}
-        onRequestClose={() => setEditModalVisible(false)}
-        animationType="slide"
-      >
-        <ModalHeader
-          title="Edit Pit Data"
-          onClose={() => setEditModalVisible(false)}
-        />
-        {selectedTeam && <EditPitDataScreen team={selectedTeam} />}
-      </Modal>
-      <Modal
-        visible={photoModalVisible}
-        onRequestClose={() => setPhotoModalVisible(false)}
-        animationType="slide"
-      >
-        <ModalHeader
-          title="Photos"
-          onClose={() => setPhotoModalVisible(false)}
-        />
-        {selectedTeam && <PhotoScreen team={selectedTeam} />}
-      </Modal>
-      <TouchableOpacity onPress={() => setEditModalVisible(true)}>
-        <View style={styles.butHeader}>
-          <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Edit Pit
-            Data
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => openPhoto()}>
-        <View style={styles.butHeader}>
-          <Text style={styles.butTitle}>
-            {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Photos
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTeam}>
-        <Text style={styles.deleteButtonText}>Delete Team</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity onPress={() => openPhoto()}>
+          <View style={styles.butHeader}>
+            <Text style={styles.butTitle}>Photos</Text>
+          </View>
+        </TouchableOpacity>
+        {renderRobotDetails()}
+        {(selectedTeam.matches?.length ?? 0) > 0 && renderStats()}
+        <TouchableOpacity onPress={() => setIsModalVisible(true)}>
+          <View style={styles.butHeader}>
+            <Text style={styles.butTitle}>
+              {selectedTeam ? selectedTeam.TeamName : "Team Details"} - All
+              Matches
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <Modal
+          visible={isModalVisible}
+          onRequestClose={() => setIsModalVisible(false)}
+          animationType="slide"
+        >
+          <ModalHeader
+            title="All Matches"
+            onClose={() => setIsModalVisible(false)}
+          />
+          <MatchView />
+        </Modal>
+        <Modal
+          visible={editModalVisible}
+          onRequestClose={() => setEditModalVisible(false)}
+          animationType="slide"
+        >
+          <ModalHeader
+            title="Edit Pit Data"
+            onClose={() => setEditModalVisible(false)}
+          />
+          {selectedTeam && <EditPitDataScreen team={selectedTeam} />}
+        </Modal>
+        <Modal
+          visible={photoModalVisible}
+          onRequestClose={() => setPhotoModalVisible(false)}
+          animationType="slide"
+        >
+          <ModalHeader
+            title="Photos"
+            onClose={() => setPhotoModalVisible(false)}
+          />
+          {selectedTeam && <PhotoScreen team={selectedTeam} />}
+        </Modal>
+        {!(insightsRole == Role.VIEW) && (
+          <>
+            <TouchableOpacity onPress={() => setEditModalVisible(true)}>
+              <View style={styles.butHeader}>
+                <Text style={styles.butTitle}>
+                  {selectedTeam ? selectedTeam.TeamName : "Team Details"} - Edit
+                  Pit Data
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDeleteTeam}
+            >
+              <Text style={styles.deleteButtonText}>Delete Team</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
+    </>
   );
 };
 

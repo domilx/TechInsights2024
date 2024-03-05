@@ -124,8 +124,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     }
     setIsModalVisible(false); // Ensure this is false to prevent reopening the modal
     setGroupManagementModalVisible(false); // Also ensure this is false to close the group management modal
-};
-
+  };
 
   const deleteFilterGroup = async (groupName: any) => {
     const updatedGroups = { ...filterGroups };
@@ -155,7 +154,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
     const [newGroupName, setNewGroupName] = useState("");
     const [isRenaming, setIsRenaming] = useState(false);
     const [groupNameToRename, setGroupNameToRename] = useState<string | null>(null);
-  
+
     const handleSaveGroup = async () => {
       if (isRenaming && groupNameToRename) {
         await renameFilterGroup(groupNameToRename, newGroupName);
@@ -173,19 +172,19 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       resetRenamingState();
       onClose(); // Close the modal after saving
     };
-  
+
     const resetRenamingState = () => {
       setNewGroupName("");
       setIsRenaming(false);
       setGroupNameToRename(null);
     };
-  
+
     const handleRenameClick = (groupName: string) => {
       setIsRenaming(true);
       setGroupNameToRename(groupName);
       setNewGroupName(groupName);
     };
-  
+
     const handleDeleteClick = async (groupName: string) => {
       Alert.alert(
         "Confirm Delete",
@@ -201,7 +200,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
         ]
       );
     };
-  
+
     return (
       <Modal visible={isVisible} animationType="slide" transparent={false}>
         <View style={styles.fullScreenModal}>
@@ -259,7 +258,7 @@ const FilterScreen: FC<FilterScreenProps> = () => {
       </Modal>
     );
   };
-  
+
 
   const setFilter = (
     field: keyof FilterConfig,
@@ -355,80 +354,80 @@ const FilterScreen: FC<FilterScreenProps> = () => {
 
   return (
     <ScrollView style={styles.container}>
-    <View style={styles.headerContainer}>
-      <Text style={styles.headerText}>All teams:</Text>
-    </View>
-  
-    {displayedPitData.length === 0 ? (
-      <View style={styles.noTeamsContainer}>
-        <Text style={styles.noTeamsText}>No teams match the applied filters.</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>All teams:</Text>
       </View>
-    ) : (
-      displayedPitData.map((team, index) => (
-        <View style={styles.teamContainer} key={index}>
-          <View style={styles.teamTextContainer}>
-            <Text style={styles.teamText}>
-              {"Team " + team.TeamNumber + " (" + team.TeamName + ")"}
-            </Text>
-          </View>
-        </View>
-      ))
-    )}
-  
-    <View style={styles.headerContainer}>
-      <Text style={styles.headerText}>Current filters:</Text>
-    </View>
 
-    {availableFilters.length === 0? <View style={styles.noFiltersContainer}>
-    <Text style={styles.noFiltersText}>No filters applied.</Text>
-  </View> : null}
-    {availableFilters.map((filterField) => (
-      <View key={filterField} style={styles.filterContainer}>
-        <Text style={styles.filterLabel}>{filterField}</Text>
-        <TouchableOpacity
-          style={styles.valueButton}
-          onPress={() => {
-            setSelectedFilterField(filterField);
-            setIsValueModalVisible(true);
-          }}
-        >
-          <Text style={styles.valueButtonText}>
-            {typeof filters[filterField] === "boolean"
-              ? filters[filterField]
-                ? "True"
-                : "False"
-              : filters[filterField] || "Select Value"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.removeButton}
-          onPress={() => removeFilter(filterField)}
-        >
-          <Icon name="close" size={20} color="#fff" />
-        </TouchableOpacity>
+      {displayedPitData.length === 0 ? (
+        <View style={styles.noTeamsContainer}>
+          <Text style={styles.noTeamsText}>No teams match the applied filters.</Text>
+        </View>
+      ) : (
+        displayedPitData.map((team, index) => (
+          <View style={styles.teamContainer} key={index}>
+            <View style={styles.teamTextContainer}>
+              <Text style={styles.teamText}>
+                {"Team " + team.TeamNumber + " (" + team.TeamName + ")"}
+              </Text>
+            </View>
+          </View>
+        ))
+      )}
+
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Current filters:</Text>
       </View>
-    ))}
-    {renderFilterPicker()}
-    {renderFilterValuePicker()}
-  
-    <TouchableOpacity
-      style={styles.buttonContainer}
-      onPress={() => setIsModalVisible(true)}
-    >
-      <Text style={styles.buttonText}>+ Add Filter</Text>
-    </TouchableOpacity>
-    <TouchableOpacity
-      style={styles.applyButton}
-      onPress={() => setGroupManagementModalVisible(true)}
-    >
-      <Text style={styles.applyButtonText}>Manage Filter Groups</Text>
-    </TouchableOpacity>
-    <GroupManagementModal
-      isVisible={groupManagementModalVisible}
-      onClose={() => setGroupManagementModalVisible(false)}
-    />
-  </ScrollView>
-  
+
+      {availableFilters.length === 0? <View style={styles.noFiltersContainer}>
+      <Text style={styles.noFiltersText}>No filters applied.</Text>
+    </View> : null}
+      {availableFilters.map((filterField) => (
+        <View key={filterField} style={styles.filterContainer}>
+          <Text style={styles.filterLabel}>{filterField}</Text>
+          <TouchableOpacity
+            style={styles.valueButton}
+            onPress={() => {
+              setSelectedFilterField(filterField);
+              setIsValueModalVisible(true);
+            }}
+          >
+            <Text style={styles.valueButtonText}>
+              {typeof filters[filterField] === "boolean"
+                ? filters[filterField]
+                  ? "True"
+                  : "False"
+                : filters[filterField] || "Select Value"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() => removeFilter(filterField)}
+          >
+            <Icon name="close" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      ))}
+      {renderFilterPicker()}
+      {renderFilterValuePicker()}
+
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        onPress={() => setIsModalVisible(true)}
+      >
+        <Text style={styles.buttonText}>+ Add Filter</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.applyButton}
+        onPress={() => setGroupManagementModalVisible(true)}
+      >
+        <Text style={styles.applyButtonText}>Manage Filter Groups</Text>
+      </TouchableOpacity>
+      <GroupManagementModal
+        isVisible={groupManagementModalVisible}
+        onClose={() => setGroupManagementModalVisible(false)}
+      />
+    </ScrollView>
+
   );
 };
 
@@ -486,7 +485,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333",
   },
-  
+
   teamText: {
     fontWeight: "bold",
     color: "#333",
@@ -675,3 +674,5 @@ const styles = StyleSheet.create({
 });
 
 export default FilterScreen;
+
+

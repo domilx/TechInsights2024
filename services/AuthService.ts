@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { db } from '../firebase'; // Adjust this import as per your Firebase configuration
 import { collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
+import { Role } from '../contexts/AuthContext';
 
 type AuthStateChangedCallback = (user: User | null) => void;
 
@@ -46,6 +47,10 @@ class AuthService {
     return this.user?.email || null;
   }
 
+  public resetPassword(): Promise<void> {
+    return sendPasswordResetEmail(this.auth, this.user?.email || '');
+  }
+
   public async getUserName(): Promise<string | null> {
     //get the name from the user document
     try {
@@ -67,7 +72,7 @@ class AuthService {
       if (this.user) {
         const userDoc = await getDoc(doc(db, 'users', this.user.uid));
         if (userDoc.exists()) {
-          return userDoc.data().role;
+          return userDoc.data().insightsRole;
         }
       }
       return null;
@@ -97,10 +102,10 @@ class AuthService {
       this.user = userCredential.user;
 
       const userDoc = await getDoc(doc(db, 'users', this.user.uid));
-      if (userDoc.exists() && userDoc.data().hasAccess) {
+      if (userDoc.exists() && userDoc.data().insightsRole !== 'UNVALIDATED') {
         return { success: true };
       } else {
-        // If the hasAccess field is false, then the user is not allowed to login
+        // If the hasInsights field is false, then the user is not allowed to login
         await signOut(this.auth);
         this.user = null;
         return { success: false, message: 'You are not allowed to login.' };
@@ -118,6 +123,15 @@ class AuthService {
       await this.user.delete();
       this.user = null;
       return { success: true, message: 'Account deleted successfully'};
+    } catch (error) {
+      return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
+    }
+  }
+
+  async forgotPassword(email: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      await sendPasswordResetEmail(this.auth, email);
+      return { success: true, message: 'Password reset email sent successfully'};
     } catch (error) {
       return { success: false, message: error instanceof Error ? error.message : 'An error occurred' };
     }
@@ -146,8 +160,10 @@ async register(email: string, password: string, name: string): Promise<{ success
     await setDoc(doc(db, 'users', this.user.uid), {
       email,
       name,
-      role: 'DEFAULT', // Set the role to DEFAULT upon registration
-      hasAccess: false, // Set hasAccess to false upon registration
+      insightsRole: 'VIEW', // Set the role to DEFAULT upon registration
+      hasInsights: false, // Set hasInsights to false upon registration
+      partsRole: 'VIEW', // Set the role to DEFAULT upon registration
+      hasParts: false, // Set hasParts to false upon registration
     });
 
     // Sign out the user right after registration
@@ -184,62 +200,24 @@ async register(email: string, password: string, name: string): Promise<{ success
       return [];
     }
   }
-
-  // Grant 'DEV' role to a user
-  async grantDevRole(userId: string) {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        role: 'DEV'
-      });
-      return { success: true };
-    } catch (error: any) {
-      console.error("Error updating user role:", error);
-      return { success: false, message: error.message || 'Failed to update user role' };
-    }
-  }
-
-  // Revoke 'DEV' role from a user
-  async removeDevRole(userId: string) {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        role: 'DEFAULT' // or any other role you use for standard users
-      });
-      return { success: true };
-    } catch (error) {
-      console.error("Error updating user role:", error);
-      return { success: false, message: (error as any).message || 'Failed to update user role' };
-    }
-  }
-
+  
   // Method to grant access to a user
-  async grantAccess(userId: string) {
+  async changeRole(userId: string, role: Role): Promise<{ success: boolean; message: string }> {
+    console.log(userId);
     try {
+      if (!userId) {
+        return { success: false, message: 'Invalid user ID' };
+      }
+  
       const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        hasAccess: true
-      });
-      return { success: true };
+      await updateDoc(userRef, { insightsRole: role.toString()});
+  
+      return { success: true, message: 'Access granted successfully' };
     } catch (error) {
-      console.error("Error granting access:", error);
-      return { success: false, message: (error as Error).message || 'Failed to grant access' };
+      console.error('Error granting access:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Failed to grant access' };
     }
-  }
-
-  // Method to revoke access from a user
-  async revokeAccess(userId: string) {
-    try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        hasAccess: false
-      });
-      return { success: true };
-    } catch (error) {
-      console.error("Error revoking access:", error);
-      return { success: false, message: (error as Error).message || 'Failed to revoke access' };
-    }
-  }
+  } 
 
   // Method to delete a user
   public async sendResetEmail(email: string): Promise<{ success: boolean; message: string }> {
@@ -254,4 +232,4 @@ async register(email: string, password: string, name: string): Promise<{ success
 
 }
 
-export default AuthService.getInstance();
+export default AuthService;

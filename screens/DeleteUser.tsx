@@ -10,11 +10,11 @@ const DeleteScreen: React.FC = () => {
 
   const handleLoginPress = async () => {
     try {
-      const { success, message } = await AuthService.deleteUser(email, password);
+      const { success, message } = await AuthService.getInstance().deleteUser(email, password);
       if (success) {
-        // Login was successful, navigate based on the user's role or to the main app screen
+        Alert.alert('Account Deleted');
       } else {
-        Alert.alert('Deleted Account', message);
+        Alert.alert('Delet Failed', message);
       }
     } catch (error) {
       Alert.alert('Delet Failed', error instanceof Error ? error.message : 'An error occurred');

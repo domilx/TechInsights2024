@@ -3,43 +3,25 @@ import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from "reac
 import { useNavigation } from "@react-navigation/native";
 import AuthService from "../services/AuthService"; // Ensure this path is correct
 
-const LoginScreen: React.FC = () => {
+const ForgotScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const navigation = useNavigation();
 
   const handleLoginPress = async () => {
     try {
-      const { success, message } = await AuthService.getInstance().login(email, password);
+      const { success, message } = await AuthService.getInstance().forgotPassword(email);
       if (success) {
-        // Login was successful, navigate based on the user's role or to the main app screen
+        Alert.alert('Email sent');
       } else {
-        Alert.alert('Login Failed', message);
+        Alert.alert('Email Failed', message);
       }
     } catch (error) {
-      Alert.alert('Login Failed', error instanceof Error ? error.message : 'An error occurred');
+      Alert.alert('Email Failed', error instanceof Error ? error.message : 'An error occurred');
     }
   };
-  
-
-  const navigateToRegister = () => {
-    //@ts-ignore
-    navigation.navigate("Register");
-  };
-
-  const deleteUser = () => {
-    //@ts-ignore
-    navigation.navigate("Delete");
-  };
-
-  const forgotPass = () => {
-    //@ts-ignore
-    navigation.navigate("Forgot");
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.headerText}>Welcome to TechInsights 🔧</Text>
+      <Text style={styles.headerText}>Oops! It happens...</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -48,24 +30,8 @@ const LoginScreen: React.FC = () => {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
       <TouchableOpacity style={styles.button} onPress={handleLoginPress}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={navigateToRegister}>
-        <Text style={styles.switchText}>Don't have an account? Register</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={deleteUser}>
-        <Text style={styles.switchText}>Delete User?</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={forgotPass}>
-        <Text style={styles.switchText}>Forgot Password?</Text>
+        <Text style={styles.buttonText}>Send Email</Text>
       </TouchableOpacity>
     </View>
   );
@@ -114,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default ForgotScreen;

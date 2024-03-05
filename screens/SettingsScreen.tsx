@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FC } from "react";
+import React, { useState, useEffect, FC, useContext } from "react";
 import {
   View,
   Text,
@@ -8,35 +8,28 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
+import { AuthContext, Role, UserType } from "../contexts/AuthContext";
 import AuthService from "../services/AuthService";
+import { Picker } from "@react-native-picker/picker";
+import { DropDownSelector } from "./components/DropDownSelector";
 
-interface IUser {
-  id: string;
-  name: string;
-  isDev: boolean;
-  hasAccess: boolean;
-}
-
-const SettingsScreen: FC = () => {
-  const [users, setUsers] = useState<IUser[]>([]);
-  const [isDev, setIsDev] = useState(false);
-  const [user, setUser] = useState("");
+const SettingsScreen = () => {
+  const {
+    name,
+    setName,
+    email,
+    setEmail,
+    isLoggedIn,
+    id: userId,
+    insightsRole,
+    partsRole,
+    setInsightsRole,
+    setPartsRole,
+  } = useContext(AuthContext);
+  const [users, setUsers] = useState<UserType | null>(null);
 
   useEffect(() => {
-    const init = async () => {
-      const dev = await AuthService.getUserRole();
-      setIsDev(dev === "DEV");
-      if (dev === "DEV") {
-        await fetchUsers();
-      }
-    };
-    init();
-
-    const getUser = async () => {
-      const userName = await AuthService.getUserName();
-      setUser(userName || "Unnamed User"); // Fallback to 'Unnamed User' if name is not available
-    };
-    getUser();
+    fetchUsers();
   }, []);
 
   const handleLogout = async () => {
@@ -49,7 +42,7 @@ const SettingsScreen: FC = () => {
         {
           text: "Log Out",
           onPress: async () => {
-            await AuthService.logout();
+            await AuthService.getInstance().logout();
           },
         },
       ]);
@@ -59,7 +52,7 @@ const SettingsScreen: FC = () => {
   };
 
   const fetchUsers = async () => {
-    const fetchedUsers = await AuthService.fetchAllUsers();
+    const fetchedUsers = await AuthService.getInstance().fetchAllUsers();
     //@ts-ignore
     setUsers(fetchedUsers);
   };
@@ -74,20 +67,43 @@ const SettingsScreen: FC = () => {
         {
           text: "Delete Account",
           onPress: async () => {
-            await AuthService.deleteLoggedInUser();
+            await AuthService.getInstance().deleteLoggedInUser();
           },
         },
       ]);
     } catch (error) {
-      Alert.alert("Deletion Failed", "An error occurred during account deletion.");
+      Alert.alert(
+        "Deletion Failed",
+        "An error occurred during account deletion."
+      );
     }
   };
 
-  const handleAccessChange = async (userId: string, hasAccess: boolean) => {
+  const handleForgotPassword = async () => {
     try {
-      const response = hasAccess
-        ? await AuthService.revokeAccess(userId)
-        : await AuthService.grantAccess(userId);
+      Alert.alert("Are you sure you want to send an email to reset your password?", "", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reset Password",
+          onPress: async () => {
+            await AuthService.getInstance().resetPassword();
+          },
+        },
+      ]);
+    } catch (error) {
+      Alert.alert(
+        "Password Reset Failed",
+        "An error occurred during password reset."
+      );
+    }
+  }
+
+  const handleAccessChange = async (userId: string, role: Role) => {
+    try {
+      const response = await AuthService.getInstance().changeRole(userId, role);
       if (response.success) {
         Alert.alert("Success", `User access updated.`);
         fetchUsers();
@@ -99,39 +115,54 @@ const SettingsScreen: FC = () => {
     }
   };
 
-  const renderUserItem = ({ item }: { item: IUser }) => (
-    <View style={styles.userItem}>
-      <Text style={styles.userName}>{item.name}</Text>
-      <View style={styles.roleButtons}>
-        <TouchableOpacity
-          style={[styles.roleButton, styles.additionalMargin]}
-          onPress={() => handleAccessChange(item.id, item.hasAccess)}
-        >
-          <Text style={styles.buttonText}>
-            {item.hasAccess ? "Revoke Access" : "Grant Access"}
-          </Text>
-        </TouchableOpacity>
+  const renderUserItem = ({ item }: { item: UserType }) => {
+    const handleRoleChange = (selectedRole: Role) => {
+      handleAccessChange(item.id, selectedRole);
+    };
+
+    return (
+      <View style={styles.userItem}>
+        <Text style={styles.userName}>{item.name}</Text>
+        <View style={styles.roleButtons}>
+          <DropDownSelector
+            label="Select Role"
+            items={[
+              { label: "Unvalidated", value: Role.UNVALIDATED },
+              { label: "Developper", value: Role.DEV },
+              { label: "View-Only", value: Role.VIEW },
+              { label: "Edit", value: Role.EDIT },
+            ]}
+            value={item.insightsRole}
+            // @ts-ignore
+            setValue={handleRoleChange}
+          />
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
+
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <Text style={styles.headerText}>Hello {user}!</Text>
+      <ScrollView >
+        <Text style={styles.headerText}>Hello {name}!</Text>
         <TouchableOpacity onPress={handleLogout} style={styles.button}>
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleDelete} style={styles.button}>
           <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
-        {isDev && (
+        <TouchableOpacity onPress={handleForgotPassword} style={styles.button}>
+          <Text style={styles.buttonText}>Forgot Password</Text>
+        </TouchableOpacity>
+        {insightsRole === Role.DEV && (
           <>
             <Text style={styles.headerText}>Dev User Management</Text>
             <FlatList
+              // @ts-ignore
               data={users}
               renderItem={renderUserItem}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id || ""}
               style={styles.userList}
             />
           </>
@@ -150,52 +181,7 @@ const SettingsScreen: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: "#fff",
-  },
-  userItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    width: "100%", // Ensure full width
-  },
-  textContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-    width: "80%", // Ensure full width
-  },
-  credit: {
-    fontSize: 12,
-    color: "#888",
-    textAlign: "center",
-  },
-  userList: {
-    marginTop: 20,
-    width: "100%", // Ensure full width
-  },
-  userName: {
-    fontSize: 18,
-    flex: 1, // Give the user name component flex to take available space
-    paddingRight: 10, // Add some padding to prevent text from touching the buttons
-  },
-  roleButtons: {
-    flexDirection: "row",
-    alignItems: "center",
-    // Remove flex property to allow natural sizing of buttons
-  },
-  roleButton: {
-    backgroundColor: "#1E1E1E",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  additionalMargin: {
-    marginRight: 0,
   },
   headerText: {
     fontSize: 24,
@@ -204,47 +190,51 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
-  buttonText: {
-    color: "red",
-    fontSize: 14,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  input: {
-    width: "100%",
-    padding: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-  },
-  Modalbutton: {
-    backgroundColor: "#1E1E1E",
-    padding: 15,
-    borderRadius: 5,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 50,
-  },
   button: {
     backgroundColor: "#1E1E1E",
     padding: 15,
     borderRadius: 5,
-    width: "100%",
-    alignItems: "center",
+    marginHorizontal: 20,
     marginBottom: 10,
   },
-  modalContent: {
-    flexGrow: 1,
-    padding: 20,
+  buttonText: {
+    color: "red",
+    fontSize: 16,
+    textAlign: "center",
   },
-  fullScreenModal: {
+  userItem: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  roleButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userList: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    marginHorizontal: 20,
+    marginTop: 20,
+  },
+  credit: {
+    fontSize: 12,
+    color: "#888",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 20,
   },
 });
+
 
 export default SettingsScreen;

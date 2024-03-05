@@ -28,7 +28,7 @@ import {
   getShootingPositionIfStartingZone,
   getShootingPositionIfPodium,
   getShootingPositionIfElsewhereInWing,
-  getShootingPositionIfNearCenterLine,
+  getShootingPositionIfNearSubwoofer,
   getAvgCycleTimeLastFive,
   getPercentageDroppedNotes,
   getTimesIncapacitated,
@@ -84,7 +84,7 @@ const DisplayStatsData = {
         { label: "Starting Zone", func: getShootingPositionIfStartingZone, unit: "" },
         { label: "Podium", func: getShootingPositionIfPodium, unit: "" },
         { label: "Elsewhere in Wing", func: getShootingPositionIfElsewhereInWing, unit: "" },
-        { label: "Near Centre Line", func: getShootingPositionIfNearCenterLine, unit: "" },
+        { label: "Near Subwoofer", func: getShootingPositionIfNearSubwoofer, unit: "" },
     ],
     Cycle: [
         { label: "Avg Cycle Time Last Five", func: getAvgCycleTimeLastFive, unit: "seconds" },
