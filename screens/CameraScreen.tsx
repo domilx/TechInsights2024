@@ -16,7 +16,7 @@ export default function CameraScreen() {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       //@ts-ignore
       setHasPermission(status === 'granted'); //Type error ignored
     })();

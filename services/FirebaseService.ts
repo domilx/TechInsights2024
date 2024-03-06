@@ -6,7 +6,7 @@ import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebas
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
-  const teamsCol = collection(db, "teams");
+  const teamsCol = collection(db, "scoutTeams");
   const teamSnapshot = await getDocs(teamsCol);
 
   let teamList: (PitModel | null)[] = await Promise.all(
@@ -24,7 +24,7 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
         matches: [],
       };
 
-      const matchesCol = collection(db, `teams/${teamDoc.id}/matches`);
+      const matchesCol = collection(db, `scoutTeams/${teamDoc.id}/matches`);
       const matchSnapshot = await getDocs(matchesCol);
       teamData.matches = matchSnapshot.docs.map((matchDoc) => ({
           ...initialMatchData,
@@ -74,7 +74,7 @@ export const uploadMatchDataToFirebase = async (matchData: MatchModel, teamRef: 
 export const deleteMatchDataFromFirebase = async (teamNumber: number, matchId: string) => {
   try {
     // Construct the reference to the specific match document within the team's matches collection
-    const matchRef = doc(db, `teams/${teamNumber}/matches/${matchId}`);
+    const matchRef = doc(db, `scoutTeams/${teamNumber}/matches/${matchId}`);
     
     // Delete the match document
     await deleteDoc(matchRef);
@@ -95,7 +95,7 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
     }
     
     // List all files in the team's folder and delete them
-    const teamFolderRef = ref(storage, `teams/${teamRef.id}/`); // Adjust the path according to your storage structure
+    const teamFolderRef = ref(storage, `scoutTeams/${teamRef.id}/`); // Adjust the path according to your storage structure
     const fileList = await listAll(teamFolderRef);
     for (const fileRef of fileList.items) {
       await deleteObject(fileRef); // Delete each file
@@ -113,7 +113,7 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
 
 
 export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
-  const teamRef = doc(db, "teams", teamNumber.toString()); 
+  const teamRef = doc(db, "scoutTeams", teamNumber.toString()); 
   try {
     const docSnap = await getDoc(teamRef);
     if (docSnap.exists()) {
@@ -129,8 +129,8 @@ export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
 };
 
 export const updateMatchData = async (matchData: MatchModel, teamNumber: number, matchId: string) => {
-  const teamRef = doc(db, "teams", teamNumber.toString());
-  const matchRef = doc(db, `teams/${teamNumber}/matches`, matchId);
+  const teamRef = doc(db, "scoutTeams", teamNumber.toString());
+  const matchRef = doc(db, `scoutTeams/${teamNumber}/matches`, matchId);
 
   try {
     const teamSnap = await getDoc(teamRef);

@@ -34,7 +34,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   useEffect(() => {
     (async () => {
       try {
-        const { status } = await Camera.requestPermissionsAsync();
+        const { status } = await Camera.requestCameraPermissionsAsync();
         setHasPermission(status === "granted");
         await fetchPhoto();
       } catch (error) {
