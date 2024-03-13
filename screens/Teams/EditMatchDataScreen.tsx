@@ -8,7 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
-  ScrollView
+  Text,
+  ScrollView,
+  ActivityIndicator
 } from "react-native";
 import { updateMatchData } from "../../services/FirebaseService";
 import { InputField } from "../components/InputField";
@@ -18,7 +20,7 @@ import { DataContext } from "../../contexts/DataContext";
 import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { RadioButtonGrid } from "../components/RadioButtonGrid";
-import { Awareness, DefenseLevel, EndGameHarmony, EndGameOnStage, MatchModel, Position, RankingPoints, Speed, Tippiness, TrapEndGame, initialMatchData } from "../../models/MatchModel";
+import { Awareness, DefenseLevel, EndGameHarmony, EndGameOnStage, MatchModel, Position, RankingPoints, Speed, Tippiness, Trap, initialMatchData } from "../../models/MatchModel";
 
 interface EditPitDataScreenProps {
   match: MatchModel;
@@ -28,6 +30,7 @@ interface EditPitDataScreenProps {
 const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose }) => {
   const [matchData, setMatchData] = useState<MatchModel>(initialMatchData);
   const [currentStep, setCurrentStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const {
     teams,
@@ -52,7 +55,9 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
   };
 
   const handleSave = async () => {
+      setLoading(true);
       if (!matchData.ScoutName) {
+        setLoading(false);
         Alert.alert("Validation Error", "Robot Scout is required");
         return;
       }
@@ -61,6 +66,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
         const resp = await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
         const syncResult = await syncData();
         if (syncResult.success && syncResult.data && resp.success) {
+          setLoading(false);
           onClose();
           Alert.alert("Success", "Match data saved successfully");
           setTeams(syncResult.data);
@@ -69,6 +75,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
           updateLastSyncTime();
         }
     } catch (error) {
+      setLoading(false);
       Alert.alert("Error", (error as Error).message);
     }
     onClose();
@@ -154,7 +161,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
   const TippinessItem = generateEnumItems(Tippiness);
   const SpeedItem = generateEnumItems(Speed);
   const AwareTypeItem = generateEnumItems(Awareness);
-  const EndGameTrapITem = generateEnumItems(TrapEndGame);
+  const TrapItem = generateEnumItems(Trap);
   
   const InfoData = [
     {
@@ -294,7 +301,7 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
       key: "EndGameTrap",
       value: matchData.EndGameTrap,
       type: "dropdown",
-      droptype: EndGameTrapITem,
+      droptype: TrapItem,
     },
     {
       label: "End Game Robot Fell",
@@ -389,6 +396,12 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
   };
     return (
       <View style={{ flex: 1 }}>
+        {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#F6EB14" />
+          <Text style={styles.loadingText}>Saving...</Text>
+        </View>
+      )}
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
@@ -509,6 +522,21 @@ const styles = StyleSheet.create({
     color: "#FFF",
     marginLeft: 10,
     fontWeight: "bold",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  loadingText: {
+    marginTop: 20,
+    color: "#FFFFFF",
   },
 });
 

@@ -108,7 +108,6 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
 
     try {
       const removeResult = await removePhotoFromFirebase(
-        team.TeamNumber,
         photoName
       );
       if (removeResult.success) {

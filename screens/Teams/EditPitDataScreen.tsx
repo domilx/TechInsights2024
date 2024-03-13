@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
+  ActivityIndicator,
+  Button,
 } from "react-native";
 import {
   DriveBaseMotor,
@@ -19,6 +21,7 @@ import {
   ScoreSpots,
   ShootSpots,
   Stability,
+  SwerveType,
   WellMade,
   Years,
   initialPitData,
@@ -38,6 +41,7 @@ interface EditPitDataScreenProps {
 
 const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   const [pitData, setPitData] = useState<PitModel>(initialPitData);
+  const [loading, setLoading] = useState(false);
   const { teams, setTeams, lastSync, selectedTeam, setSelectedTeam, setLastSync } = useContext(DataContext);
 
   useEffect(() => {
@@ -49,8 +53,10 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   };
 
   const handleSave = async () => {
+    setLoading(true);
     // Implement validation and saving logic
     if (!pitData.TeamNumber) {
+      setLoading(false);
       Alert.alert("Validation Error", "Robot Scout is required");
       return;
     }
@@ -59,6 +65,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       const resp  = await updatePitData(pitData, pitData.TeamNumber);
       const syncResult = await syncData();
       if (syncResult.success && syncResult.data && resp.success) {
+        setLoading(false);
         Alert.alert("Success", "Pit Data saved successfully");
         setTeams(syncResult.data);
         setLastSync(new Date().toISOString());
@@ -68,6 +75,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
         setSelectedTeam(undefined);
       }
     } catch (error) {
+      setLoading(false);
       Alert.alert("Error", (error as Error).message);
     }
   };
@@ -80,6 +88,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   }
 
   const driveBaseTypeItems = generateEnumItems(DriveBaseType);
+  const swerveTypeItems = generateEnumItems(SwerveType);
   const driveBaseMotorItems = generateEnumItems(DriveBaseMotor);
   const years = generateEnumItems(Years);
   const stabilityItems = generateEnumItems(Stability);
@@ -104,6 +113,13 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
       value: pitData.DriveBaseType,
       type: "dropdown",
       droptype: driveBaseTypeItems,
+    },
+    {
+      label: "Swerve Type",
+      key: "SwerveType",
+      value: pitData.SwerveType,
+      type: "dropdown",
+      droptype: swerveTypeItems,
     },
     {
       label: "Drivebase Motor",
@@ -260,6 +276,12 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
 
   return (
     <View style={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#F6EB14" />
+          <Text style={styles.loadingText}>Saving...</Text>
+        </View>
+      )}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -363,6 +385,21 @@ const styles = StyleSheet.create({
     color: "#FFF",
     marginLeft: 10,
     fontWeight: "bold",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  loadingText: {
+    marginTop: 20,
+    color: "#FFFFFF",
   },
 });
 

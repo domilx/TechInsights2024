@@ -15,12 +15,13 @@ const RegistrationScreen: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [oneTimePassword, setOneTimePassword] = useState(""); 
   const [name, setName] = useState("");
 
   const navigation = useNavigation();
 
   const handleRegisterPress = async () => {
-    const response = await AuthService.getInstance().register(email, password, name);
+    const response = await AuthService.getInstance().register(email, password, name, oneTimePassword);
     if (response.success) {
       Alert.alert("Registration Successful", "Please log in with your new account.");
     } else {
@@ -67,6 +68,13 @@ const RegistrationScreen: React.FC = () => {
           secureTextEntry
           value={confirmPassword}
           onChangeText={setConfirmPassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="One Time Password"
+          secureTextEntry
+          value={oneTimePassword}
+          onChangeText={setOneTimePassword}
         />
         <TouchableOpacity style={styles.button} onPress={handleRegisterPress}>
           <Text style={styles.buttonText}>Register</Text>

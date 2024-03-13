@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         AuthService.getInstance()
           .getUserRole()
           .then((userRole: string | null) => {
-            console.log(userRole);
             if (userRole && Object.values(Role).includes(userRole as Role)) {
               setInsightsRole(userRole as Role);
               setPartsRole(userRole as Role);

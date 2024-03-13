@@ -40,6 +40,17 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
   return teamList.filter((team): team is PitModel => team !== null);
 };
 
+export const isLatest = async () => {
+  try {
+    const currentVersion = "2.2.1"; // Replace with the actual version
+    const versionDoc = await getDoc(doc(db, "safeties/insights"));
+    return versionDoc.exists() && versionDoc.data().version === currentVersion;
+  } catch (error: any) {
+    console.error("Error checking latest version: ", error);
+    return false;
+  }
+}
+
 
 export const uploadPitDataToFirebase = async (pitData: PitModel, teamRef: any) => {
   try {
@@ -146,7 +157,7 @@ export const updateMatchData = async (matchData: MatchModel, teamNumber: number,
 }
 
 export const fetchPhotosFromFirebase = async (teamNumber: number) => {
-  const teamFolderRef = ref(storage, `${teamNumber}/`);
+  const teamFolderRef = ref(storage, `scouting/${teamNumber}/`);
   try {
     const photosList = await listAll(teamFolderRef);
     const photoUrls = await Promise.all(
@@ -174,7 +185,7 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
     // Use a timestamp to create a unique photo name
     const timestamp = new Date().getTime();
     const photoName = `photo_${timestamp}.jpg`;
-    const photoRef = ref(storage, `${teamNumber}/${photoName}`);
+    const photoRef = ref(storage, `scouting/${teamNumber}/${photoName}`);
 
     await uploadBytes(photoRef, blob);
 
@@ -188,9 +199,9 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
 };
 
 
-export const removePhotoFromFirebase = async (teamNumber: number, photoName: string) => {
+export const removePhotoFromFirebase = async (photoName: string) => {
   try {
-    const photoRef = ref(storage, photoName);
+    const photoRef = ref(storage, `/scouting/${photoName}`);
     await deleteObject(photoRef);
     return { success: true, message: "Photo removed successfully." };
   } catch (error: any) {
