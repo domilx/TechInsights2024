@@ -65,7 +65,7 @@ export default function UploadScreen({ route, navigation }: any) {
     if ("MatchNumber" in parsedData) {
       // Now TypeScript knows parsedData must be MatchModel
       const matchData = parsedData as MatchModel;
-      const teamRef = doc(db, "teams", `${matchData.TeamNumber}`);
+      const teamRef = doc(db, "scoutTeams", `${matchData.TeamNumber}`);
       const matchRef = doc(
         db,
         `teams/${matchData.TeamNumber}/matches`,
@@ -75,7 +75,7 @@ export default function UploadScreen({ route, navigation }: any) {
     } else {
       // TypeScript now infers parsedData is PitModel
       const pitData = parsedData as PitModel;
-      const teamRef = doc(db, "teams", `${pitData.TeamNumber}`);
+      const teamRef = doc(db, "scoutTeams", `${pitData.TeamNumber}`);
       result = await uploadPitDataToFirebase(pitData, teamRef);
     }
 
