@@ -68,7 +68,7 @@ export default function UploadScreen({ route, navigation }: any) {
       const teamRef = doc(db, "scoutTeams", `${matchData.TeamNumber}`);
       const matchRef = doc(
         db,
-        `teams/${matchData.TeamNumber}/matches`,
+        `scoutTeams/${matchData.TeamNumber}/matches`,
         `${matchData.MatchNumber}`
       );
       result = await uploadMatchDataToFirebase(matchData, teamRef, matchRef);
