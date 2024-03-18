@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>CADisableMinimumFrameDurationOnPhone</key>
-    <true/>
+    <true />
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
@@ -19,7 +19,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.2.1</string>
+    <string>2.2.3</string>
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleURLTypes</key>
@@ -34,17 +34,17 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSRequiresIPhoneOS</key>
-    <true/>
+    <true />
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
-      <true/>
+      <true />
       <key>NSExceptionDomains</key>
       <dict>
         <key>localhost</key>
         <dict>
           <key>NSExceptionAllowsInsecureHTTPLoads</key>
-          <true/>
+          <true />
         </dict>
       </dict>
     </dict>
@@ -52,6 +52,37 @@
     <string>Allow $(PRODUCT_NAME) to access your camera to scan QR codes.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your microphone</string>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+      <dict>
+        <key>API</key>
+        <string>NSPrivacyAccessedAPICategorySystemBootTime</string>
+        <key>Reason</key>
+        <string>We use system boot time to ensure our security features are robust and to prevent
+          tampering with the app's operations, enhancing user data protection.</string>
+      </dict>
+      <dict>
+        <key>API</key>
+        <string>NSPrivacyAccessedAPICategoryDiskSpace</string>
+        <key>Reason</key>
+        <string>Disk space information is used to manage cache and data storage effectively,
+          ensuring the app does not consume excessive storage on the user’s device.</string>
+      </dict>
+      <dict>
+        <key>API</key>
+        <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
+        <key>Reason</key>
+        <string>File timestamp access helps in organizing and managing files created by the user
+          within the app, enhancing user experience by maintaining data consistency.</string>
+      </dict>
+      <dict>
+        <key>API</key>
+        <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+        <key>Reason</key>
+        <string>Access to UserDefaults is crucial for storing user preferences and settings within
+          the app, allowing for a personalized and streamlined user experience.</string>
+      </dict>
+    </array>
     <key>UIBackgroundModes</key>
     <array>
       <string>fetch</string>
@@ -63,7 +94,7 @@
       <string>armv7</string>
     </array>
     <key>UIRequiresFullScreen</key>
-    <false/>
+    <false />
     <key>UIStatusBarStyle</key>
     <string>UIStatusBarStyleDefault</string>
     <key>UISupportedInterfaceOrientations</key>
@@ -81,6 +112,6 @@
     <key>UIUserInterfaceStyle</key>
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
-    <false/>
+    <false />
   </dict>
 </plist>

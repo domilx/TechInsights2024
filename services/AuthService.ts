@@ -198,7 +198,12 @@ class AuthService {
     name: string,
     onetime: string
   ): Promise<{ success: boolean; message?: string }> {
-    const safeCodeDoc = await getDoc(doc(db, "safeCode", "insights"));
+    const safeCodeDoc = await getDoc(doc(db, "safeties/insights"));
+    if (safeCodeDoc.exists() && !(safeCodeDoc.data().safeCode === onetime)) {
+      await signOut(this.auth);
+      this.user = null;
+      return { success: false, message: "Invalid one-time code" };
+    }
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -209,11 +214,6 @@ class AuthService {
       this.user = userCredential.user;
 
       // if collection safeCode/insights/pass === onetime then allow registration else deny
-      if (safeCodeDoc.exists() && !(safeCodeDoc.data().pass === onetime)) {
-        await signOut(this.auth);
-        this.user = null;
-        return { success: false, message: "Invalid one-time code" };
-      }
       await setDoc(doc(db, "users", this.user.uid), {
         email,
         name,

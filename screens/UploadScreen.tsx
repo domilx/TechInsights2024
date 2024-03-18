@@ -38,6 +38,7 @@ export default function UploadScreen({ route, navigation }: any) {
   }
 
   const handleButtonPress = () => {
+    console.log(parsedData.gotScanned);
       if(parsedData.gotScanned === true) {
         Alert.alert(
           "Already Scanned",
@@ -54,6 +55,8 @@ export default function UploadScreen({ route, navigation }: any) {
           ]
         );
         return;
+      } else {
+        handleUpload();
       }
   }
   // Function to handle upload
@@ -68,7 +71,7 @@ export default function UploadScreen({ route, navigation }: any) {
       const teamRef = doc(db, "scoutTeams", `${matchData.TeamNumber}`);
       const matchRef = doc(
         db,
-        `teams/${matchData.TeamNumber}/matches`,
+        `scoutTeams/${matchData.TeamNumber}/matches`,
         `${matchData.MatchNumber}`
       );
       result = await uploadMatchDataToFirebase(matchData, teamRef, matchRef);
@@ -79,8 +82,6 @@ export default function UploadScreen({ route, navigation }: any) {
       result = await uploadPitDataToFirebase(pitData, teamRef);
     }
 
-    setIsLoading(false);
-
     if (result && result.success) {
       // Call syncData to update the server and reset the selected team
       const syncResult = await syncData();
@@ -90,9 +91,11 @@ export default function UploadScreen({ route, navigation }: any) {
         // Save the updated teams data locally
         saveDataLocally("fetchedData", syncResult.data);
       }
+      setIsLoading(false);
       Alert.alert("Success", result.message);
       navigation.goBack();
     } else {
+      setIsLoading(false);
       Alert.alert("Error", result.message);
     }
   };

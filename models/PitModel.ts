@@ -60,7 +60,7 @@ export enum SwerveType {
   SDS_MK4i_L2 = "SDS MK4i L2",
   SDS_MK4i_L3 = "SDS MK4i L3",
   SDS_MK4i_L3PLUS = "SDS MK4i L3+",
-  VEX_Swerve = "VEX Swerve",
+  REV = "REV 3 in MAXSwerve Module",
   NotSwerve = "Not Swerve",
   Other = "Other",
 }

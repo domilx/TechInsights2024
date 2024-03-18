@@ -171,7 +171,7 @@ const TeamScreen: React.FC = () => {
     try {
       const teamRef = doc(
         db,
-        "teams",
+        "scoutTeams",
         selectedTeam?.TeamNumber.toString() || ""
       );
       setLoading(true);

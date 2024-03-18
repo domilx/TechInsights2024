@@ -42,7 +42,7 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
 
 export const isLatest = async () => {
   try {
-    const currentVersion = "2.2.1"; // Replace with the actual version
+    const currentVersion = "2.2.3"; // Replace with the actual version
     const versionDoc = await getDoc(doc(db, "safeties/insights"));
     return versionDoc.exists() && versionDoc.data().version === currentVersion;
   } catch (error: any) {
