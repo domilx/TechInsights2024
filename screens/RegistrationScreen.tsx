@@ -80,7 +80,8 @@ const RegistrationScreen: React.FC = () => {
         <TextInput
           style={styles.input}
           placeholder="Your Team Number"
-          secureTextEntry
+          autoCapitalize="none"
+          keyboardType="number-pad"
           value={team}
           onChangeText={setTeam}
         />
@@ -95,7 +96,6 @@ const RegistrationScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 70,
     alignItems: "center",
     backgroundColor: "#f2f2f2", // Adjusted to match other screens
     padding: 20,
