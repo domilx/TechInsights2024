@@ -22,9 +22,8 @@ const SettingsScreen = () => {
     isLoggedIn,
     id: userId,
     insightsRole,
-    partsRole,
     setInsightsRole,
-    setPartsRole,
+    team,
   } = useContext(AuthContext);
   const [users, setUsers] = useState<UserType | null>(null);
 

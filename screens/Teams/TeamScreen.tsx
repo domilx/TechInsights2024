@@ -41,9 +41,8 @@ const TeamScreen: React.FC = () => {
     isLoggedIn,
     id: userId,
     insightsRole,
-    partsRole,
     setInsightsRole,
-    setPartsRole,
+    team,
   } = useContext(AuthContext);
 
   const {
@@ -171,13 +170,13 @@ const TeamScreen: React.FC = () => {
     try {
       const teamRef = doc(
         db,
-        "scoutTeams",
+        `${team}teams`,
         selectedTeam?.TeamNumber.toString() || ""
       );
       setLoading(true);
-      const resp = await deleteTeamFromFirebase(teamRef);
+      const resp = await deleteTeamFromFirebase(teamRef, team);
       setLoading(false);
-      const syncResult = await syncData();
+      const syncResult = await syncData(team);
       if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
         saveDataLocally("fetchedData", syncResult.data);

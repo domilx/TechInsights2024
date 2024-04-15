@@ -59,6 +59,21 @@ class AuthService {
     return sendPasswordResetEmail(this.auth, this.user?.email || "");
   }
 
+  public async getTeam(): Promise<string | null> {
+    //get the name from the user document
+    try {
+      if (this.user) {
+        const userDoc = await getDoc(doc(db, "users", this.user.uid));
+        if (userDoc.exists()) {
+          return userDoc.data().team;
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   public async getUserName(): Promise<string | null> {
     //get the name from the user document
     try {
@@ -121,7 +136,6 @@ class AuthService {
       if (userDoc.exists() && userDoc.data().insightsRole !== "UNVALIDATED") {
         return { success: true };
       } else {
-        // If the hasInsights field is false, then the user is not allowed to login
         await signOut(this.auth);
         this.user = null;
         return { success: false, message: "You are not allowed to login." };
@@ -196,7 +210,8 @@ class AuthService {
     email: string,
     password: string,
     name: string,
-    onetime: string
+    onetime: string,
+    team: string
   ): Promise<{ success: boolean; message?: string }> {
     const safeCodeDoc = await getDoc(doc(db, "safeties/insights"));
     if (safeCodeDoc.exists() && !(safeCodeDoc.data().safeCode === onetime)) {
@@ -217,10 +232,8 @@ class AuthService {
       await setDoc(doc(db, "users", this.user.uid), {
         email,
         name,
-        insightsRole: "VIEW", // Set the role to DEFAULT upon registration
-        hasInsights: false, // Set hasInsights to false upon registration
-        partsRole: "VIEW", // Set the role to DEFAULT upon registration
-        hasParts: false, // Set hasParts to false upon registration
+        insightsRole: "UNVALIDATED", // Set the role to DEFAULT upon registration
+        team,
       });
 
       // Sign out the user right after registration

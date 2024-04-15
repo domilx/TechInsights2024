@@ -13,7 +13,7 @@ interface SyncResult {
     message: string;
 }
 
-export const syncData = async (): Promise<SyncResult> => {
+export const syncData = async (techTeam: string): Promise<SyncResult> => {
     try {
         const isConnected = await checkInternetConnection();
         if (!isConnected) {
@@ -26,18 +26,18 @@ export const syncData = async (): Promise<SyncResult> => {
             return { success: true, message: "Data already up-to-date." };
         }
 
-        const fetchedData: PitModel[] = await fetchDataFromFirebase();
+        const fetchedData: PitModel[] = await fetchDataFromFirebase(techTeam);
         const sortedData = fetchedData.sort((a, b) => a.TeamNumber - b.TeamNumber); // Sort data by team number
 
         for (const pitData of sortedData) {
-            const teamRef = doc(db, "scoutTeams", `${pitData.TeamNumber}`);
+            const teamRef = doc(db, `${techTeam}teams`, `${pitData.TeamNumber}`);
             const uploadResult = await uploadPitDataToFirebase(pitData, teamRef);
             if (uploadResult.success) {
                 await removeDataLocally('pitData');
             }
         }
 
-        await syncLocalData();
+        await syncLocalData(techTeam);
         await saveDataLocally('fetchedData', sortedData);
         await updateLastSyncTime();
 
@@ -57,10 +57,10 @@ const needsSyncing = async (lastSyncTime: string | null): Promise<boolean> => {
 };
 
 
-const syncLocalData = async (): Promise<void> => {
+const syncLocalData = async (techTeam: string): Promise<void> => {
     const localPitData: PitModel | null = await getDataLocally('pitData');
     if (localPitData) {
-        const teamRef = doc(db, "scoutTeams", `${localPitData.TeamNumber}`);
+        const teamRef = doc(db, `${techTeam}teams`, `${localPitData.TeamNumber}`);
         const uploadResult = await uploadPitDataToFirebase(localPitData, teamRef);
         if (uploadResult.success) {
             await removeDataLocally('pitData');
@@ -69,8 +69,8 @@ const syncLocalData = async (): Promise<void> => {
 
     const localMatchData: MatchModel | null = await getDataLocally('matchData');
     if (localMatchData) {
-        const teamRef = doc(db, "scoutTeams", `${localMatchData.TeamNumber}`);
-        const matchRef = doc(db, `scoutTeams/${localMatchData.TeamNumber}/matches`, `${localMatchData.MatchNumber}`);
+        const teamRef = doc(db, `${techTeam}teams`, `${localMatchData.TeamNumber}`);
+        const matchRef = doc(db, `${techTeam}teams/${localMatchData.TeamNumber}/matches`, `${localMatchData.MatchNumber}`);
         const uploadResult = await uploadMatchDataToFirebase(localMatchData, teamRef, matchRef);
         if (uploadResult.success) {
             await removeDataLocally('matchData');

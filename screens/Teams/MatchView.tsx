@@ -43,9 +43,8 @@ const MatchView: React.FC = () => {
     isLoggedIn,
     id: userId,
     insightsRole,
-    partsRole,
     setInsightsRole,
-    setPartsRole,
+    team,
   } = useContext(AuthContext);
   const {
     teams,
@@ -78,9 +77,9 @@ const MatchView: React.FC = () => {
     try {
       const resp = await deleteMatchDataFromFirebase(
         selectedTeam?.TeamNumber || 0,
-        selectedMatchNumber?.toString() || ""
+        selectedMatchNumber?.toString() || "", team
       );
-      const syncResult = await syncData();
+      const syncResult = await syncData(team);
       if (syncResult.success && syncResult.data && resp.success) {
         setTeams(syncResult.data);
         saveDataLocally("fetchedData", syncResult.data);

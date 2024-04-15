@@ -21,12 +21,14 @@ import { db } from "../firebase";
 import { DataContext } from "../contexts/DataContext";
 import { useContext } from "react";
 import { saveDataLocally } from "../services/LocalStorageService";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function UploadScreen({ route, navigation }: any) {
   const { setTeams, setLastSync } = useContext(DataContext);
   const { data } = route.params;
   const [isLoading, setIsLoading] = useState(false);
   let parsedData: MatchModel | PitModel;
+  const { team } = useContext(AuthContext);
 
   try {
     parsedData = JSON.parse(data);
@@ -38,7 +40,6 @@ export default function UploadScreen({ route, navigation }: any) {
   }
 
   const handleButtonPress = () => {
-    console.log(parsedData.gotScanned);
       if(parsedData.gotScanned === true) {
         Alert.alert(
           "Already Scanned",
@@ -68,23 +69,23 @@ export default function UploadScreen({ route, navigation }: any) {
     if ("MatchNumber" in parsedData) {
       // Now TypeScript knows parsedData must be MatchModel
       const matchData = parsedData as MatchModel;
-      const teamRef = doc(db, "scoutTeams", `${matchData.TeamNumber}`);
+      const teamRef = doc(db, `${team}teams`, `${matchData.TeamNumber}`);
       const matchRef = doc(
         db,
-        `scoutTeams/${matchData.TeamNumber}/matches`,
+        `${team}teams/${matchData.TeamNumber}/matches`,
         `${matchData.MatchNumber}`
       );
       result = await uploadMatchDataToFirebase(matchData, teamRef, matchRef);
     } else {
       // TypeScript now infers parsedData is PitModel
       const pitData = parsedData as PitModel;
-      const teamRef = doc(db, "scoutTeams", `${pitData.TeamNumber}`);
+      const teamRef = doc(db, `${team}teams`, `${pitData.TeamNumber}`);
       result = await uploadPitDataToFirebase(pitData, teamRef);
     }
 
     if (result && result.success) {
       // Call syncData to update the server and reset the selected team
-      const syncResult = await syncData();
+      const syncResult = await syncData(team);
       if (syncResult.success && syncResult.data) {
         setTeams(syncResult.data);
         setLastSync(new Date().toISOString());

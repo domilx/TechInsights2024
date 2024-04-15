@@ -21,6 +21,7 @@ import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { RadioButtonGrid } from "../components/RadioButtonGrid";
 import { Awareness, DefenseLevel, EndGameHarmony, EndGameOnStage, MatchModel, Position, RankingPoints, Speed, Tippiness, Trap, initialMatchData } from "../../models/MatchModel";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface EditPitDataScreenProps {
   match: MatchModel;
@@ -40,6 +41,8 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
     selectedTeam,
     setSelectedTeam,
   } = useContext(DataContext);
+
+  const {team} = useContext(AuthContext);
 
   const scrollToTop = () => {
     if (scrollViewRef.current) {
@@ -63,8 +66,8 @@ const EditMatchDataScreen: React.FC<EditPitDataScreenProps> = ({ match, onClose 
       }
   
       try {
-        const resp = await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString());
-        const syncResult = await syncData();
+        const resp = await updateMatchData(matchData, matchData.TeamNumber, matchData.MatchNumber.toString(), team);
+        const syncResult = await syncData(team);
         if (syncResult.success && syncResult.data && resp.success) {
           setLoading(false);
           onClose();

@@ -29,9 +29,7 @@ const AppNavigator: React.FC = () => {
     isLoggedIn,
     id: userId,
     insightsRole,
-    partsRole,
     setInsightsRole,
-    setPartsRole,
   } = useContext(AuthContext);
   
   return (

@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PitModel } from "../../models/PitModel";
 import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
+import { AuthContext } from "../../contexts/AuthContext";
 
 export default function DrawerScreen({ navigation }: any) {
   const {
@@ -24,6 +25,7 @@ export default function DrawerScreen({ navigation }: any) {
     selectedTeam,
     setSelectedTeam,
   } = useContext(DataContext);
+  const {team} = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handlePress = (team: PitModel) => {
@@ -65,7 +67,7 @@ export default function DrawerScreen({ navigation }: any) {
 
   const handleSync = async () => {
     setIsLoading(true);
-    const response = await syncData();
+    const response = await syncData(team);
     setIsLoading(false);
 
     if (response.success) {
@@ -84,7 +86,8 @@ export default function DrawerScreen({ navigation }: any) {
   //everytime the screen is viewed it will sync
   useEffect(() => {
     const sync = async () => {
-      const response = await syncData();
+      const response = await syncData(team);
+      console.log("Syncing data...");
       if (response.success && response.data) {
         setTeams(response.data);
         setLastSync(new Date().toISOString());
@@ -136,7 +139,7 @@ export default function DrawerScreen({ navigation }: any) {
   };
 
   const handleBackgroundSync = async () => {
-    const response = await syncData();
+    const response = await syncData(team);
     if (response.success && response.data) {
       setTeams(response.data);
       setLastSync(new Date().toISOString());

@@ -34,6 +34,7 @@ import { DataContext } from "../../contexts/DataContext";
 import { syncData, updateLastSyncTime } from "../../services/SyncService";
 import { saveDataLocally } from "../../services/LocalStorageService";
 import { RadioButtonGrid } from "../components/RadioButtonGrid";
+import { AuthContext } from "../../contexts/AuthContext";
 
 interface EditPitDataScreenProps {
   team: PitModel;
@@ -43,6 +44,7 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
   const [pitData, setPitData] = useState<PitModel>(initialPitData);
   const [loading, setLoading] = useState(false);
   const { teams, setTeams, lastSync, selectedTeam, setSelectedTeam, setLastSync } = useContext(DataContext);
+  const {team: techTeam} = useContext(AuthContext);
 
   useEffect(() => {
     setPitData(team || initialPitData);
@@ -62,8 +64,8 @@ const EditPitDataScreen: React.FC<EditPitDataScreenProps> = ({ team }) => {
     }
 
     try {
-      const resp  = await updatePitData(pitData, pitData.TeamNumber);
-      const syncResult = await syncData();
+      const resp  = await updatePitData(pitData, pitData.TeamNumber, techTeam);
+      const syncResult = await syncData(techTeam);
       if (syncResult.success && syncResult.data && resp.success) {
         setLoading(false);
         Alert.alert("Success", "Pit Data saved successfully");

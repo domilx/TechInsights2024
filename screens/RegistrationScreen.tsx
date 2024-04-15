@@ -17,11 +17,12 @@ const RegistrationScreen: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [oneTimePassword, setOneTimePassword] = useState(""); 
   const [name, setName] = useState("");
+  const [team, setTeam] = useState("");
 
   const navigation = useNavigation();
 
   const handleRegisterPress = async () => {
-    const response = await AuthService.getInstance().register(email, password, name, oneTimePassword);
+    const response = await AuthService.getInstance().register(email, password, name, oneTimePassword, team);
     if (response.success) {
       Alert.alert("Registration Successful", "Please log in with your new account.");
     } else {
@@ -75,6 +76,13 @@ const RegistrationScreen: React.FC = () => {
           secureTextEntry
           value={oneTimePassword}
           onChangeText={setOneTimePassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Your Team Number"
+          secureTextEntry
+          value={team}
+          onChangeText={setTeam}
         />
         <TouchableOpacity style={styles.button} onPress={handleRegisterPress}>
           <Text style={styles.buttonText}>Register</Text>

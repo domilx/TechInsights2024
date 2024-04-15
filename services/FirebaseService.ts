@@ -5,8 +5,8 @@ import { MatchModel, initialMatchData } from "../models/MatchModel";
 import { deleteObject, getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
-export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
-  const teamsCol = collection(db, "scoutTeams");
+export const fetchDataFromFirebase = async (techTeam: string): Promise<PitModel[]> => {
+  const teamsCol = collection(db, `${techTeam}teams`);
   const teamSnapshot = await getDocs(teamsCol);
 
   let teamList: (PitModel | null)[] = await Promise.all(
@@ -24,7 +24,7 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
         matches: [],
       };
 
-      const matchesCol = collection(db, `scoutTeams/${teamDoc.id}/matches`);
+      const matchesCol = collection(db, `${techTeam}teams/${teamDoc.id}/matches`);
       const matchSnapshot = await getDocs(matchesCol);
       teamData.matches = matchSnapshot.docs.map((matchDoc) => ({
           ...initialMatchData,
@@ -42,7 +42,7 @@ export const fetchDataFromFirebase = async (): Promise<PitModel[]> => {
 
 export const isLatest = async () => {
   try {
-    const currentVersion = "2.2.3"; // Replace with the actual version
+    const currentVersion = "2.2.4"; // Replace with the actual version
     const versionDoc = await getDoc(doc(db, "safeties/insights"));
     return versionDoc.exists() && versionDoc.data().version === currentVersion;
   } catch (error: any) {
@@ -82,10 +82,10 @@ export const uploadMatchDataToFirebase = async (matchData: MatchModel, teamRef: 
   }
 };
 
-export const deleteMatchDataFromFirebase = async (teamNumber: number, matchId: string) => {
+export const deleteMatchDataFromFirebase = async (teamNumber: number, matchId: string, techTeam: string) => {
   try {
     // Construct the reference to the specific match document within the team's matches collection
-    const matchRef = doc(db, `scoutTeams/${teamNumber}/matches/${matchId}`);
+    const matchRef = doc(db, `${techTeam}teams/${teamNumber}/matches/${matchId}`);
     
     // Delete the match document
     await deleteDoc(matchRef);
@@ -97,7 +97,7 @@ export const deleteMatchDataFromFirebase = async (teamNumber: number, matchId: s
   }
 };
 
-export const deleteTeamFromFirebase = async (teamRef: any) => {
+export const deleteTeamFromFirebase = async (teamRef: any, techTeam: string) => {
   try {
     const matchesCol = collection(db, `${teamRef.path}/matches`);
     const matchSnapshot = await getDocs(matchesCol);
@@ -106,7 +106,7 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
     }
     
     // List all files in the team's folder and delete them
-    const teamFolderRef = ref(storage, `scoutTeams/${teamRef.id}/`); // Adjust the path according to your storage structure
+    const teamFolderRef = ref(storage, `${techTeam}teams/${teamRef.id}/`); // Adjust the path according to your storage structure
     const fileList = await listAll(teamFolderRef);
     for (const fileRef of fileList.items) {
       await deleteObject(fileRef); // Delete each file
@@ -123,8 +123,8 @@ export const deleteTeamFromFirebase = async (teamRef: any) => {
 };
 
 
-export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
-  const teamRef = doc(db, "scoutTeams", teamNumber.toString()); 
+export const updatePitData = async (pitData: PitModel, teamNumber: number, techTeam: string) => {
+  const teamRef = doc(db, `${techTeam}teams`, teamNumber.toString()); 
   try {
     const docSnap = await getDoc(teamRef);
     if (docSnap.exists()) {
@@ -139,9 +139,9 @@ export const updatePitData = async (pitData: PitModel, teamNumber: number) => {
   }
 };
 
-export const updateMatchData = async (matchData: MatchModel, teamNumber: number, matchId: string) => {
-  const teamRef = doc(db, "scoutTeams", teamNumber.toString());
-  const matchRef = doc(db, `scoutTeams/${teamNumber}/matches`, matchId);
+export const updateMatchData = async (matchData: MatchModel, teamNumber: number, matchId: string, techTeam: string) => {
+  const teamRef = doc(db, `${techTeam}teams`, teamNumber.toString());
+  const matchRef = doc(db, `${techTeam}teams/${teamNumber}/matches`, matchId);
 
   try {
     const teamSnap = await getDoc(teamRef);
@@ -156,8 +156,8 @@ export const updateMatchData = async (matchData: MatchModel, teamNumber: number,
   }
 }
 
-export const fetchPhotosFromFirebase = async (teamNumber: number) => {
-  const teamFolderRef = ref(storage, `scouting/${teamNumber}/`);
+export const fetchPhotosFromFirebase = async (teamNumber: number, techTeam: string) => {
+  const teamFolderRef = ref(storage, `${techTeam}scouting/${teamNumber}/`);
   try {
     const photosList = await listAll(teamFolderRef);
     const photoUrls = await Promise.all(
@@ -170,7 +170,7 @@ export const fetchPhotosFromFirebase = async (teamNumber: number) => {
   }
 };
 
-export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number) => {
+export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number, techTeam: string) => {
   try {
     // Resize and compress image
     const resizedImage = await manipulateAsync(
@@ -185,7 +185,7 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
     // Use a timestamp to create a unique photo name
     const timestamp = new Date().getTime();
     const photoName = `photo_${timestamp}.jpg`;
-    const photoRef = ref(storage, `scouting/${teamNumber}/${photoName}`);
+    const photoRef = ref(storage, `${techTeam}scouting/${teamNumber}/${photoName}`);
 
     await uploadBytes(photoRef, blob);
 
@@ -199,9 +199,9 @@ export const uploadPhotoToFirebase = async (photoUri: string, teamNumber: number
 };
 
 
-export const removePhotoFromFirebase = async (photoName: string) => {
+export const removePhotoFromFirebase = async (photoName: string, techTeam: string) => {
   try {
-    const photoRef = ref(storage, `/scouting/${photoName}`);
+    const photoRef = ref(storage, photoName);
     await deleteObject(photoRef);
     return { success: true, message: "Photo removed successfully." };
   } catch (error: any) {

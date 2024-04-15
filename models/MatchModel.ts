@@ -66,6 +66,7 @@ export enum ExtraNotes {
   CentreCentre = "Centre Centre",
   RightCentre = "Right Centre",
   FarRight = "Far Right",
+  None = "None",
 }
 
 export enum ShootSpots {
@@ -136,7 +137,7 @@ export const initialMatchData: MatchModel = {
   AutoSpeaker: 0,
   AutoStartingPosition: Position.Middle,
   AutoLeave: false,
-  AutoExtraNotes:[ExtraNotes.LeftWing],
+  AutoExtraNotes:[ExtraNotes.None],
   AutoExtraNotesButtons:[],
   AutoDropped: 0,
   AutoAStopPressed: false,
