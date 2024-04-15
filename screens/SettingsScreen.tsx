@@ -23,7 +23,6 @@ const SettingsScreen = () => {
     id: userId,
     insightsRole,
     setInsightsRole,
-    team,
   } = useContext(AuthContext);
   const [users, setUsers] = useState<UserType | null>(null);
 

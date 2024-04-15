@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Camera, CameraType, FlashMode } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,6 +35,7 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   const [photoToConfirm, setPhotoToConfirm] = useState<string | null>(null);
   const { team: techTeam } = useContext(AuthContext);
   const cameraRef = useRef<Camera>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -48,14 +50,17 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   }, []);
 
   const fetchPhoto = async () => {
+    setIsLoading(true);
     try {
       const result = await fetchPhotosFromFirebase(team.TeamNumber, techTeam);
+      setIsLoading(false);
       if (result.success && result.photos) {
         setPhotos(result.photos);
       } else {
         Alert.alert("Error", result.message);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error fetching photos: ", error);
       Alert.alert("Error", "Failed to fetch photos.");
     }
@@ -67,59 +72,50 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
       Alert.alert("Error", "Camera not available.");
       return;
     }
-
+    setIsLoading(true);
     try {
       const photoTaken = await cameraRef.current.takePictureAsync();
+      setIsLoading(false);
       setCameraVisible(false);
       setPhotoToConfirm(photoTaken.uri);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error taking photo: ", error);
       Alert.alert("Error", "Failed to take photo.");
     }
   };
 
-  const confirmPhotoUpload = async () => {
-    if (photoToConfirm) {
+  const confirmPhotoUpload = async (uri: string) => {
+    setIsLoading(true);
+    try {
       const uploadResult = await uploadPhotoToFirebase(
-        photoToConfirm,
+        uri,
         team.TeamNumber,
         techTeam
       );
+      setIsLoading(false);
       if (uploadResult.success) {
-        //@ts-ignore
-        setPhotos([...photos, uploadResult.url]);
+        setPhotos([...photos, uploadResult.url ?? ""]);
       } else {
         Alert.alert("Error", uploadResult.message);
       }
-      setPhotoToConfirm(null);
+    } catch (error) {
+      setIsLoading(false);
+      console.error("Error uploading photo: ", error);
+      Alert.alert("Error", "Failed to upload photo.");
     }
   };
 
   const removePhoto = async (photoUrl: string) => {
-    // Extract the file path from the URL
-    let photoName = photoUrl.split("/").pop();
-
-    // Decode the file path
-    photoName = decodeURIComponent(photoName ?? "");
-
-    // Remove query parameters if any
-    const queryParamIndex = photoName.indexOf("?");
-    if (queryParamIndex !== -1) {
-      photoName = photoName.substring(0, queryParamIndex);
-    }
-
-    if (!photoName) {
-      console.error("Invalid photo name");
-      Alert.alert("Error", "Invalid photo name.");
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      const removeResult = await removePhotoFromFirebase(photoName, techTeam);
+      const removeResult = await removePhotoFromFirebase(photoUrl, techTeam);
+      setIsLoading(false);
       if (removeResult.success) {
         setPhotos(photos.filter((photo) => photo !== photoUrl));
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error removing photo: ", error);
       Alert.alert("Error", "Failed to remove photo.");
     }
@@ -169,87 +165,102 @@ const PhotoScreen = ({ team }: { team: PitModel }) => {
   7;
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.cameraButton}
-        onPress={() => setCameraVisible(true)}
-      >
-        <Text style={styles.cameraButtonText}>Open Camera</Text>
-      </TouchableOpacity>
-
-      {photos.length > 0 && (
-        <Carousel
-          data={photos}
-          renderItem={renderPhotoItem}
-          sliderWidth={windowWidth}
-          itemWidth={windowWidth - 50}
-          layout="default"
-          onSnapToItem={(index) => setSelectedPhoto(photos[index])}
-        />
-      )}
-      {photos.length === 0 && (
-        <Text style={{ flex: 1 }}>No photos to display.</Text>
-      )}
-
-      <Modal
-        visible={cameraVisible}
-        onRequestClose={() => setCameraVisible(false)}
-        animationType="slide"
-        transparent={false}
-      >
-        <ModalHeader onClose={() => setCameraVisible(false)} title="Camera" />
-        <Camera
-          style={styles.fullScreenCamera}
-          type={CameraType.back}
-          flashMode={flashMode}
-          ref={cameraRef}
-        >
-          <View style={styles.cameraControls}>
-            <TouchableOpacity
-              style={styles.controlButton}
-              onPress={toggleFlash}
-            >
-              <Ionicons
-                name={flashMode === FlashMode.off ? "flash-off" : "flash"}
-                size={30}
-                color="white"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.controlButton} onPress={takePhoto}>
-              <Ionicons name="camera" size={30} color="white" />
-            </TouchableOpacity>
-          </View>
-        </Camera>
-      </Modal>
-
-      <Modal
-        visible={!!photoToConfirm}
-        transparent={true}
-        onRequestClose={() => setPhotoToConfirm(null)}
-      >
-        <View style={styles.confirmationModalView}>
-          <Image
-            // @ts-ignore
-            source={{ uri: photoToConfirm }}
-            style={styles.confirmationPhoto}
-          />
-          <View style={styles.confirmationButtons}>
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={confirmPhotoUpload}
-            >
-              <Text style={styles.confirmButtonText}>Upload Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => cancel()}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+    <>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#F6EB14" />
         </View>
-      </Modal>
-    </View>
+      )}
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.cameraButton}
+          onPress={() => setCameraVisible(true)}
+        >
+          <Text style={styles.cameraButtonText}>Open Camera</Text>
+        </TouchableOpacity>
+
+        {photos.length > 0 && (
+          <Carousel
+            data={photos}
+            renderItem={renderPhotoItem}
+            sliderWidth={windowWidth}
+            itemWidth={windowWidth - 50}
+            layout="default"
+            onSnapToItem={(index) => setSelectedPhoto(photos[index])}
+          />
+        )}
+        {photos.length === 0 && (
+          <Text style={{ flex: 1 }}>No photos to display.</Text>
+        )}
+
+        <Modal
+          visible={cameraVisible}
+          onRequestClose={() => setCameraVisible(false)}
+          animationType="slide"
+          transparent={false}
+        >
+          <ModalHeader onClose={() => setCameraVisible(false)} title="Camera" />
+          <Camera
+            style={styles.fullScreenCamera}
+            type={CameraType.back}
+            flashMode={flashMode}
+            ref={cameraRef}
+          >
+            <View style={styles.cameraControls}>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={toggleFlash}
+              >
+                <Ionicons
+                  name={flashMode === FlashMode.off ? "flash-off" : "flash"}
+                  size={30}
+                  color="white"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.controlButton}
+                onPress={takePhoto}
+              >
+                <Ionicons name="camera" size={30} color="white" />
+              </TouchableOpacity>
+            </View>
+          </Camera>
+        </Modal>
+
+        <Modal
+          visible={!!photoToConfirm}
+          transparent={true}
+          onRequestClose={() => setPhotoToConfirm(null)}
+        >
+          <View style={styles.confirmationModalView}>
+            <Image
+              // @ts-ignore
+              source={{ uri: photoToConfirm }}
+              style={styles.confirmationPhoto}
+            />
+            <View style={styles.confirmationButtons}>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={async () => {
+                  if (photoToConfirm) {
+                    await confirmPhotoUpload(photoToConfirm);
+                  }
+                  setPhotoToConfirm(null);
+                }}
+              >
+                <Text style={styles.confirmButtonText}>Upload Photo</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => cancel()}
+              >
+                <Text style={styles.cancelButtonText}>Retake</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </>
   );
 };
 
@@ -339,6 +350,18 @@ const styles = StyleSheet.create({
     flex: 0.5,
     justifyContent: "center",
     alignItems: "center",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    borderRadius: 10,
   },
   modalView: {
     flex: 1,

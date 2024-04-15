@@ -297,6 +297,29 @@ class AuthService {
     }
   }
 
+  async changeTeam(
+    userId: string,
+    team: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      if (!userId) {
+        return { success: false, message: "Invalid user ID" };
+      }
+
+      const userRef = doc(db, "users", userId);
+      await updateDoc(userRef, { team });
+
+      return { success: true, message: "Team changed successfully" };
+    } catch (error) {
+      console.error("Error changing team:", error);
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to change team",
+      };
+    }
+  }
+
   // Method to delete a user
   public async sendResetEmail(
     email: string
