@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkInternetConnection } from './NetworkService';
-import { fetchDataFromFirebase, uploadPitDataToFirebase, uploadMatchDataToFirebase } from './FirebaseService';
-import { getDataLocally, removeDataLocally, saveDataLocally } from './LocalStorageService';
+import { fetchDataChangesSinceLastSync, uploadPitDataToFirebase } from './FirebaseService';
+import { getDataLocally, saveDataLocally } from './LocalStorageService';
 import { PitModel } from '../models/PitModel';
-import { MatchModel } from '../models/MatchModel';
 import { db } from "../firebase";
 import { doc } from "firebase/firestore";
 
@@ -14,67 +13,40 @@ interface SyncResult {
 }
 
 export const syncData = async (techTeam: string): Promise<SyncResult> => {
+    const isConnected = await checkInternetConnection();
+    if (!isConnected) {
+        // Return local data if offline
+        const localData: PitModel[] | undefined = await getDataLocally('fetchedData');
+        return { success: true, data: localData, message: "Offline mode: Displaying local data." };
+    }
+
     try {
-        const isConnected = await checkInternetConnection();
-        if (!isConnected) {
-            throw new Error("No internet connection available.");
+        // Fetch the latest modifications from Firebase based on local lastModified timestamps
+        const localData: PitModel[] = await getDataLocally('fetchedData') || [];
+        const localDataMap = new Map(localData.map(item => [item.TeamNumber, item]));
+        const latestUpdates: PitModel[] = await fetchDataChangesSinceLastSync(localDataMap, techTeam);
+        if (latestUpdates.length === 0) {
+            return { success: false, data: localData, message: "No new updates found." };
         }
 
-        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
-        const syncNeeded = await needsSyncing(lastSyncTime);
-        if (!syncNeeded) {
-            return { success: true, message: "Data already up-to-date." };
+        // Merge updates and local data
+        for (const update of latestUpdates) {
+            localDataMap.set(update.TeamNumber, update);
         }
 
-        const fetchedData: PitModel[] = await fetchDataFromFirebase(techTeam);
-        const sortedData = fetchedData.sort((a, b) => a.TeamNumber - b.TeamNumber); // Sort data by team number
+        // Save updated records back to local storage and Firebase if necessary
+        const allData = Array.from(localDataMap.values());
+        await saveDataLocally('fetchedData', allData);
 
-        for (const pitData of sortedData) {
-            const teamRef = doc(db, `${techTeam}teams`, `${pitData.TeamNumber}`);
-            const uploadResult = await uploadPitDataToFirebase(pitData, teamRef);
-            if (uploadResult.success) {
-                await removeDataLocally('pitData');
-            }
-        }
+        // Optional: Update records back to Firebase if there were local changes
+        // This step can be skipped if bidirectional sync is not needed or handled elsewhere
 
-        await syncLocalData(techTeam);
-        await saveDataLocally('fetchedData', sortedData);
         await updateLastSyncTime();
 
-        return { success: true, data: sortedData, message: "Data synced successfully." };
+        return { success: true, data: allData, message: "Data synced successfully." };
     } catch (error: any) {
         console.error("Error during sync: ", error);
         return { success: false, message: error.message || "Failed to sync data." };
-    }
-};
-
-const needsSyncing = async (lastSyncTime: string | null): Promise<boolean> => {
-  const localLastModified = await AsyncStorage.getItem('lastModifiedTime');
-  if (localLastModified === null) {
-      return true; // If there's no recorded last modified time, assume syncing is needed
-  }
-  return new Date(localLastModified) > new Date(lastSyncTime ?? 0);
-};
-
-
-const syncLocalData = async (techTeam: string): Promise<void> => {
-    const localPitData: PitModel | null = await getDataLocally('pitData');
-    if (localPitData) {
-        const teamRef = doc(db, `${techTeam}teams`, `${localPitData.TeamNumber}`);
-        const uploadResult = await uploadPitDataToFirebase(localPitData, teamRef);
-        if (uploadResult.success) {
-            await removeDataLocally('pitData');
-        }
-    }
-
-    const localMatchData: MatchModel | null = await getDataLocally('matchData');
-    if (localMatchData) {
-        const teamRef = doc(db, `${techTeam}teams`, `${localMatchData.TeamNumber}`);
-        const matchRef = doc(db, `${techTeam}teams/${localMatchData.TeamNumber}/matches`, `${localMatchData.MatchNumber}`);
-        const uploadResult = await uploadMatchDataToFirebase(localMatchData, teamRef, matchRef);
-        if (uploadResult.success) {
-            await removeDataLocally('matchData');
-        }
     }
 };
 
@@ -82,3 +54,7 @@ export const updateLastSyncTime = async (): Promise<void> => {
     const lastSyncTime = new Date().toISOString();
     await AsyncStorage.setItem('lastSyncTime', lastSyncTime);
 };
+
+export const eraseLastSyncTime = async (): Promise<void> => {
+    await AsyncStorage.removeItem('lastSyncTime');
+}

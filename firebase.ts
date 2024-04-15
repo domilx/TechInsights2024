@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, FirestoreSettings } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import * as firebaseAuth from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,10 +18,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore, Storage, and Auth
-const db = getFirestore(app);
+// Initialize Firestore with the new local cache setting
+const dbSettings = {
+  localCache: {
+    // Specify any custom settings for the local cache here
+  }
+} as FirestoreSettings;
+
+const db = initializeFirestore(app, dbSettings);
+
 const storage = getStorage(app);
 const auth = firebaseAuth.initializeAuth(app, {
   persistence: reactNativePersistence(AsyncStorage),
 });
+
 export { db, auth, storage };

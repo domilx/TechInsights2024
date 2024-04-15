@@ -12,7 +12,7 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PitModel } from "../../models/PitModel";
-import { syncData, updateLastSyncTime } from "../../services/SyncService";
+import { eraseLastSyncTime, syncData, updateLastSyncTime } from "../../services/SyncService";
 import { DataContext } from "../../contexts/DataContext";
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -86,12 +86,13 @@ export default function DrawerScreen({ navigation }: any) {
   //everytime the screen is viewed it will sync
   useEffect(() => {
     const sync = async () => {
+      if (team) {
       const response = await syncData(team);
-      console.log("Syncing data...");
       if (response.success && response.data) {
         setTeams(response.data);
         setLastSync(new Date().toISOString());
         saveDataLocally("fetchedData", response.data);
+      }
       }
     };
     sync();
@@ -129,8 +130,9 @@ export default function DrawerScreen({ navigation }: any) {
       await AsyncStorage.setItem("isLoggedIn", "true");
       setTeams([]);
       setIsLoading(false);
-      updateLastSyncTime();
       setSelectedTeam(undefined);
+      eraseLastSyncTime();
+      setLastSync("");
       Alert.alert("Success", "All data cleared successfully");
     } catch (error: any) {
       setIsLoading(false);

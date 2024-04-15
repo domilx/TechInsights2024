@@ -36,6 +36,7 @@ export interface PitModel {
   Comments?: string;
   HeightInches: number;
   FrameClearanceInches: number;
+  LastModifiedISODate?: string;
   matches?: MatchModel[];
   gotScanned?: boolean;
 }
