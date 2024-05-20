@@ -8,12 +8,7 @@ const reactNativePersistence = (firebaseAuth as any).getReactNativePersistence;
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBHVuAf_REo1mnajrt3eb6P36e8JbUXlwM",
-  authDomain: "techinsights-58aba.firebaseapp.com",
-  projectId: "techinsights-58aba",
-  storageBucket: "techinsights-58aba.appspot.com",
-  messagingSenderId: "902770510588",
-  appId: "1:902770510588:web:10c32f44846cdc42232579",
+  //CONFIG HERE
 };
 
 const app = initializeApp(firebaseConfig);
